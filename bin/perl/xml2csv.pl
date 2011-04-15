@@ -5,12 +5,136 @@ use FileHandle;
 use XML::Simple;
 use Data::Dumper;
 
-my $cl=join(" ", @ARGV);
-my @commands=split (/\-+/,$cl);
-my @files = split (" ", shift @commands);
+if ($#ARGV ==-1)
+  {    
+    print "****************** Description **************************\n";
+    print "Generates a csv file from a xml comming from MWM java application\n";
+    print "****************** Command Line  ***********************\n";
+    print "rhmm.pl -data <data_file>\n";
+    print "****************** Flags      **************************\n";
+    print "  -data  <file1 file2.. > ........File: input data from file(s).\n";
+    print "  -action      <mode> ............Mode: 'convert' Converts xml files into csv.\n";
+    print "  -output      <mode>.............Mode: csv or xml.\n";    
+    print "****************** END **************************\n\n\n";
+    die;	
+  }
+				
+#my $cl=join(" ", @ARGV);
+#my @commands=split (/\-+/,$cl);
+#my @files = split (" ", shift @commands);
 
-&xml2csv (\@files);
+my $param;
 
+$param = &process_param (@ARGV);
+
+my ($data);
+
+#Reads the data
+$data = &readData ($data, $param);
+print Dumper($data);
+
+#print Dumper($param); #del
+if ($data && $param->{action} eq "convert")
+  {
+		if (!$param->{output} || $param->{output} eq "csv")
+			{
+				&xml2csv ($data);
+			}
+		
+		elsif ($param->{output} eq "xml")
+			{
+				;#do a function able to transform csv to xml
+			}
+		
+		else
+			{
+				print "\n****ERROR: $param->{output} is an unknown pararmeter[FATAL]***\n";
+	    	die;
+			}
+		
+  }
+
+#############################################
+#                                           #
+# FUNCTIONS                                 #
+#                                           #
+#############################################
+
+#####################
+# Parameters
+#####################
+	
+sub process_param
+  
+  {
+    my @arg=@_;
+    my $cl=join(" ", @arg);
+    
+    my @commands=split (/\s\-+/,$cl);
+    my $param={};
+    
+    
+    foreach my $c (@commands)
+      {
+				if (!($c =~ /\S/)){next;}
+				$c =~ /(\w+)\s*(.*)\s*/;
+				my $k = $1;
+				if (!$2) {$param->{$k} = 1;}
+				else {$param->{$k} = $2;}
+				$param->{$k} =~ s/\s*$//;
+      }
+    
+    return check_parameters ($param);
+  }
+
+sub check_parameters 
+  
+  {
+    my $p = shift;
+    my $rp = {};
+    
+    $rp->{data} = 1;
+    $rp->{action} = 1;
+    $rp->{output} = 1;
+        
+    foreach my $k (keys (%$p))
+      {
+				if (!$rp->{$k})
+	  			{
+	    			print "\n****ERROR: $k is an unknown pararmeter[FATAL]***\n";
+	    			die;
+	  			}
+	  			
+				else
+	  			{
+	    			print "PARAM: -$k ---> [$p->{$k}]\n";
+	  			}
+      }
+    return $p;
+	}
+	
+sub readData 
+	
+	{
+		my $d = shift;
+		my $p = shift;
+		
+		if ($p->{data}) 
+      {
+				my @fl=split (/\s+/, $p->{data});
+				
+				return (\@fl);
+#				foreach my $ff (@fl)
+#	  			{
+#	    			if ( -e $ff) 
+#	    				{
+#	    					$d=generic_undump_data($ff,$d, $p);
+#	    				}
+#	  			}
+      	}	
+	}
+	
+   
 sub xml2csv
 	{	
 		my $ary_files = shift;
