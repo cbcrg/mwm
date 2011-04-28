@@ -15,11 +15,13 @@ if ($#ARGV ==-1)
     print "****************** Command Line  ***********************\n";
     print "xml2csv.pl -data <data_file>\n";
     print "****************** Flags      **************************\n";
-    print "  -data  <file1 file2.. > ........File: input data from file(s).\n";    
-    print "  -output      <mode>.............Mode: csv or xml.\n";
-    print "  -bin         <mode>.............Mode: angle.\n";
-    print "  -action      <mode> ............Mode: 'convert' Converts xml files into csv.\n";
-    print "  ......................................'countBins' Show bin statistics.\n";    
+    print "  -data  <file1 file2.. > ........File: input data from file(s).\n"; 
+    print "  -infile_format <mode>.............Mode: csv or xml.\n";   
+    print "  -output        <mode>.............Mode: csv or xml.\n";
+    print "  -bin           <mode>.............Mode: angle.\n";
+    print "  -action        <mode> ............Mode: 'convert' Converts xml files into csv.\n";
+    print "  ........................................'countBins' Show bin statistics.\n";
+    print "  -outbins       <mode> ............Mode:  name of the output files containning the bin and the dibin counts.\n";    
     print "****************** END **************************\n\n\n";
     die;  
   }
@@ -67,15 +69,16 @@ if ($param->{action} eq "convert")
   }
 
 elsif ($param->{action} eq "countBins")
+  
   {
-    $bin = &checkDataBin ($data, $bin);
-        
-    printBins ($bin->{'bin'}); #for dibins I should make a function which merges {1}{1} into a single key {1#1}#REVIEW
-      
+    $bin = &checkDataBin ($data, $bin);            
   }
   
 #if ($Data && $param->{outdata} ne "no")
 ##outdata option in rhmm is used to provided a name for the output files
+
+#Dumping results
+$param = set_output_name ($param);
 
 if ($data && $param->{outdata} ne "no")
   {  
@@ -95,7 +98,12 @@ if ($data && $param->{outdata} ne "no")
         die;
       }
   }
-  
+
+if ($bin && $param->{outBins} ne "no")
+  {  
+  	printBins ($bin->{'bin'}, $bin->{'bin_T'}, "$param->{outBins}.bin");
+		printBins (&hash2hashCsvLike ($bin->{'dibin'},"1"), &hash2hashCsvLike ($bin->{'dibin_T'}, "0"), "$param->{outBins}.dibin");
+  }
 
 #############################################
 #                                           #
@@ -143,6 +151,8 @@ sub check_parameters
     $rp->{bin} = 1;
     $rp->{countBin} = 1;
     $rp->{infile_format} = 1;
+    $rp->{outBins} = 1;
+    $rp->{out} = 1;
     
     foreach my $k (keys (%$p))
       {
@@ -159,7 +169,24 @@ sub check_parameters
       }
     return $p;
   }
-  
+
+sub set_output_name
+	{
+		my $param=shift;
+		
+		if (!$param->{out})
+	  	{
+	  		$param->{out} = "out";	    
+	  	} 
+	  
+	  if (!$param->{outBins})
+	  	{
+	  		$param->{outBins} = "$param->{out}";
+	  	}	
+	  
+	  return ($param); 	
+	}
+	
 sub readData 
   
   {
@@ -720,7 +747,8 @@ sub countBins
             foreach $k_3 (sort {$a cmp $b} keys(%{$d->{$k_1}{$k_2}}))
               {                                  
                   $v = $d->{$k_1}{$k_2}{$k_3}{'postProcessed#bin'};
-                  #$v .= "_bin";###REVIEW if it should be key value or only value and add to all of them the same option
+                  #$v .= "_bin";###REVIEW if it should be key value or only value and add to all of them the same option               
+                  
                   $f = $k_1;  
                   
                   $f = path2fileName ($f);
@@ -754,37 +782,59 @@ sub countBins
       $h->{'dibin_T'} = $dibin_T;          
       
       $h->{'dibin'} = $dibin;
-      #my $test = hash2hashCsvLike($dibin,"1");#del
-      #printBins ($test); 
-      #print Dumper ($test);#del
+      
       return ($h);
   }
 
 sub printBins
   {
-    my $h = shift;    
+    my $h = shift;
+    my $binList = shift;    
+    my $outf = shift;
     
-    my ($f, $bin, $v, @bin_angle);
+    my ($f, $bin, $v); #, @bin_angle);
     
-    @bin_angle = ("1", "2", "3", "4");
+    my $F= new FileHandle;
+	
+		if ($outf)
+			{
+				&vfopen ($F, ">$outf");
+			}
+		
+		else 
+			{
+				$F=*STDOUT;
+			}
+	
+		#@bin_angle = ("1", "2", "3", "4");
         
-    print "file\tbin1\tbin2\tbin3\tbin4\n";  
+    #print "file\tbin1\tbin2\tbin3\tbin4\n";  
+    print $F "file\t";
+    
+    foreach $bin ((sort {$a cmp $b} keys(%$binList)))
+    	{
+      	print $F "\t$bin";
+      } 
+    
+    print $F "\n";
+    
     foreach $f ((sort {$a cmp $b} keys(%$h)))
       {          
-        print "$f";
-        #foreach $bin (sort {$a <=> $b} keys(%{$h->{$f}}))
-        foreach $bin (@bin_angle)
+        print $F "$f";
+                        
+        #foreach $bin (@bin_angle)
+        foreach $bin ((sort {$a cmp $b} keys(%$binList)))
           {
-            print "\t";
+            print $F "\t";
             $v = $h->{$f}{$bin};
             if (!defined ($v)) 
               {
                 $v = 0;
               }
               
-            print "$v";    
+            print $F "$v";    
           }
-        print "\n";  
+        print $F "\n";  
       }
     
   }
