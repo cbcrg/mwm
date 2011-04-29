@@ -20,8 +20,16 @@ if ($#ARGV ==-1)
     print "  -output        <mode>.............Mode: csv or xml.\n";
     print "  -bin           <mode>.............Mode: angle.\n";
     print "  -action        <mode> ............Mode: 'convert' Converts xml files into csv.\n";
-    print "  ........................................'countBins' Show bin statistics.\n";
-    print "  -outbins       <mode> ............Mode:  name of the output files containning the bin and the dibin counts.\n";    
+    print "  ........................................'countBins' Perform bins counts.\n";
+    print "  ........................................'logodd' Calculates bins logodd ratio.\n";
+    print "  -outBins       <mode> ............Mode:  name of the output files containning the bin and the dibin counts.\n";
+    print "  .........................................'no' bins counts are not shown.\n";
+    print "  -outLogodd     <mode> ............Mode:  'screen' logodd ratio results on screen\n";
+    print "  ..........................................name of the output files containning the logodd ratio results.\n";
+    print "  .........................................'no' logodd ratios not shown.\n";
+    print "  -outdata       <mode> ............Mode:  'no' the data is not shown\n";
+    #print "  -stats         <mode> ............Mode: 'logodd' Calculates logodd of bins.\n"; #REVIEW IF IS WORTH TO IMPLEMENT A DIFFERENT OPTION (STATS)
+    #AND NO INSIDE -action    
     print "****************** END **************************\n\n\n";
     die;  
   }
@@ -34,7 +42,7 @@ my $param;
 
 $param = &process_param (@ARGV);
 
-my ($data, $bin);
+my ($data, $bin, $logodd);
 
 #Reads the data
 $data = &readData ($data, $param);
@@ -73,6 +81,15 @@ elsif ($param->{action} eq "countBins")
   {
     $bin = &checkDataBin ($data, $bin);            
   }
+
+elsif ($param->{action} eq "logodd")
+  
+  {
+  	#no bins no logodds
+  	$bin = &checkDataBin ($data, $bin);
+  	#&bins2logodd (&hash2hashCsvLike ($bin->{'dibin'},"1"), &hash2hashCsvLike ($bin->{'dibin_T'}, "0"));	  	
+  	$logodd = &bins2logodd ($bin, $param->{'outLogodd'});
+  }
   
 #if ($Data && $param->{outdata} ne "no")
 ##outdata option in rhmm is used to provided a name for the output files
@@ -94,7 +111,7 @@ if ($data && $param->{outdata} ne "no")
     
     else
       {
-        print STDERR "\n****ERROR: $param->{output} is an unknown pararmeter[FATAL]***\n";
+        print STDERR "\n****ERROR: $param->{output} is an unknown parameter[FATAL]***\n";
         die;
       }
   }
@@ -102,9 +119,13 @@ if ($data && $param->{outdata} ne "no")
 if ($bin && $param->{outBins} ne "no")
   {  
   	printBins ($bin->{'bin'}, $bin->{'bin_T'}, "$param->{outBins}.bin");
-		printBins (&hash2hashCsvLike ($bin->{'dibin'},"1"), &hash2hashCsvLike ($bin->{'dibin_T'}, "0"), "$param->{outBins}.dibin");
+		printBins (&hash2hashCsvLike ($bin->{'dibin'}, "1"), &hash2hashCsvLike ($bin->{'dibin_T'}, "0"), "$param->{outBins}.dibin");
   }
 
+if ($logodd && ($param->{outLogodd} ne "no" && $param->{outLogodd} ne "screen"))
+  {
+  	&dumpLogodd ($logodd, $param->{outLogodd});
+  }
 #############################################
 #                                           #
 # FUNCTIONS                                 #
@@ -152,6 +173,7 @@ sub check_parameters
     $rp->{countBin} = 1;
     $rp->{infile_format} = 1;
     $rp->{outBins} = 1;
+    $rp->{outLogodd} = 1;
     $rp->{out} = 1;
     
     foreach my $k (keys (%$p))
@@ -179,9 +201,19 @@ sub set_output_name
 	  		$param->{out} = "out";	    
 	  	} 
 	  
+#	  if (!$param->{outBins})
+#	  	{
+#	  		$param->{outBins} = "$param->{out}";
+#	  	}
+	  		
 	  if (!$param->{outBins})
 	  	{
 	  		$param->{outBins} = "$param->{out}";
+	  	}	
+	  
+	  if (!$param->{outLogodd})
+	  	{
+	  		$param->{outLogodd} = "$param->{out}";
 	  	}	
 	  
 	  return ($param); 	
@@ -736,10 +768,12 @@ sub countBins
   {
     my $d = shift;    
     
-    my ($k_1, $k_2, $k_3, $v, $bin, $f, $bin_T, $dibin, $dibin_T, $pv, $h);
+    my ($k_1, $k_2, $k_3, $v, $bin, $f, $bin_T, $dibin, $dibin_T, $h);
     
     foreach $k_1 (keys(%$d))
       {
+      	my ($pv);
+      	
         foreach $k_2 (keys(%{$d->{$k_1}}))        
           {  
             next if ($k_2 eq "header");
@@ -754,17 +788,20 @@ sub countBins
                   $f = path2fileName ($f);
 
                   $bin->{$f}{$v}++;#del ###REVIEW if it should be key value or only value and add to all of them the same option
+                  $bin->{$f}{'total'}++;
+                  
                   #$bin->{$f}{'bin'}{$v}++;
                   
                   $bin_T->{$v}++;                  
                   
                   if (!defined ($pv))
-                    {
-                      $pv = $v;
+                    {                      
+                      $pv = $v;                      
                       next;
                     } 
                     
                   $dibin->{$f}{$pv}{$v}++;
+                  $dibin->{$f}{'total'}{'transitions'}++;
                   $dibin_T->{$pv}{$v}++;                  
                   $pv = $v;                            
               }
@@ -811,19 +848,19 @@ sub printBins
     #print "file\tbin1\tbin2\tbin3\tbin4\n";  
     print $F "file\t";
     
-    foreach $bin ((sort {$a cmp $b} keys(%$binList)))
+    foreach $bin ((sort {$a cmp $b} keys (%$binList)))
     	{
       	print $F "\t$bin";
       } 
     
     print $F "\n";
     
-    foreach $f ((sort {$a cmp $b} keys(%$h)))
+    foreach $f ((sort {$a cmp $b} keys (%$h)))
       {          
         print $F "$f";
                         
         #foreach $bin (@bin_angle)
-        foreach $bin ((sort {$a cmp $b} keys(%$binList)))
+        foreach $bin ((sort {$a cmp $b} keys (%$binList)))
           {
             print $F "\t";
             $v = $h->{$f}{$bin};
@@ -832,13 +869,84 @@ sub printBins
                 $v = 0;
               }
               
-            print $F "$v";    
+            printf $F  "%6.3f", $v	;    
           }
         print $F "\n";  
       }
     
   }
 
+#			 $h->{'bin'} = $bin;
+#      $h->{'bin_T'} = $bin_T;
+#      $h->{'dibin'} = $dibin;    
+#      $h->{'dibin_T'} = $dibin_T; 
+
+sub bins2logodd
+	{
+		my $h = shift; 
+    my $p = shift;
+    
+    my ($bin, $binList, $dibins, $id, $b1, $b2, $N_tr, $N_1, $N_2, $fr_tr, $fr_1, $fr_2, $logodd, $H_logodd);
+    
+    #Using the whole hash which summarizes the bins counts of all files, some files might not have all bins
+    $bin = $h->{'bin'};
+    $binList = $h->{'bin_T'};  
+    $dibins = $h->{'dibin'};
+    
+    foreach $id ((sort {$a cmp $b} keys (%$dibins)))
+    	{
+      	if ($p eq "screen")
+      		{
+      			print "\n\n$id=================\n\n";
+      		}
+      		
+      	foreach my $b1 ((sort {$a <=> $b} keys (%{$binList})))
+	  			{	  			
+	    			foreach my $b2 ((sort {$a <=> $b} keys (%{$binList})))
+	      			{	      				
+	      				$N_tr = $dibins->{$id}{$b1}{$b2};	      					      			
+	      				$N_1 = $bin->{$id}{$b1};
+	      				$N_2 = $bin->{$id}{$b2};	      				
+	      				
+	      				$fr_tr = $N_tr / $dibins->{$id}{'total'}{'transitions'};
+	      				$fr_1 = $N_1 / $bin->{$id}{'total'};
+	      				$fr_2 = $N_2 / $bin->{$id}{'total'};
+	      				
+	      				$logodd = (($fr_1*$fr_2)==0 || $fr_tr==0)? 0 : log (($fr_tr) / ($fr_1*$fr_2));	      				
+	      				
+	      				$H_logodd->{$id}{$b1}{$b2} = $logodd;   
+	      				
+	      				if ($p eq "screen")
+	      					{
+	      						printf "\tID: %10s \t %1s -- %1s : %6.3f (N Trans: %5d)(N Tot Trans: %5d)(FC: %5d)($b1: $N_1, $b2: $N_2)\n", $id, $b1, $b2, $logodd, $dibins->{$id}{$b1}{$b2}, $dibins->{$id}{'total'}{'transitions'}, $bin->{$id}{'total'}; 	      						
+	      					}
+	      			}
+	  			}
+      }
+      
+      return ($H_logodd);
+    	
+	}
+
+sub dumpLogodd
+	{
+		my $h = shift;
+		my $fileName = shift;
+		
+		my ($ls);			
+		
+			
+		$h = &hash2hashCsvLike($h, "1");
+		
+		foreach my $f (keys (%$h))
+			{
+				$ls = $h-> {$f};
+				last; #all of them have all the possible pairs of dibins
+			}
+		
+		printBins ($h, $ls, "$fileName.logodd"); 		
+	}
+	
 sub path2fileName 
   {
     my $f = shift;
