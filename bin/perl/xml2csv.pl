@@ -315,9 +315,10 @@ sub xml2hash
     my $param = shift;
     
     my ($H, $header, $xml);
-    
+       
     $xml = new XML::Simple;
-    $H = $xml->XMLin($file);            
+    $H = $xml->XMLin($file);
+    $file = &path2fileName ($file);            
     $data->{$file}{'header'} = &hash2hashCsvLike ($H->{'header'}, 0);
     $data->{$file}{'data'} = &hash2hashCsvLike ($H->{'data'}{'record'}, 1);    
     #$data->{$file} = &hash2hashCsvLike ($H);   
@@ -846,7 +847,7 @@ sub printBins
 		#@bin_angle = ("1", "2", "3", "4");
         
     #print "file\tbin1\tbin2\tbin3\tbin4\n";  
-    print $F "file\t";
+    print $F "file";
     
     foreach $bin ((sort {$a cmp $b} keys (%$binList)))
     	{
@@ -864,6 +865,7 @@ sub printBins
           {
             print $F "\t";
             $v = $h->{$f}{$bin};
+            
             if (!defined ($v)) 
               {
                 $v = 0;
