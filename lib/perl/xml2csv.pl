@@ -387,7 +387,8 @@ sub hash2hashCsvLike
                 foreach $k_3 (sort {$a cmp $b} keys(%{$H->{$k_1}{$k_2}}))
                   {
                     $key= $k_2."#".$k_3;
-                    $v = $H->{$k_1}{$k_2}{$k_3};                    
+                    $v = $H->{$k_1}{$k_2}{$k_3};
+                    $v =~ s/,/\./g; #decimals always point separated                    
                     $r->{$k_1}{$key} = $v; 
                   }                                  
               }                                                
@@ -405,7 +406,8 @@ sub hash2hashCsvLike
                       foreach $k_3 (sort {$a cmp $b} keys(%{$H->{$k_1}{$k_2}}))
                         {
                           $key= $k_1."#".$k_2."#".$k_3;
-                          $v = $H->{$k_1}{$k_2}{$k_3};                          
+                          $v = $H->{$k_1}{$k_2}{$k_3}; 
+                          $v =~ s/,/\./g; #decimals always point separated                          
                           $r->{$key} = $v; 
                         }
                                     
@@ -414,6 +416,7 @@ sub hash2hashCsvLike
                     {                      
                       $key= $k_1."#".$k_2;
                       $v = $H->{$k_1}{$k_2};
+                      $v =~ s/,/\./g; #decimals always point separated 
                       $r->{$key} = $v; 
                                           
                                     
@@ -854,10 +857,32 @@ sub printBins
       	print $F "\t$bin";
       } 
     
-    print $F "\n";
+    print Dumper ($h);#del
     
     foreach $f ((sort {$a cmp $b} keys (%$h)))
       {          
+        if (exists ($h->{$f}{'total'}))
+    			{
+    				print STDERR "IWH";
+    				print $F "\ttotal\n";
+    				last;
+    			}
+    
+		    elsif (exists ($h->{$f}{'total#transitions'}))
+		    	{
+		    		print STDERR "IWH";
+		    		print $F "\ttotal\n";
+		    		last;
+		    	}
+		    else
+		    	{
+		    		print $F "\n";
+		    		last;
+		    	}
+      }
+      
+    foreach $f ((sort {$a cmp $b} keys (%$h)))
+      {                  		    
         print $F "$f";
                         
         #foreach $bin (@bin_angle)
@@ -870,9 +895,33 @@ sub printBins
               {
                 $v = 0;
               }
+            
+            #printing frecuencies
+            elsif (exists ($h->{$f}{'total'}))
+            	{
+            		print "$h->{$f}{'total'} ----------------\n";#del
+            		$v /= $h->{$f}{'total'};
+            	}
+            
+            elsif (exists ($h->{$f}{'total#transitions'}))
+            	{
+            		print "$h->{$f}{'total#transitions'} ----------------\n";#del
+            		$v /= $h->{$f}{'total#transitions'};
+            	}
               
             printf $F  "%6.3f", $v	;    
           }
+        
+        if (exists ($h->{$f}{'total'}))
+    			{    				
+    				print $F "\t$h->{$f}{'total'}";
+    			}
+    
+		    elsif (exists ($h->{$f}{'total#transitions'}))
+		    	{
+		    		print $F "\t$h->{$f}{'total#transitions'}";		    		
+		    	}  
+		    	
         print $F "\n";  
       }
     
