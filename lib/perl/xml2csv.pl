@@ -600,17 +600,17 @@ sub data2bin
                   {
                     SWITCH: 
                       {
-                        (($v <= 45 && $v >0) || $v > 320 && $v <=360 ) && do 
+                        (($v <= 45 && $v >0) || $v > 315 && $v <=360 ) && do 
                           { 
                             $bin = 1;                            
                             last SWITCH;
                           };
-                                                    
-                        ($v <= 320 && $v > 225 ) && do 
+                         
+                        ($v <= 135 && $v > 45) && do 
                           { 
-                            $bin = 2;                             
+                            $bin = 2;                            
                             last SWITCH;
-                          };
+                          };                                                                           
                             
                         ($v <= 225 && $v > 135 ) && do 
                           { 
@@ -618,9 +618,9 @@ sub data2bin
                             last SWITCH;
                           };
                             
-                        ($v <= 135 && $v > 45) && do 
+                        ($v <= 315 && $v > 225 ) && do 
                           { 
-                            $bin = 4;                            
+                            $bin = 4;                             
                             last SWITCH;
                           };
                         
