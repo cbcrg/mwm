@@ -5,6 +5,8 @@ use FileHandle;
 use XML::Simple;
 use Data::Dumper;
 
+my $pi = 3.14159265358979;;
+
 my $HEADER;
 
 if ($#ARGV ==-1)
@@ -18,6 +20,7 @@ if ($#ARGV ==-1)
     print "  -data  <file1 file2.. > ........File: input data from file(s).\n"; 
     print "  -infile_format <mode>.............Mode: csv or xml.\n";   
     print "  -output        <mode>.............Mode: csv or xml.\n";
+    print "  -add           <mode>.............Mode: direction.\n";
     print "  -bin           <mode>.............Mode: angle.\n";
     print "  -action        <mode> ............Mode: 'convert' Converts xml files into csv.\n";
     print "  ........................................'countBins' Perform bins counts.\n";
@@ -46,6 +49,13 @@ my ($data, $bin, $logodd);
 
 #Reads the data
 $data = &readData ($data, $param);
+
+#Adds new fields (fields that are not in xml and should be calculated)
+if ($param->{add})
+  {        
+    $data = &addField2data ($data, $param->{add});      
+  }
+
 
 #Bins data
 if ($param->{bin})
@@ -169,6 +179,7 @@ sub check_parameters
     $rp->{action} = 1;
     $rp->{output} = 1;
     $rp->{outdata} = 1;
+    $rp->{add} = 1;
     $rp->{bin} = 1;
     $rp->{countBin} = 1;
     $rp->{infile_format} = 1;
@@ -235,6 +246,12 @@ sub readData
               {                    
                 $d = &generic_undump_data ($ff, $d, $p);                
               }
+             
+            else 
+            	{
+            		print STDERR "\nERROR: $ff does not exist [FATAL]\n";
+            		exit(1);
+            	}
           }
         }  
       return ($d);
@@ -272,7 +289,7 @@ sub generic_undump_data
     my $field=shift;
     my $F= new FileHandle;
 
-    vfopen ($F,$file);
+    vfopen ($F, $file);
     my $l=<$F>;
     close ($F);
     
@@ -440,7 +457,7 @@ sub data2printCsv
     else
       {
         print "#comment;Format: csv\n";
-        
+              
         foreach $f (sort ({$a cmp $b} keys(%$d)))
           {        
             printHeader ($data-> {$f}{'header'}, $f);            
@@ -581,7 +598,7 @@ sub data2bin
     my $field = shift; 
     my ($f, $H, $k_1, $k_2, $k_3, $v, $bin, $flag, $pbin); 
     
-    foreach $f (sort ({$a cmp $b} keys(%$data)))
+    foreach $f (sort ({$a cmp $b} keys(%$data)))#Review there is a new function which perform this appart I could use it here checkField 
       {
         
         $H = $data-> {$f}{'data'};
@@ -634,6 +651,11 @@ sub data2bin
                     $H->{$k_1}{'postProcessed#bin'} = $bin;
                     $pbin = $bin;
                   }
+                
+                elsif ($field =~ "direction")
+                	{
+                		#&direction2bin ($d);#binDirection
+                	}
                 
                 else
                   {
@@ -728,7 +750,7 @@ sub vfopen
     if (($file =~/^\>/) && !($file =~/^\>\>/ )){open ($f, $file); return $f;}
     elsif (($file =~/^\>\>(.*)/))
       {
-  if (!-e $1){  print STDERR "\nERROR: $file does not exist [FATAL]\n";exit(1);}
+  			if (!-e $1){  print STDERR "\nERROR: $file does not exist [FATAL]\n";exit(1);}
       }
     elsif (!-e $file){  print STDERR "\nERROR: $file does not exist [FATAL]\n";exit(1);}
    
@@ -857,8 +879,6 @@ sub printBins
       	print $F "\t$bin";
       } 
     
-    print Dumper ($h);#del
-    
     foreach $f ((sort {$a cmp $b} keys (%$h)))
       {          
         if (exists ($h->{$f}{'total'}))
@@ -899,13 +919,13 @@ sub printBins
             #printing frecuencies
             elsif (exists ($h->{$f}{'total'}))
             	{
-            		print "$h->{$f}{'total'} ----------------\n";#del
+            		#print "$h->{$f}{'total'} ----------------\n";#del
             		$v /= $h->{$f}{'total'};
             	}
             
             elsif (exists ($h->{$f}{'total#transitions'}))
             	{
-            		print "$h->{$f}{'total#transitions'} ----------------\n";#del
+            		#print "$h->{$f}{'total#transitions'} ----------------\n";#del
             		$v /= $h->{$f}{'total#transitions'};
             	}
               
@@ -1011,3 +1031,237 @@ sub path2fileName
     return ($f);
     
   }
+
+sub addField2data
+	{
+		my $data = shift;
+		my $p = shift;
+		
+		my ($f, $h, $k_1, $window, $angle);
+		
+		$window = 1; #that means we use the previous and following points
+		
+		if ($p eq "direction")
+			{
+				&checkField ($data, "Xabs", "Yabs");
+				
+				foreach $f (sort ({$a cmp $b} keys(%$data)))
+					{						
+						$h = $data-> {$f}{'data'};
+						
+						my (@lastDiffPoint, $flag);
+						
+						foreach $k_1 (sort ({$a <=> $b} keys(%$h)))
+		          { 
+	
+		          	if ($k_1 < $window)
+		          		{		          			      			
+		          			$h->{$k_1}{'animalPosition#direction'} = 0;		          			
+		          			next;	
+		          		}
+		          			          			          	
+		          	elsif (exists ($h->{$k_1+1}) && exists ($h->{$k_1+1}))
+		          		{
+										
+										my @pv = ($h->{$k_1-$window}{'animalPosition#Xabs'}, $h->{$k_1-$window}{'animalPosition#Yabs'});
+										
+										my @v = ($h->{$k_1}{'animalPosition#Xabs'}, $h->{$k_1}{'animalPosition#Yabs'});
+										
+										my @fv =  ($h->{$k_1+$window}{'animalPosition#Xabs'}, $h->{$k_1+$window}{'animalPosition#Yabs'});
+																				
+										if (&aryCompare (\@v, \@fv))#if it remains in the same position
+											{
+												 $h->{$k_1}{'animalPosition#direction'} = 0;
+												 next if ($flag);
+												 $flag = 1;												 
+												 @lastDiffPoint = @pv;												 
+												 next;
+											}
+																						
+										else
+											{
+																								
+												if ($flag) 
+													{
+														@pv = @lastDiffPoint;
+														$flag = 0; 													
+													}
+																				
+												my $a = &substrVec (\@v, \@pv);
+												my $b = &substrVec (\@fv, \@v);
+												
+												my $c = (&scalarDot ($a, $b)) / (&modulus ($a) * &modulus ($b)); 
+
+												$angle = &acos ($c);	
+												$angle = &rad2deg ($angle);		
+												
+												#As the angle to respect the target it angle 0 corresponds to y=0 and the angle grows in anticlockwise sense
+												#$angle = ($b->[0] > $a->[0])? 360-$angle : $angle;
+												
+												#movements to the left negative angles until -180 to the right positive until 180												
+												$angle = ($b->[0] > $a->[0])? $angle : -$angle;
+																					
+												$h->{$k_1}{'animalPosition#direction'} = $angle;												
+											}
+										
+		          		}
+		          		
+		          	else 
+		          		{
+										$angle = 0;
+                    $h->{$k_1}{'animalPosition#direction'} = $angle;
+									}								
+		          }	
+		          $data-> {$f}{'data'} = $h;	          
+					}										
+			}	
+		return ($data);
+	}
+	
+sub checkField
+	{
+		
+		my $h = shift;
+		my @list = @_;
+		
+		my ($f, $k_1, $k_2, $field);
+		
+		foreach $field (@list)
+			{
+				my $flag;
+				
+				foreach $f (sort ({$a cmp $b} keys(%$data)))
+		      {
+		        
+		        $h = $data-> {$f}{'data'};
+		        
+		        foreach $k_1 (sort ({$a cmp $b} keys(%$h)))
+		          {    
+		            foreach $k_2 (sort {$a cmp $b} keys (%{$h->{$k_1}}))
+		              {                
+		                next if ($k_2 !~ /($field)/);
+		                $flag = 1;
+		                last;
+									}
+								
+								if ($flag==1) 
+									{
+										last;
+									}
+																	
+								else 
+									{
+										print STDERR "\n****ERROR: $field is not present at data [FATAL]***\n";
+                    die;
+									}													
+		          }
+		      }
+			}
+	}
+	
+sub substrVec
+	{
+		my $v1 = shift;
+		my $v2 = shift;
+		my @v3;
+		
+		if (scalar(@$v1) == scalar (@$v2))
+			{
+				for (my $i = 0; $i < scalar(@$v1); $i++)
+					{
+						$v3[$i] = $v1->[$i] - $v2->[$i];
+					}
+				
+				return (\@v3);
+			}
+		else
+			{				
+				print STDERR "\n****ERROR: Vectors $v1 - $v2 have different size substraction fail [FATAL]***\n";
+				die;
+			}
+	}
+
+sub scalarDot
+	{
+		my $v1 = shift;
+		my $v2 = shift;
+		
+		my $sc = 0;
+		
+			if (scalar(@$v1) == scalar (@$v2))
+				{
+					for (my $i=0; $i < scalar(@$v1); $i++ )
+						{
+							$sc += $v1->[$i] * $v2->[$i];		
+						}
+					
+					return ($sc);
+				}
+			
+			else
+				{
+					print STDERR "\n****ERROR: Vectors have different size scalar product fail [FATAL]***\n";
+					die;
+				}
+	}
+	
+sub modulus
+	{
+		my $v = shift;
+		
+		my $mod = 0;
+		
+		for (my $i=0; $i < scalar(@$v); $i++ )
+			{
+				$mod += $v->[$i] ** 2;
+			}
+		
+		return (sqrt ($mod));	
+							
+		
+	}
+
+sub acos 
+	{ 
+		my $n = shift;
+		my $res;
+		
+		$n = ($n > 1)? 1 : $n; 
+		
+		$res = atan2 (sqrt (1 - $n * $n), $n);
+		
+		return ($res);  
+	}
+	
+sub aryCompare
+	{
+		my $ary1 = shift;
+		my $ary2 = shift;
+		
+		if (scalar (@$ary1) == scalar (@$ary1))
+			{
+				for (my $i=0; $i < scalar(@$ary1); $i++ )
+					{
+						if ($ary1->[$i] != $ary2->[$i])
+							{
+								return (0);
+							}
+					}
+				
+				return (1);
+			}
+		
+		else
+			{
+				return (0);
+			}	
+	}
+
+	sub rad2deg 
+		{ 
+			my $alpha = shift;
+			my $alpha_deg = shift;
+			 
+			$alpha_deg = ($alpha/$pi) * 180; 
+		}
+	
