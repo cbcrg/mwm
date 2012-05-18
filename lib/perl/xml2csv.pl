@@ -524,7 +524,7 @@ sub printData
     foreach $k_1 (sort {$a <=> $b} keys(%$H))
       {
         print "#d;index;$k_1;";
-        foreach $k_2 (sort {$a <=> $b} keys(%{$H->{$k_1}}))
+        foreach $k_2 (sort {$a cmp $b} keys(%{$H->{$k_1}}))
           {
             if ($k_2 eq "file")
               {
