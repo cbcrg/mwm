@@ -1060,7 +1060,7 @@ sub addField2data
 		          			next;	
 		          		}
 		          			          			          	
-		          	elsif (exists ($h->{$k_1+1}) && exists ($h->{$k_1+1}))
+		          	elsif (exists ($h->{$k_1+1}) && exists ($h->{$k_1+1})) #elsif (exists ($h->{$k_1+$window}) && exists ($h->{$k_1+$window})) No tendria que ser asi
 		          		{
 										
 										my @pv = ($h->{$k_1-$window}{'animalPosition#Xabs'}, $h->{$k_1-$window}{'animalPosition#Yabs'});
@@ -1069,15 +1069,23 @@ sub addField2data
 										
 										my @fv =  ($h->{$k_1+$window}{'animalPosition#Xabs'}, $h->{$k_1+$window}{'animalPosition#Yabs'});
 																				
-										if (&aryCompare (\@v, \@fv))#if it remains in the same position
+										if (&aryCompare (\@v, \@pv))#if it remains in the same previous position
 											{
-												 $h->{$k_1}{'animalPosition#direction'} = 0;
-												 next if ($flag);
-												 $flag = 1;												 
-												 @lastDiffPoint = @pv;												 
+												 $h->{$k_1}{'animalPosition#direction'} = 0;												 											
 												 next;
 											}
-																						
+                                         	
+                                        elsif (&aryCompare (\@v, \@fv))#if it remains in the same following position
+										{
+											 $h->{$k_1}{'animalPosition#direction'} = 0;
+											 
+											 #I have to keep the last position that was different to make the calculation when it changes
+											 next if ($flag);
+											 $flag = 1;												 
+											 @lastDiffPoint = @fv;												 
+											 next;
+										}
+																																
 										else
 											{
 																								
