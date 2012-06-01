@@ -74,7 +74,14 @@ if ($param->{action} eq "convert")
       }
     
     elsif ($param->{infile_format} eq "csv")
-      {
+      {        
+        #die;#del  
+        &data2printTbl($data);        
+      }
+      
+    elsif ($param->{infile_format} eq "csv")
+      {        
+        die;
         ;#do a function able to transform csv to xml
       }
     
@@ -468,7 +475,34 @@ sub data2printCsv
       {
         printData ($data-> {$f}{'data'}, $f);
       } 
-  }  
+  }
+  
+sub data2printTbl
+  {
+    my $d = shift;
+    my ($f);
+    
+    #print Dumper ($d);die;#del
+    if (defined ($HEADER))
+      {
+#        print "$HEADER";
+      }
+      
+    else
+      {
+#        print "#comment;Format: tbl\n";
+              
+#        foreach $f (sort ({$a cmp $b} keys(%$d)))
+#          {        
+#            printHeader ($data-> {$f}{'header'}, $f);            
+#          }
+      }    
+            
+    foreach $f (sort ({$a cmp $b} keys(%$d)))
+      {
+        printDataTbl ($data-> {$f}{'data'}, $f);
+      } 
+  }    
 
 #sub printHeader
 #  {
@@ -541,7 +575,56 @@ sub printData
         print "file;$f\n";
       }
   }    
-  
+
+sub printDataTbl
+  {
+    my $H = shift;
+    my $f = shift;
+    
+    my ($k_1, $k_2, $v);
+    
+    foreach $k_1 (sort {$a <=> $b} keys(%$H))
+      {
+        print "index\t";
+        foreach $k_2 (sort {$a cmp $b} keys(%{$H->{$k_1}}))
+          {
+            if ($k_2 eq "file")
+              {
+                $f = $H->{$k_1}{$k_2};
+                next;
+              } 
+            
+            $v = $H->{$k_1}{$k_2};
+            
+            $k_2 =~ s/#/_/g;
+            print "$k_2\t";
+          }
+        
+        $f = path2fileName ($f);
+        print "file\n";
+        last;
+      }
+          
+    foreach $k_1 (sort {$a <=> $b} keys(%$H))
+      {
+        print "$k_1\t";
+        foreach $k_2 (sort {$a cmp $b} keys(%{$H->{$k_1}}))
+          {
+            if ($k_2 eq "file")
+              {
+                $f = $H->{$k_1}{$k_2};
+                next;
+              } 
+            
+            $v = $H->{$k_1}{$k_2};
+        
+            print "$v\t";
+          }
+        
+        $f = path2fileName ($f);
+        print "$f\n";
+      }
+  }    
   
 #sub printData
 #  {
