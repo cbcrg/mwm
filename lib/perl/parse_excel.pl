@@ -1,6 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
 use Data::Dumper;
+use FileHandle;
 
 our ($path,$outpath);
 our %mice;
@@ -21,6 +22,9 @@ $path="/users/cn/ierb/work/MaraDierssen/data/Ts1Ts2Ts1Cje/MWM/";
 @{$mice{"Ts1CjeTs2"}}=(905,908,910,911,913,916,918,922,923,934,939);
 
 ($P_xt,$P_zones,$P_quants)=parse_excel();
+
+#print Dumper ($P_xt);die;#del
+
 %xt=%$P_xt;#$xt{$id}{$quant.$zone}[$day] ~ $xt{$mouse}{$measure}[$day]
 
 ($P_x,$P_measures)=trial_averages($P_xt,$P_zones,$P_quants);
@@ -28,12 +32,11 @@ $path="/users/cn/ierb/work/MaraDierssen/data/Ts1Ts2Ts1Cje/MWM/";
 %x=%$P_x;#$x{$mouse}{$measure}[$day] #average over trial per mouse, i.e. the information of one day containing 4 trials
 @measures=@$P_measures;
 
-#print Dumper (%x);
+#Printing the table with the mean measure of a given variable over trials for each mouse (rows)
+#&printTableVar_vs_Mice (\%x);
+&printTableByVar_vs_Mice (\%x);
 
-#Printing the table with the mean measure of a given measure over trial for each mouse (rows)
-&printTableVar_vs_Mice(\%x);
-
-#Printing the table with the mean measure of a given measure over trial for each mouse (rows)
+#Printing the table with the mean measure of a given measure over trials for each mouse (rows)
 #                           V1  V2  V3 ....  
 #  mice n
 #  mice n+1
@@ -41,46 +44,125 @@ $path="/users/cn/ierb/work/MaraDierssen/data/Ts1Ts2Ts1Cje/MWM/";
 #The input of function is a %hash with this structure $x{$mouse}{$measure}[$day]
 sub printTableVar_vs_Mice
   {
-    my ($h, $k_1, $k_2, $genotype);
+    my ($h, $k_1, $k_2, $genotype, $day);
     $h = shift;    
     #print STDERR "Are you talking to me!\n";#del
     
     #print table header
-    foreach $k_1 (sort ({$a <=> $b} keys(%$h)))
-      { 
-        print "animal\tgenotype";
-                     
-        foreach $k_2 (sort {$a cmp $b} keys (%{$h->{$k_1}}))
-          {
-            print "\t$k_2";
+    for ($day=1;$day<=5;$day++)
+      {
+      
+        foreach $k_1 (sort ({$a <=> $b} keys(%$h)))
+          { 
+            if ($day == 1)
+              {
+                print "animal\tgenotype";
+              }
+                         
+            foreach $k_2 (sort {$a cmp $b} keys (%{$h->{$k_1}}))
+              {
+                #We don't like "(%)" symbol in headers
+                $k_2 =~ s/\(%\)/Perc/g;
+                print "\t$k_2"."Day"."$day";
+              }
+              
+             #print "\n";
+             last;
           }
-          
-         print "\n";
-         last;
-      }
+        } 
+    print "\n";
     
-    #print values  
+    #die;#del
+    
+    #print values 
+    
+    #animal
     foreach $k_1 (sort ({$a <=> $b} keys(%$h)))
       {
-        print "$k_1";
         
+        print "$k_1";
+    
         #which genotype has the animal
+        #due to the structure of the hash I have to search for each of the genotype whether the animal is present or not
         foreach $genotype (keys (%mice)) 
           {             
             (searchValInAry ($k_1, $mice{$genotype}) == 1)? print "\t$genotype" : next;            
           }         
+          
                 
-        #foreach $k_2 (sort ({$a cmp $b} keys(%$h)))
-        foreach $k_2 (sort {$a cmp $b} keys (%{$h->{$k_1}}))
-          {                       
-            my $ary = $h->{$k_1}{$k_2};
-            print "\t@$ary[4]";
+        for ($day=1;$day<=5;$day++)
+          {
+            foreach $k_2 (sort {$a cmp $b} keys (%{$h->{$k_1}}))
+              {                       
+                my $ary = $h->{$k_1}{$k_2};
+                print "\t@$ary[$day]"; #I was only printing day four
+              }
           }
           
-          print "\n";
+        print "\n"; 
+          
       }
+    
       
-    die;
+      
+      #print "\n";
+      
+    #die;
+  }
+  
+#Printing the table with the mean measure of a given measure over trials for each mouse (rows)
+#                           V1  V2  V3 ....  
+#  mice n
+#  mice n+1
+#  ...
+#The input of function is a %hash with this structure $x{$mouse}{$measure}[$day]
+#Modify to make the plots that they use to see difference across days by groups
+#
+#          - - 
+#     - -  * * 
+#   -   * 
+#   * *
+sub printTableByVar_vs_Mice
+  {
+    my ($h, $m, $v, $genotype, $day);
+    $h = shift;    
+          
+    foreach $v (sort {$a cmp $b} keys (%{$h->{'910'}})) #variables
+      {                                               
+        my $file = $v."_linePlot.tbl";
+        my $F= new FileHandle;
+        open ($F, ">$file");
+        
+        print STDERR "$v\n";
+        
+        #Header
+        print $F "animal\tgenotype\tday1\tday2\tday3\tday4\tday5\n";
+        
+        #animal, i.e.mice
+        foreach $m (sort ({$a <=> $b} keys(%$h)))
+          { 
+            my $ary = $h->{$m}{$v};
+            
+            #print "$m";
+            print $F "$m";
+            
+            #Printing genotypes
+            foreach $genotype (keys (%mice)) 
+              {             
+                (searchValInAry ($m, $mice{$genotype}) == 1)? print $F "\t$genotype" : next;  #guardarlo para printar          
+              } 
+               
+            for ($day=1;$day<=5;$day++)
+              {                               
+                print $F "\t@$ary[$day]"; 
+              }
+              
+            print $F "\n";
+          }              
+        close ($F);
+        
+      }
+
   }
   
 sub trial_averages{
