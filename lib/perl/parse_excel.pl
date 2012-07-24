@@ -36,7 +36,7 @@ $path="/users/cn/ierb/work/MaraDierssen/data/Ts1Ts2Ts1Cje/MWM/";
 #&printTableVar_vs_Mice (\%x);
 &printTableByVar_vs_Mice (\%x);
 
-#Printing the table with the mean measure of a given measure over trials for each mouse (rows)
+#Printing the table with the mean value of a given measure over trials for each mouse (rows)
 #                           V1  V2  V3 ....  
 #  mice n
 #  mice n+1
@@ -72,8 +72,6 @@ sub printTableVar_vs_Mice
         } 
     print "\n";
     
-    #die;#del
-    
     #print values 
     
     #animal
@@ -88,8 +86,7 @@ sub printTableVar_vs_Mice
           {             
             (searchValInAry ($k_1, $mice{$genotype}) == 1)? print "\t$genotype" : next;            
           }         
-          
-                
+                          
         for ($day=1;$day<=5;$day++)
           {
             foreach $k_2 (sort {$a cmp $b} keys (%{$h->{$k_1}}))
@@ -110,7 +107,7 @@ sub printTableVar_vs_Mice
     #die;
   }
   
-#Printing the table with the mean measure of a given measure over trials for each mouse (rows)
+#Printing the table with the mean value of a given measure over trials for each mouse (rows)
 #                           V1  V2  V3 ....  
 #  mice n
 #  mice n+1
@@ -118,10 +115,12 @@ sub printTableVar_vs_Mice
 #The input of function is a %hash with this structure $x{$mouse}{$measure}[$day]
 #Modify to make the plots that they use to see difference across days by groups
 #
-#          - - 
-#     - -  * * 
-#   -   * 
-#   * *
+#   - -
+#   * *     
+#        - - -   
+#        * * *
+#                *  
+#                - 
 sub printTableByVar_vs_Mice
   {
     my ($h, $m, $v, $genotype, $day);
