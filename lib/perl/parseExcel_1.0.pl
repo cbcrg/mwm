@@ -32,7 +32,7 @@ my ($P_zones,$P_quants,$P_measures,$P_xt,$P_x);#pointers
 #                   );
 
 my %sessionOrder = (                    
-                    '1' => 'CUE', 
+                    '1' => 'A3', 
                    );                   
                    
 ($P_xt, $P_zones, $P_quants)= &parseFiles ();
@@ -50,14 +50,12 @@ my %sessionOrder = (
 ##@measures=@$P_measures;
 
 #Printing the table with the mean measure of a given variable over trials for each mouse (rows)
-die;
 
-&printTableVar_vs_Mice (\%x);
-#&printAllVar ($P_x);
+&printAllVar ($P_x);
 
 #Printing a table for each single variabla containing all the values for all sessions
 #Classical plot
-&printTableByVar_vs_Mice ($P_x);
+#&printTableByVar_vs_Mice ($P_x);
 
 ###################
 #FUNCTIONS
@@ -102,6 +100,8 @@ sub parseFiles
             print STDERR "Processing file: ".$file."\n";
                         
             my $F=new FileHandle;
+            
+            %ids = {};
             
             open ($F, "$file")  or die "FATAL ERROR: Can't open file: $file";
                         
@@ -226,6 +226,10 @@ sub trialAverages
 			         }
 			     }
 			   
+			   if (scalar(@tmp) == 0)
+			     {
+			       print "culo";
+			     }
 			   $x {$mouse}{$var}{$session} = average(@tmp); 
 			         
                @tmp = ();      
@@ -379,7 +383,7 @@ sub printTableByVar_vs_Mice
        last;
      }      
     
-    print Dumper (@variables);
+    #print Dumper (@variables);#del
     
     foreach $v (@variables) 
       {
@@ -387,7 +391,7 @@ sub printTableByVar_vs_Mice
         my $F= new FileHandle;
         open ($F, ">$file");
         
-        print STDERR "$v\n";
+        print STDERR "INFO: Variable being processed: $v\n";
         
         #printing table header
         print $F "mice\tgenotype";
