@@ -50,10 +50,12 @@ my %sessionOrder = (
 ##@measures=@$P_measures;
 
 #Printing the table with the mean measure of a given variable over trials for each mouse (rows)
-#&printTableVar_vs_Mice (\%x);
+die;
+
+&printTableVar_vs_Mice (\%x);
 #&printAllVar ($P_x);
 
-#Printing a single table containing all the values for all sessions of a single variable
+#Printing a table for each single variabla containing all the values for all sessions
 #Classical plot
 &printTableByVar_vs_Mice ($P_x);
 
@@ -145,7 +147,7 @@ sub parseFiles
           	    elsif(defined $variable[0] && $_=~/^$id/ && $tmp[1] ne "Zone 31")
           	     {
           		  $zone=$tmp[1];
-          		  $zone = ~s/\s//g;
+          		  $zone =~ s/\s//g;
           		  $zone = uc ($zone); #forcing upper case
           		  
           		  unless (@zones==15)
