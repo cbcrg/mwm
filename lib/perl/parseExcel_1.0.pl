@@ -22,18 +22,23 @@ my ($P_zones,$P_quants,$P_measures,$P_xt,$P_x);#pointers
 @{$mice{"Ts1CjeTs1"}}=(161,171,185,187,193,194,197);
 @{$mice{"Ts1CjeTs2"}}=(905,908,910,911,913,916,918,922,923,934,939);
 
-#my %sessionOrder = (
-#                    '1' => 'PT',
-#                    '2' => 'A1',
-#                    '3' => 'A2',
-#                    '4' => 'A3',
-#                    '5' => 'A4',
-#                    '6' => 'A5', 
-#                   );
+my %sessionOrder = (
+                    '1' => 'PT',
+                    '2' => 'A1',
+                    '3' => 'A2',
+                    '4' => 'A3',
+                    '5' => 'A4',
+                    '6' => 'A5',
+                    '7' => 'REM',
+                    '8' => 'CUE',
+                    '9' => 'REV1',
+                    '10' => 'REV2',
+                     
+                   );
 
-my %sessionOrder = (                    
-                    '1' => 'A3', 
-                   );                   
+#my %sessionOrder = (                    
+#                    '1' => 'A5', 
+#                   );                   
                    
 ($P_xt, $P_zones, $P_quants)= &parseFiles ();
 
@@ -228,10 +233,12 @@ sub trialAverages
 			   
 			   if (scalar(@tmp) == 0)
 			     {
-			       print "culo";
+			       $x {$mouse}{$var}{$session} = 0;
 			     }
-			   $x {$mouse}{$var}{$session} = average(@tmp); 
-			         
+			   else 
+			     {  
+			       $x {$mouse}{$var}{$session} = average(@tmp); 
+			     }    
                @tmp = ();      
 			 }
             
@@ -332,7 +339,7 @@ sub printAllVar
        #due to the structure of the hash I have to search for each of the genotype whether the animal is present or not
        foreach $genotype (keys (%mice)) 
         {             
-          (searchValInAry ($mouse, $mice{$genotype}) == 1)? print "\t$genotype" : next;            
+          (searchValInAry ($mouse, $mice{$genotype}) == 1)? print "$mouse\t$genotype" : next;            
         }
            
        foreach $var (sort {$a cmp $b} keys (%{$h->{$mouse}}))
