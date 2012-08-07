@@ -22,23 +22,33 @@ my ($P_zones,$P_quants,$P_measures,$P_xt,$P_x);#pointers
 @{$mice{"Ts1CjeTs1"}}=(161,171,185,187,193,194,197);
 @{$mice{"Ts1CjeTs2"}}=(905,908,910,911,913,916,918,922,923,934,939);
 
-my %sessionOrder = (
-                    '1' => 'PT',
-                    '2' => 'A1',
-                    '3' => 'A2',
-                    '4' => 'A3',
-                    '5' => 'A4',
-                    '6' => 'A5',
-                    '7' => 'REM',
-                    '8' => 'CUE',
-                    '9' => 'REV1',
-                    '10' => 'REV2',
-                     
-                   );
+#my %sessionOrder = (
+#                    '1' => 'PT',
+#                    '2' => 'A1',
+#                    '3' => 'A2',
+#                    '4' => 'A3',
+#                    '5' => 'A4',
+#                    '6' => 'A5',
+#                    '7' => 'REM',
+#                    '8' => 'CUE',
+#                    '9' => 'REV1',
+#                    '10' => 'REV2',
+#                     
+#                   );
 
 #my %sessionOrder = (                    
-#                    '1' => 'A5', 
-#                   );                   
+#                    '1' => 'PT',
+#                    '2' => 'A1',
+#                    '3' => 'A2',
+#                    '4' => 'A3',
+#                    '5' => 'A4',
+#                    '6' => 'A5',
+#                   );  
+
+my %sessionOrder = (                    
+                    '2' => 'A1',
+                   );  
+                 
                    
 ($P_xt, $P_zones, $P_quants)= &parseFiles ();
 
@@ -47,6 +57,8 @@ my %sessionOrder = (
 #Check whether empty fields are present
 ($P_xt) = &checkEmptyFields ($P_xt, $P_zones, $P_quants);
 
+#print Dumper ($P_xt);
+#die;
 #Average over trials (cardinals point entry into the pool)
 ($P_x) = &trialAverages ($P_xt);
 
@@ -167,10 +179,17 @@ sub parseFiles
             		    {
             			 push @quants,$variable[$i];          			
                         }
-            		    
-            	      #$xt{$id}{$variable[$i].$zone}{$day} = $tmp[$i] * 1;
-            	      $xt{$mouse}{$variable[$i].$zone}{$day}{$point} = $tmp[$i] * 1;          		   
-          		    }          		
+            		  
+            		  if ($variable [$i] =~ /V.(Avge|Mean)|Lat.T./ && $tmp[$i] == 0 && $xt{$mouse}{'Dist'.$zone}{$day}{$point} == 0) 
+            		    {            		                  		      
+          		          $xt{$mouse}{$variable[$i].$zone}{$day}{$point} = "NA";
+            		    }
+            		     
+            		  else 
+            		    {             		     
+            	          $xt{$mouse}{$variable[$i].$zone}{$day}{$point} = $tmp[$i] * 1;    
+            		    }             	                		  
+          		      }          		
           	       }	
           	    
           	    elsif($_=~/Error/)
@@ -233,7 +252,7 @@ sub trialAverages
 			   
 			   if (scalar(@tmp) == 0)
 			     {
-			       $x {$mouse}{$var}{$session} = 0;
+			       $x {$mouse}{$var}{$session} = "NA";
 			     }
 			   else 
 			     {  
@@ -287,10 +306,10 @@ sub checkEmptyFields
                     foreach $trial ("N","S","W","E")
     		          {
     		            if (!defined $P_xt->{$mouse}{$var}{$session}{$trial}) #session is always defined, each individual file is a session
-    			             {
-    			               $P_xt->{$mouse}{$var}{$session}{$trial}="NA"; #if it does not exist we define it as empty
-    				           print STDERR "WARNING: undefined value for $mouse, $var, $session, $trial\n";
-    			             }    			      
+                          {
+                            $P_xt->{$mouse}{$var}{$session}{$trial}="NA"; #if it does not exist we define it as empty
+                            print STDERR "WARNING: undefined value for $mouse, $var, $session, $trial\n";
+                          }    			      
     		          }
                   }
 			  }
@@ -349,7 +368,16 @@ sub printAllVar
             {
               $session = $sessionOrder{$k_1};
               
-              print "\t$h->{$mouse}{$var}{$session}";                  
+              if (exists ($h->{$mouse}{$var}{$session}))
+                {
+                  print "\t$h->{$mouse}{$var}{$session}";
+                }
+              else
+                {
+                  print STDERR "WARNING: Animal $mouse, Variable $var, Session $session is not defined a zero will appear on table!\n";
+#                  print "\t0"; #We print a NA, because some values are really 0 and others are not defined 
+                  print "\tNA";
+                }                  
             }     
         }
         
