@@ -46,7 +46,7 @@ my ($P_zones,$P_quants,$P_measures,$P_xt,$P_x);#pointers
 #                   );  
 
 my %sessionOrder = (                    
-                    '2' => 'A1',
+                    '2' => 'A2',
                    );  
                  
                    
@@ -54,7 +54,8 @@ my %sessionOrder = (
 
 %xt = %$P_xt;
 
-#Check whether empty fields are present
+#Check whether empty fields are present 
+#Not defined values substituted by mean among mice
 ($P_xt) = &checkEmptyFields ($P_xt, $P_zones, $P_quants);
 
 #print Dumper ($P_xt);
@@ -219,6 +220,98 @@ sub parseFiles
     return (\%xt,\@zones,\@quants);
   }
 
+sub checkEmptyFields
+  {
+    my ($P_xt, $P_zones, $P_quants) = @_;
+    
+    my ($quant, $zone, $measure, $type, $mouse,  $var, $k_1, $session, $trial);
+    
+    my $newP_xt; #We need a new hash because once we start adding values the mean will be different 
+    
+    #This array will be used to check whether all animals have all the variables defined or not
+    foreach $quant (@$P_quants)
+      {
+        foreach $zone (@$P_zones)
+          {
+            if ($quant eq "Lat.T." && $zone eq "TOTAL")#This field is always zero, that is why we use it us a dump variable
+              {
+                $measure = "whishaw"; #wishaw has not a zone
+              }
+            else
+              {
+    	        $measure = $quant.$zone;
+              }
+            
+            push @measures,$measure;
+          }
+         
+      }
+    
+    #I use the animals of the list, as well as all the possible items as a hardcode this way I am sure of detecting
+    #all not defined variables
+    foreach $type (@genotypes)
+      {
+        foreach $mouse (@{$mice{$type}})
+          {
+            foreach $var (@measures)
+			  {
+                foreach $k_1 (sort ({$a <=> $b} keys(%sessionOrder)))
+                  {
+                    $session = $sessionOrder {$k_1};
+                    
+                    foreach $trial ("N","S","W","E")
+    		          {
+    		            if (!defined $P_xt->{$mouse}{$var}{$session}{$trial}) #session is always defined, each individual file is a session
+                          {                            
+                            #we substitute empty values by the mean value of the defined one for all the other mice
+                            #$newP_xt->{$mouse}{$var}{$session}{$trial} = "NA"; #before it was defined as NA
+                            $newP_xt->{$mouse}{$var}{$session}{$trial} = &notDef2mean ($P_xt, $var, $session, $trial);
+                             
+                            print STDERR "WARNING: undefined value for $mouse, $var, $session, $trial substituted by average value among mice\n";
+                          }
+                        else
+                          {
+                            $newP_xt->{$mouse}{$var}{$session}{$trial} = $P_xt->{$mouse}{$var}{$session}{$trial} 
+                          }     			      
+    		          }
+                  }
+			  }
+          }
+      }
+      
+    return ($newP_xt);  
+  }
+
+#Traversing the hash when a value is not defined or is a NA then it will be substitute by the mean 
+#of all the others animals for this variable in the same session and trial 
+sub notDef2mean
+  {
+    my ($h, $var, $session, $trial) = @_;
+    
+    my ($type, $mouse, $mean);
+    my @values;
+    
+    #my ($mouse, $var, $k_1, $session, $genotype);
+ 
+    #traversing hash looking for not defined values
+     foreach $type (@genotypes)
+      {
+        foreach $mouse (@{$mice{$type}})
+          {
+            if (exists ($h-> {$mouse}{$var}{$session}{$trial}))
+              {
+                my $x = $h-> {$mouse}{$var}{$session}{$trial};
+                #print "$mouse\t$var\t$session\t$trial\t$x\n";
+                push (@values, $h-> {$mouse}{$var}{$session}{$trial});
+              }
+          }
+      }
+     
+     $mean = &average (@values);
+     
+     return ($mean);
+  }
+    
 sub trialAverages
   {
     #my ($P_xt, $P_zones, $P_quants) = @_;
@@ -268,57 +361,6 @@ sub trialAverages
     
   }
 
-sub checkEmptyFields
-  {
-    my ($P_xt, $P_zones, $P_quants) = @_;
-    
-    my ($quant, $zone, $measure, $type, $mouse,  $var, $k_1, $session, $trial);
-    
-    #This array will be used to check whether all animals have all the variables defined or not
-    foreach $quant (@$P_quants)
-      {
-        foreach $zone (@$P_zones)
-          {
-            if ($quant eq "Lat.T." && $zone eq "TOTAL")#This field is always zero, that is why we use it us a dump variable
-              {
-                $measure = "whishaw"; #wishaw has not a zone
-              }
-            else
-              {
-    	        $measure = $quant.$zone;
-              }
-            
-            push @measures,$measure;
-          }
-         
-      }
-      
-    foreach $type (@genotypes)
-      {
-        foreach $mouse (@{$mice{$type}})
-          {
-            foreach $var (@measures)
-			  {
-                foreach $k_1 (sort ({$a <=> $b} keys(%sessionOrder)))
-                  {
-                    $session = $sessionOrder {$k_1};
-                    
-                    foreach $trial ("N","S","W","E")
-    		          {
-    		            if (!defined $P_xt->{$mouse}{$var}{$session}{$trial}) #session is always defined, each individual file is a session
-                          {
-                            $P_xt->{$mouse}{$var}{$session}{$trial}="NA"; #if it does not exist we define it as empty
-                            print STDERR "WARNING: undefined value for $mouse, $var, $session, $trial\n";
-                          }    			      
-    		          }
-                  }
-			  }
-          }
-      }
-      
-    return ($P_xt);  
-  }
-      
 #Printing the table with the mean value of a given measure over trials for each mouse (rows)
 #                           V1  V2  V3 ....  
 #  mice n
@@ -330,7 +372,8 @@ sub printAllVar
     my $h = shift;
     
     my ($mouse, $var, $k_1, $session, $genotype);
-
+    
+    #print table headers
     print "animal\tgenotype";
     
     foreach $mouse (sort ({$a <=> $b} keys(%$h)))        
