@@ -195,10 +195,10 @@ sub parseFiles
           	       }	
           	    
           	    elsif($_=~/Error/)
-          	     {          	
-          		    my $dumpLine =  <$F>;
-          		
+          	     {          	          		    
+          		    $_=readline ($F);
           		    @tmp=split(/\t/,$_);
+          		    print STDERR "whishaw is $tmp[0]\n";
           		    $xt{$mouse}{"whishaw"}{$day}{$point} = $tmp[0] * 1;
 			
 	             }
@@ -206,7 +206,7 @@ sub parseFiles
               }
            
             close ($F);
-            	        	                                  
+           	        	                                  
           }
           
           else 
