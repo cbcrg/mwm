@@ -55,7 +55,7 @@ my %sessionOrder = (
 %xt = %$P_xt;
 
 #Check whether empty fields are present 
-#Not defined values substituted by mean among mice
+#Not defined values substituted by mean over mice
 ($P_xt) = &checkEmptyFields ($P_xt, $P_zones, $P_quants);
 
 #print Dumper ($P_xt);
@@ -181,6 +181,7 @@ sub parseFiles
             			 push @quants,$variable[$i];          			
                         }
             		  
+            		  #When velocity is equal to zero if it is because the animal has not been in the zone I set the value to NA
             		  if ($variable [$i] =~ /V.(Avge|Mean)|Lat.T./ && $tmp[$i] == 0 && $xt{$mouse}{'Dist'.$zone}{$day}{$point} == 0) 
             		    {            		                  		      
           		          $xt{$mouse}{$variable[$i].$zone}{$day}{$point} = "NA";
@@ -260,14 +261,16 @@ sub checkEmptyFields
                     $session = $sessionOrder {$k_1};
                     
                     foreach $trial ("N","S","W","E")
-    		          {
-    		            if (!defined $P_xt->{$mouse}{$var}{$session}{$trial}) #session is always defined, each individual file is a session
+    		          { 
+    		            #session is always defined, each individual file is a session
+    		            #velocities when animals have not been in a zone are equal to NA
+    		            if (!exists ($P_xt->{$mouse}{$var}{$session}{$trial}) || $P_xt->{$mouse}{$var}{$session}{$trial} eq "NA") 
                           {                            
                             #we substitute empty values by the mean value of the defined one for all the other mice
                             #$newP_xt->{$mouse}{$var}{$session}{$trial} = "NA"; #before it was defined as NA
                             $newP_xt->{$mouse}{$var}{$session}{$trial} = &notDef2mean ($P_xt, $var, $session, $trial);
                              
-                            print STDERR "WARNING: undefined value for $mouse, $var, $session, $trial substituted by average value among mice\n";
+                            print STDERR "WARNING: undefined value for $mouse, $var, $session, $trial substituted by average value over mice\n";
                           }
                         else
                           {
@@ -298,9 +301,9 @@ sub notDef2mean
       {
         foreach $mouse (@{$mice{$type}})
           {
-            if (exists ($h-> {$mouse}{$var}{$session}{$trial}))
+            if (exists ($h-> {$mouse}{$var}{$session}{$trial}) && $h-> {$mouse}{$var}{$session}{$trial} ne "NA")
               {
-                my $x = $h-> {$mouse}{$var}{$session}{$trial};
+                #my $x = $h-> {$mouse}{$var}{$session}{$trial};
                 #print "$mouse\t$var\t$session\t$trial\t$x\n";
                 push (@values, $h-> {$mouse}{$var}{$session}{$trial});
               }
@@ -321,9 +324,7 @@ sub trialAverages
     
     #my ($quant, $zone, $measure, $type, $trial, $id );
     my (@tmp);
-    
-
-      
+          
     foreach $mouse (sort ({$a cmp $b} keys (%$P_xt)))
       {        
         foreach $var (keys (%{$P_xt->{$mouse}}))
@@ -434,7 +435,7 @@ sub printAllVar
 #  mice n+1
 #  ...
 #The input of function is a %hash with this structure $x{$mouse}{$measure}[$day]
-#Modify to make the plots that they use to see difference across days by groups
+#Modify to make the plots that they use to see difference over days by groups
 #
 #   - -
 #   * *     
