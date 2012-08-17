@@ -46,7 +46,7 @@ my ($P_zones,$P_quants,$P_measures,$P_xt,$P_x);#pointers
 #                   );  
 
 my %sessionOrder = (                    
-                    '2' => 'A2',
+                    '2' => 'A1',
                    );  
                  
                    
@@ -198,7 +198,7 @@ sub parseFiles
           	     {          	          		    
           		    $_=readline ($F);
           		    @tmp=split(/\t/,$_);
-          		    print STDERR "whishaw is $tmp[0]\n";
+          		    #print STDERR "whishaw is $tmp[0]\n";#del
           		    $xt{$mouse}{"whishaw"}{$day}{$point} = $tmp[0] * 1;
 			
 	             }
@@ -236,7 +236,7 @@ sub checkEmptyFields
           {
             if ($quant eq "Lat.T." && $zone eq "TOTAL")#This field is always zero, that is why we use it us a dump variable
               {
-                $measure = "whishaw"; #wishaw has not a zone
+                $measure = "whishaw"; #whishaw has not a zone
               }
             else
               {
