@@ -49,7 +49,9 @@ my ($data, $bin, $logodd);
 
 #Reads the data
 $data = &readData ($data, $param);
-
+#
+#print Dumper ($data);
+#die;
 #Adds new fields (fields that are not in xml and should be calculated)
 if ($param->{add})
   {        
@@ -363,12 +365,12 @@ sub csv2hash
       {
         my $l=$_;
                 
-        if ($l=~/#h/ || /#comment/)
+        if ($l=~/^#comment/)
           {            
             $HEADER.=$l;
           }
           
-        elsif ($l=~/#d/)
+        elsif ($l=~/^#d/)
           {
             chomp($l);
                         
@@ -376,8 +378,9 @@ sub csv2hash
               {
                 $file2save = $1;                 
               }
-            
+#            print Dumper ($l);#del
             my @ary_l = ($l=~/([^;]+)/g);
+#            print Dumper (@ary_l);#del
             shift @ary_l;  #get rid of #d
             my $exp = shift (@ary_l);
             my $index = shift(@ary_l);
@@ -388,7 +391,33 @@ sub csv2hash
                 $d->{$file2save}{'data'}{$index}{$ary_l[$a]}=$ary_l[$a+1];
               }            
           }
-      } 
+          
+          elsif ($l=~/^#h/)
+          {
+            $HEADER.=$l;#We keep as row lines but at the same time we process it, this way if output is csv we just dump it
+                        #and if it is a table we can play with the data
+            chomp($l);
+                        
+            if ($l =~ m/\;file\;.([A-Za-z0-9_\/\.]+)/) 
+              {
+                $file2save = $1;                 
+              }
+            
+            my @ary_l = ($l=~/([^;]+)/g);
+            shift @ary_l;  #get rid of #h
+            #my $exp = shift (@ary_l);
+            #my $index = shift(@ary_l);
+                                        
+            for (my $a=0; $a<=$#ary_l; $a+=2)
+              {
+                #$d->{$file}{'data'}{'record'}{$index}{$ary_l[$a]}=$ary_l[$a+1];
+                $d->{$file2save}{'header'}{$ary_l[$a]}=$ary_l[$a+1];
+              }            
+          }
+      }
+#      print Dumper ($d);die;#del 
+#      print Dumper ($h);die;#del
+      
     return ($d)
   }
 
@@ -400,7 +429,7 @@ sub hash2hashCsvLike
     my $H = shift;
     my $hasIndex = shift;
     
-    my ($h, $d, $r, $main_k, $k_1, $k_2, $k_3, $d, $key, $v);
+    my ($h, $d, $r, $main_k, $k_1, $k_2, $k_3, $key, $v);
         
     if ($hasIndex)
       {         
@@ -481,11 +510,12 @@ sub data2printTbl
   {
     my $d = shift;
     my ($f);
+    my $sw = 0;
     
     #print Dumper ($d);die;#del
     if (defined ($HEADER))
       {
-#        print "$HEADER";
+        #print "$HEADER";die;
       }
       
     else
@@ -499,8 +529,9 @@ sub data2printTbl
       }    
             
     foreach $f (sort ({$a cmp $b} keys(%$d)))
-      {
-        printDataTbl ($data-> {$f}{'data'}, $f);
+      {        
+        printDataTbl ($data-> {$f}{'data'}, $data-> {$f}{'header'}, $f, $sw);
+        $sw = 1;
       } 
   }    
 
@@ -579,31 +610,40 @@ sub printData
 sub printDataTbl
   {
     my $H = shift;
+    my $H_header = shift;
     my $f = shift;
-    
+    my $header_sw =shift;
+#    print Dumper ($H_header);die; #del
     my ($k_1, $k_2, $v);
     
-    foreach $k_1 (sort {$a <=> $b} keys(%$H))
-      {
-        print "index\t";
-        foreach $k_2 (sort {$a cmp $b} keys(%{$H->{$k_1}}))
+    if ($header_sw == 0) 
+      {    
+        foreach $k_1 (sort {$a <=> $b} keys(%$H))
           {
-            if ($k_2 eq "file")
+            print "index\t";
+            foreach $k_2 (sort {$a cmp $b} keys(%{$H->{$k_1}}))
               {
-                $f = $H->{$k_1}{$k_2};
-                next;
-              } 
+                if ($k_2 eq "file")
+                  {
+                    $f = $H->{$k_1}{$k_2};
+                    next;
+                  } 
+                
+                $v = $H->{$k_1}{$k_2};
+                
+                $k_2 =~ s/#/_/g;
+                print "$k_2\t";
+              }
             
-            $v = $H->{$k_1}{$k_2};
-            
-            $k_2 =~ s/#/_/g;
-            print "$k_2\t";
+            $f = path2fileName ($f);
+            print "file\t";
+            last;
           }
-        
-        $f = path2fileName ($f);
-        print "file\n";
-        last;
+          
+        print "genotype\tsession\ttrial\n";
       }
+    
+    
           
     foreach $k_1 (sort {$a <=> $b} keys(%$H))
       {
@@ -622,7 +662,11 @@ sub printDataTbl
           }
         
         $f = path2fileName ($f);
-        print "$f\n";
+        
+        $f =~ m/^(\d+)_([N|E|S|W])/;
+        my $trial = $2;
+         
+        print "$H_header->{'animalData#genotype'}\t$H_header->{'experimentData#session'}\t$trial\n";
       }
   }    
   
