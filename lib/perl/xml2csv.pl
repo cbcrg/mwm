@@ -76,8 +76,7 @@ if ($param->{action} eq "convert")
       }
     
     elsif ($param->{infile_format} eq "csv")
-      {        
-        #die;#del  
+      { 
         &data2printTbl($data);        
       }
       
@@ -340,11 +339,12 @@ sub xml2hash
     my $data = shift;    
     my $param = shift;
     
-    my ($H, $header, $xml);
+    my ($H, $header, $xml, );
        
     $xml = new XML::Simple;
     $H = $xml->XMLin($file);
-    $file = &path2fileName ($file);            
+    $file = &path2fileName ($file);
+               
     $data->{$file}{'header'} = &hash2hashCsvLike ($H->{'header'}, 0);
     $data->{$file}{'data'} = &hash2hashCsvLike ($H->{'data'}{'record'}, 1);    
     #$data->{$file} = &hash2hashCsvLike ($H);   
@@ -378,9 +378,9 @@ sub csv2hash
               {
                 $file2save = $1;                 
               }
-#            print Dumper ($l);#del
+
             my @ary_l = ($l=~/([^;]+)/g);
-#            print Dumper (@ary_l);#del
+
             shift @ary_l;  #get rid of #d
             my $exp = shift (@ary_l);
             my $index = shift(@ary_l);
@@ -415,8 +415,6 @@ sub csv2hash
               }            
           }
       }
-#      print Dumper ($d);die;#del 
-#      print Dumper ($h);die;#del
       
     return ($d)
   }
@@ -512,7 +510,6 @@ sub data2printTbl
     my ($f);
     my $sw = 0;
     
-    #print Dumper ($d);die;#del
     if (defined ($HEADER))
       {
         #print "$HEADER";die;
@@ -613,8 +610,7 @@ sub printDataTbl
     my $H_header = shift;
     my $f = shift;
     my $header_sw =shift;
-#    print Dumper ($H_header);die; #del
-    my ($k_1, $k_2, $v);
+    my ($k_1, $k_2, $v, $mouse);
     
     if ($header_sw == 0) 
       {    
@@ -636,7 +632,8 @@ sub printDataTbl
               }
             
             $f = path2fileName ($f);
-            print "file\t";
+#            print "file\t";
+			print "mouse\t";
             last;
           }
           
@@ -661,12 +658,12 @@ sub printDataTbl
             print "$v\t";
           }
         
-        $f = path2fileName ($f);
-        
+        $f = &path2fileName ($f);
+        $mouse = &fileName2mouse ($f);
         $f =~ m/^(\d+)_([N|E|S|W])/;
         my $trial = $2;
          
-        print "$H_header->{'animalData#genotype'}\t$H_header->{'experimentData#session'}\t$trial\n";
+        print "$mouse\t$H_header->{'animalData#genotype'}\t$H_header->{'experimentData#session'}\t$trial\n";
       }
   }    
   
@@ -1154,11 +1151,28 @@ sub path2fileName
         my @a = split ("/",$f);        
         $f = pop (@a);      
       } 
-    
+    	
     return ($f);
     
   }
 
+sub fileName2mouse
+	{
+		my $f = shift;
+		
+		if ($f =~ /^*.\./)
+			{    
+				my @a = split (/\./, $f);
+        		$f = shift (@a); 
+        		my @ary = split (/_/, $f);
+        		$f = shift (@ary);
+        		            		    
+      		} 
+    	
+    	return ($f);
+		
+	}
+	
 sub addField2data
 	{
 		my $data = shift;
@@ -1392,11 +1406,11 @@ sub aryCompare
 			}	
 	}
 
-	sub rad2deg 
-		{ 
-			my $alpha = shift;
-			my $alpha_deg = shift;
-			 
-			$alpha_deg = ($alpha/$pi) * 180; 
-		}
+sub rad2deg 
+	{ 
+		my $alpha = shift;
+		my $alpha_deg = shift;
+		 
+		$alpha_deg = ($alpha/$pi) * 180; 
+	}
 	
