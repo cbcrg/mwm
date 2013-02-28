@@ -23,7 +23,7 @@ $path="/users/cn/ierb/work/MaraDierssen/data/Ts1Ts2Ts1Cje/MWM/";
 
 ($P_xt,$P_zones,$P_quants)=parse_excel();
 
-#print Dumper ($P_xt);die;#del
+print Dumper ($P_xt);die;#del
 
 %xt=%$P_xt;#$xt{$id}{$quant.$zone}[$day] ~ $xt{$mouse}{$measure}[$day]
 
@@ -33,11 +33,13 @@ $path="/users/cn/ierb/work/MaraDierssen/data/Ts1Ts2Ts1Cje/MWM/";
 @measures=@$P_measures;
 
 #Printing the table with the mean measure of a given variable over trials for each mouse (rows)
-#&printTableVar_vs_Mice (\%x);
-&printTableByVar_vs_Mice (\%x);
+&printTableVar_vs_Mice (\%x);
+
+#Printing a table for each of the variables along days for each mouse (rows)
+#&printTableByVar_vs_Mice (\%x);
 
 #Printing the table with the mean value of a given measure over trials for each mouse (rows)
-#                           V1  V2  V3 ....  
+#                           V1_day1  V2_day1  V3_day1 ....   V1_day2  V2_day2  V3_day2  
 #  mice n
 #  mice n+1
 #  ...
