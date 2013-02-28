@@ -374,7 +374,7 @@ sub csv2hash
           {
             chomp($l);
                         
-            if ($l =~ m/\;file\;.([A-Za-z0-9_\/\.]+)/) 
+            if ($l =~ m/\;file\;([A-Za-z0-9_\-\/\.]+)/) 
               {
                 $file2save = $1;                 
               }
@@ -398,7 +398,7 @@ sub csv2hash
                         #and if it is a table we can play with the data
             chomp($l);
                         
-            if ($l =~ m/\;file\;.([A-Za-z0-9_\/\.]+)/) 
+            if ($l =~ m/\;file\;([A-Za-z0-9_\-\/\.]+)/)
               {
                 $file2save = $1;                 
               }
@@ -507,6 +507,7 @@ sub data2printCsv
 sub data2printTbl
   {
     my $d = shift;
+    #print Dumper ($d); #tag #del
     my ($f);
     my $sw = 0;
     
@@ -660,8 +661,8 @@ sub printDataTbl
         
         $f = &path2fileName ($f);
         $mouse = &fileName2mouse ($f);
-        $f =~ m/^(\d+)_([N|E|S|W])/;
-        my $trial = $2;
+        $f =~ m/^(\d+)-([N|E|S|W])/;
+        my $trial = uc ($2);
          
         print "$mouse\t$H_header->{'animalData#genotype'}\t$H_header->{'experimentData#session'}\t$trial\n";
       }
@@ -1159,12 +1160,17 @@ sub path2fileName
 sub fileName2mouse
 	{
 		my $f = shift;
+		my @ary;
 		
 		if ($f =~ /^*.\./)
 			{    
 				my @a = split (/\./, $f);
-        		$f = shift (@a); 
-        		my @ary = split (/_/, $f);
+        		$f = shift (@a);
+        		
+        		if ($f =~ /^*\-*/) {@ary = split (/-/, $f);}
+        		elsif ($f =~ /^*\_*/) {@ary = split (/_/, $f);}
+        		else {print STDERR "Mouse Id could not be reach by name file $f\n"; die;}
+        		
         		$f = shift (@ary);
         		            		    
       		} 
