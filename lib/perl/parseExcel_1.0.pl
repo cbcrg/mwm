@@ -36,18 +36,26 @@ my ($P_zones,$P_quants,$P_measures,$P_xt,$P_x);#pointers
 #                     
 #                   );
 
-#my %sessionOrder = (                    
-#                    '1' => 'PT',
-#                    '2' => 'A1',
-#                    '3' => 'A2',
-#                    '4' => 'A3',
-#                    '5' => 'A4',
-#                    '6' => 'A5',
-#                   );  
-
 my %sessionOrder = (                    
+                    '1' => 'PT',
                     '2' => 'A1',
-                   );  
+                    '3' => 'A2',
+                    '4' => 'A3',
+                    '5' => 'A4',
+                    '6' => 'A5',
+                   );
+                   
+#my %sessionOrder = (                                        
+#                    '1' => 'A1',
+#                    '2' => 'A2',
+#                    '3' => 'A3',
+#                    '4' => 'A4',
+#                    '5' => 'A5',
+#                   );                      
+
+#my %sessionOrder = (                    
+#                    '1' => 'A4',
+#                   );  
                  
                    
 ($P_xt, $P_zones, $P_quants)= &parseFiles ();
@@ -67,12 +75,21 @@ my %sessionOrder = (
 ##%x=%$P_x;#$x{$mouse}{$measure}[$day] #average over trial per mouse, i.e. the information of one day containing 4 trials
 ##@measures=@$P_measures;
 
+###################
+#Printing the table with the mean measure of a all single variables over trials for each mouse (rows)
+
+#&printAllVar ($P_x);
+
+###################
 #Printing the table with the mean measure of a given variable over trials for each mouse (rows)
 
-&printAllVar ($P_x);
+#my $var2print = "P.TimeZONE"; #This way we only get Zones from 1 to 8
+my $var2print = "TOTAL";
+&printSingleVar ($P_x, $var2print);
 
-#Printing a table for each single variabla containing all the values for all sessions
-#Classical plot
+###################
+#Printing a table for each single variable containing all the values for all sessions
+#This will be useful for the classical ANOVA plot
 #&printTableByVar_vs_Mice ($P_x);
 
 ###################
@@ -310,8 +327,16 @@ sub notDef2mean
           }
       }
      
-     $mean = &average (@values);
-     
+     if (scalar (@values) == 0) 
+      {
+        print STDERR "WARNING: any value found for $var, $session, $trial for any mice\n";
+        $mean = 0;
+      }
+     else
+      {  
+        $mean = &average (@values);
+      }
+      
      return ($mean);
   }
     
@@ -344,6 +369,7 @@ sub trialAverages
 			         }
 			     }
 			   
+			   #print STDERR "tmp array scalar(@tmp)\n";
 			   if (scalar(@tmp) == 0)
 			     {
 			       $x {$mouse}{$var}{$session} = "NA";
@@ -506,6 +532,93 @@ sub printTableByVar_vs_Mice
       }
                  
   }
+
+#This function will only show the columns matching the pattern given by $var2print 
+sub printSingleVar
+  {
+    my $h = shift;
+    my $var2print = shift;
+    
+    my ($mouse, $var, $k_1, $session, $genotype, $genGroup);
+    
+    #print table headers
+    print "animal\tgenotype";
+    #print "genotype\t";
+    
+    #Getting only the keys of variables which match the pattern
+    
+    foreach $mouse (sort ({$a <=> $b} keys(%$h)))        
+     {
+         foreach $var (sort {$a cmp $b} keys (%{$h->{$mouse}}))
+          {
+            
+            if ($var =~ m/$var2print/) 
+              {
+                #print "\t$var";#del
+              
+            
+                #we keep the order of sessions by using the hash sessionOrder
+                foreach $k_1 (sort ({$a <=> $b} keys(%sessionOrder)))
+                  {
+                    #print "key is $var\n";#del 
+                    $session = $sessionOrder{$k_1};
+     
+                    #We don't like "(%)" symbol in headers
+                    $var =~ s/\(%\)/Perc/g;
+                    print "\t$var"."Day"."$session";
+                  }
+              }     
+          }
+       last;   
+     }
+    print "\n";
+    
+    #die;#del
+    
+    #print table values
+    foreach $mouse (sort ({$a <=> $b} keys(%$h)))        
+     { 
+       #which genotype has the animal
+       #due to the structure of the hash I have to search for each of the genotype whether the animal is present or not
+       foreach $genotype (keys (%mice)) 
+        {             
+          if (searchValInAry ($mouse, $mice{$genotype}) == 1)
+            {
+              print "$mouse\t$genotype"; 
+              $genGroup=$genotype;
+              next;
+            }            
+        }
+           
+       foreach $var (sort {$a cmp $b} keys (%{$h->{$mouse}}))
+        {
+          #We only go further if the variable match the one we want
+          if ($var =~ m/$var2print/) 
+            {
+              #print STDERR "-------------- $var\n";
+              #we keep the order of sessions by using the hash sessionOrder
+              foreach $k_1 (sort ({$a <=> $b} keys(%sessionOrder)))
+                {
+                  $session = $sessionOrder{$k_1};
+                  
+                  if (exists ($h->{$mouse}{$var}{$session}))
+                    {
+                      print "\t$h->{$mouse}{$var}{$session}";
+                    }
+                  else
+                    {
+                      print STDERR "WARNING: Animal $mouse, Variable $var, Session $session is not defined a zero will appear on table!\n";
+    #                  print "\t0"; #We print a NA, because some values are really 0 and others are not defined 
+                      print "\tNA";
+                    }                  
+                }
+            }     
+        }
+        
+      print "\n";              
+     }
+  }
+    
    	
 sub average{
     my @data=@_;
