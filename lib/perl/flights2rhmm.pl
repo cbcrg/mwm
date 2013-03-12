@@ -238,14 +238,22 @@ sub data2bin
     my $delta = $param->{binDelta};
     my $name = $param->{binName};
       
-    if (!$field){$field="flight";}
-    if (!$nbin){$nbin=1;}
-    if (!$delta){$delta=0.02;}
+    if (!$field) {$field="flight";}
+    if (!$nbin) {$nbin=1;}
+    if (!$delta) {$delta=0.02;}
     if (!$name) 
       {
     	$BIN++;
-    	$name="BIN$BIN";
+    	$name = "BIN$BIN"."_";
       }
+    elsif ($name eq "numeric")
+      {
+        $name = "";
+      }
+    else
+      {
+        $name .= "_";
+      }  
       
     foreach my $f (keys(%$d))
       {
@@ -258,11 +266,11 @@ sub data2bin
     		        
     		    if ($d->{$f}{$i}{bin}) 
     		      {
-    		        $d->{$f}{$i}{bin}="$d->{$f}{$i}{bin}"."::"."$name"."_"."$bin";
+    		        $d->{$f}{$i}{bin}="$d->{$f}{$i}{bin}"."::"."$name"."$bin";
     		      }
     		    else
     		      {
-    		        $d->{$f}{$i}{bin}="$name"."_"."$bin";
+    		        $d->{$f}{$i}{bin}="$name"."$bin";
     		      }
         	  }
         		    
@@ -278,7 +286,7 @@ sub data2bin
   		        
   		        if ($d->{$f}{$i}{bin}) 
   		          {
-  		            $d->{$f}{$i}{bin}="$d->{$f}{$i}{bin}"."::"."$name"."_"."$bin";
+  		            $d->{$f}{$i}{bin}="$d->{$f}{$i}{bin}"."::"."$name"."$bin";
   		          }
   		        else
   		          {
