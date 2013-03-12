@@ -101,7 +101,8 @@ sub check_parameters
     $rp->{binN} = 1;
     $rp->{binDelta} = 1;
     $rp->{binName} = 1;
-    
+    $rp->{binBoundaries} = 1;
+    $rp->{out} = 1;
 #    $rp->{output} = 1;
 
 #    $rp->{add} = 1;
@@ -110,7 +111,7 @@ sub check_parameters
 #    $rp->{infile_format} = 1;
 #    $rp->{outBins} = 1;
 #    $rp->{outLogodd} = 1;
-#    $rp->{out} = 1;
+    
     
     foreach my $k (keys (%$p))
       {
@@ -141,7 +142,7 @@ sub readData
         foreach my $ff (@fl)
           {
             if ( -e $ff) 
-              {                    
+              {                                   
                 #$d = &generic_undump_data ($ff, $d, $p);
                 $d = &vectorFlightsFile2hash ($ff, $d, $p)                
               }
@@ -152,17 +153,18 @@ sub readData
             		exit(1);
             	}
           }
-        }  
+        }
+         
       return ($d);
   }
   
 sub vectorFlightsFile2hash
   {
     my $file = shift;
-    my $data = shift;    
+    my $d = shift;    
     my $param = shift;
+    
     my $F= new FileHandle;
-    my $d = {};
     my $pFlight;
     my $ctr = 1;
     
@@ -208,7 +210,7 @@ sub vectorFlightsFile2hash
         $d->{$file}{$index}{'flight'} = $flight;
            
       }
-    
+      
     return ($d);  
   }
   
@@ -290,7 +292,7 @@ sub data2bin
   		          }
   		        else
   		          {
-  		            $d->{$f}{$i}{bin}="$name"."_"."$bin";
+  		            $d->{$f}{$i}{bin}="$name"."$bin";
   		          }
         		}         
               }
@@ -309,49 +311,49 @@ sub writeData
   {
     my $d = shift;
     my $p=shift;
+    
     #print Dumper ($H);
-    my ($i, $f, $ext, $file) = "";
-    
-    
-    #my $file=shift;
-        
+    my ($i, $f, $ext, $file, $last) = "";                 
     my ($k_1, $k_2, $v);
+    $file = $p->{out};
+    
+    my $F= new FileHandle;
+        
+    if (!$file){open ($F, ">-");}
+    else {open ($F, ">$file");}
         
     foreach $f (sort {$a cmp $b} keys(%$d))
       { 
-        $file= $f;
-               
-        if ($file =~ /(\.[^.]+)$/)
-          {
-            $ext = $1;
-            $file =~ s/(\.[^.]+)$//;
-            $file .= ".csv";  
-          }
-        else
-          {
-            $file .= ".csv";
-          }  
+#        $file= $f;
+#               
+#        if ($file =~ /(\.[^.]+)$/)
+#          {
+#            $ext = $1;
+#            $file =~ s/(\.[^.]+)$//;
+#            $file .= ".csv";  
+#          }
+#        else
+#          {
+#            $file .= ".csv";
+#          }  
                     
-        
-        my $F= new FileHandle;
-        
-        if (!$file){open ($F, ">-");}
-        else {open ($F, ">$file");}
-               
+        if ($p->{binBoundaries}) {print $F "#d;1;0;bin;BEGIN;\n";}                      
         foreach $i (sort {$a <=> $b} keys(%{$d->{$f}}))
-          {
-            print $F "#d;";
+          {            
             
+            print $F "#d;";
             foreach my $k (sort {$a cmp $b} keys(%{$d->{$f}{$i}}))
-              {                                           
-                print $F "$k;$d->{$f}{$i}{$k};";                               
+              {                                                          
+                print $F "$k;$d->{$f}{$i}{$k};";
+                $last = $i+1;                               
               }
             print $F "\n";  
               
           } 
-                                                
+        if ($p->{binBoundaries}) {print $F "#d;1;", "$last", ";bin;END;\n";}                                        
         
       }
+    close ($F);
   }  
   
 sub errorMng
