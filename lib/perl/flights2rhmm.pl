@@ -151,7 +151,7 @@ sub readData
                                     
                 #$d = &generic_undump_data ($ff, $d, $p);
                 #Format: flights2rhmm.01
-                if ($l=~/Format: flights2rhmm.01/ || $l=~/^#d/)
+                if ($l =~ /Format: flights2rhmm.01/ || $l=~/^#d/ || $l =~ /Format: rhmm.data.01/)
                   {
                     $d = &csvFile2hash ($ff, $d, $p);
                   }
@@ -480,7 +480,11 @@ sub data2tableNames
 		
 		    foreach my $k (sort (keys (%{$d->{$f}{$i}})))
 		      {		        
-		        if ($first == 0) {print $F "$k"; $first=1;}
+		        if ($first == 0) 
+		          {
+		            $k = ($k == 1)? "seqOrder" : $k; 
+		            print $F "$k"; $first=1;
+		          }
 		        else {print $F "\t$k";}		     
 		      }		
 		
