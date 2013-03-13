@@ -50,7 +50,7 @@ if ($data && $param->{bin})
 
 if ($data && $param->{outdata} ne "no")
   {  
-    &writeData ($data, $param); 
+    &genericWriteData ($data, $param); 
   }
 
   
@@ -102,6 +102,7 @@ sub check_parameters
     $rp->{binDelta} = 1;
     $rp->{binName} = 1;
     $rp->{binBoundaries} = 1;
+    $rp->{format} = 1;
     $rp->{out} = 1;
 #    $rp->{output} = 1;
 
@@ -133,18 +134,31 @@ sub readData
   
   {
     my $d = shift;
-    my $p = shift;
-    
+    my $p = shift;    
+        
     if ($p->{data}) 
       {
         my @fl=split (/\s+/, $p->{data});
                 
         foreach my $ff (@fl)
-          {
+          {                       
             if ( -e $ff) 
-              {                                   
+              {
+                my $F= new FileHandle;
+                vfopen ($F,$ff);
+                my $l=<$F>;                                
+                close ($F);
+                                    
                 #$d = &generic_undump_data ($ff, $d, $p);
-                $d = &vectorFlightsFile2hash ($ff, $d, $p)                
+                #Format: flights2rhmm.01
+                if ($l=~/Format: flights2rhmm.01/ || $l=~/^#d/)
+                  {
+                    $d = &csvFile2hash ($ff, $d, $p);
+                  }
+                elsif ($l!~/^#/)
+                  {
+                    $d = &vectorFlightsFile2hash ($ff, $d, $p);                    
+                  }                               
               }
              
             else 
@@ -208,12 +222,54 @@ sub vectorFlightsFile2hash
         
         $d->{$file}{$index}{'1'} = $index;
         $d->{$file}{$index}{'flight'} = $flight;
+        $d->{$file}{$index}{'file'} = $file;
            
       }
       
     return ($d);  
   }
-  
+
+sub csvFile2hash
+  {
+    my $file = shift;
+    my $d = shift;    
+    my $param = shift;
+    
+    my $F= new FileHandle; 
+    vfopen ($F, $file);   
+    
+    while (<$F>)
+	 {
+      my $l=$_;
+      chomp($l);
+      my $L={};
+      #print "$l\n";
+      if ( $l=~/#d/)
+        {
+  	     my @v = ($l=~/([^;]+)/g);
+  	     shift @v;	  	     
+
+		 while (@v)
+	      {
+		    my $key=shift @v;
+		    my $value= shift @v;
+		    $L->{$key}=$value;		
+	      }
+        }
+	  
+	  my $f = $L->{file};
+	  my $index = $L->{1};
+		 
+	  foreach my $k (keys(%$L))
+	   {
+	     $d->{$f}{$index}{$k} = $L->{$k};
+	   }  		 
+    }
+    close ($F);
+	print Dumper ($d);
+	return $d;
+  }
+   
 sub vfopen 
   {
     my $f=shift;
@@ -306,22 +362,58 @@ sub data2bin
     
     return ($d);
   }
+
+sub genericWriteData
+  {
+    my $d = shift;
+    my $p = shift;
+    
+    my $file = (exists ($p->{out}))? $p->{out} : "";
+    my $csvExt = ".csv";
+    my $RExt = ".R";
+    
+    if (exists ($p->{format}))
+      {       
+        if ($p->{format} eq "csv")
+          {            
+            $file .= $csvExt;
+            &writeData2csv ($d, $p, $file);
+          }
+        elsif ($p->{format} eq "R")
+          {
+            $file .= $RExt;
+            &writeData2R ($d, $p, $file);
+          }
+        else
+          {
+            &errorMng ("\nERROR: Output format: $param->{format} unknown [FATAL]\n");     
+          }
+      }
+    else
+      {
+         $file .= $csvExt;
+         &writeData2csv ($d, $p, $file); 
+      }      
+  }  
   
-sub writeData
+sub writeData2csv
   {
     my $d = shift;
     my $p=shift;
+    my $file = shift;
     
     #print Dumper ($H);
-    my ($i, $f, $ext, $file, $last) = "";                 
+    my ($i, $f, $ext, $last) = "";                 
     my ($k_1, $k_2, $v);
-    $file = $p->{out};
+    
     
     my $F= new FileHandle;
         
     if (!$file){open ($F, ">-");}
     else {open ($F, ">$file");}
-        
+    
+    print $F "#comment;Format: flights2rhmm.01\n";    
+    
     foreach $f (sort {$a cmp $b} keys(%$d))
       { 
 #        $file= $f;
@@ -337,7 +429,7 @@ sub writeData
 #            $file .= ".csv";
 #          }  
                     
-        if ($p->{binBoundaries}) {print $F "#d;1;0;bin;BEGIN;\n";}                      
+        if ($p->{binBoundaries}) {print $F "#d;1;0;bin;BEGIN;file;$f;\n";}                      
         foreach $i (sort {$a <=> $b} keys(%{$d->{$f}}))
           {            
             
@@ -350,12 +442,60 @@ sub writeData
             print $F "\n";  
               
           } 
-        if ($p->{binBoundaries}) {print $F "#d;1;", "$last", ";bin;END;\n";}                                        
+        if ($p->{binBoundaries}) {print $F "#d;1;", "$last", ";bin;END;file;$f;\n";}                                        
         
       }
     close ($F);
   }  
-  
+
+sub data2tableNames
+  {
+    my $d = shift;
+	foreach my $c (sort ({$a<=>$b}keys(%$d)))
+	  { 
+	    foreach my $i (sort {$a<=>$b}keys (%{$d->{$c}}))
+	      {
+		    my $first=0;
+		
+		foreach my $k (sort (keys (%{$d->{$c}{$i}})))
+		  {
+		    if ($first == 0) {print "$k"; $first=1;}
+		    else {print "\t$k";}		     
+		  }		
+		
+	   print "\n";
+	   last;
+	  }last;	    
+    }	
+  }
+
+sub data2tableRec
+  {
+    my $d = shift;
+	  
+    foreach my $f (sort ({$a<=>$b}keys(%$d)))
+      { 
+        foreach my $i (sort {$a<=>$b}keys (%{$d->{$f}}))
+          {
+	       my $first=0;
+	       foreach my $k (sort (keys (%{$d->{$f}{$i}})))
+	         {
+	           if ($first == 0) 
+	             {
+		          print "$d->{$f}{$i}{$k}"; 
+		          $first=1;
+	             }
+	           else 
+	             {
+		          print "\t$d->{$f}{$i}{$k}";
+	             }		     
+	         }		
+	      
+	    print "\n";
+      }	    
+    }
+  }
+	  
 sub errorMng
   {
     my $msg = shift;
