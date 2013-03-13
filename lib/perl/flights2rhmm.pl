@@ -363,6 +363,7 @@ sub data2bin
     return ($d);
   }
 
+
 sub genericWriteData
   {
     my $d = shift;
