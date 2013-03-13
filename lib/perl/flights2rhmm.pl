@@ -44,7 +44,7 @@ my ($data, $bin, $logodd);
 $data = &readData ($data, $param);
 
 if ($data && $param->{bin})
-  {      
+  {     
     &data2bin ($data, $param); 
   }
 
@@ -266,7 +266,7 @@ sub csvFile2hash
 	   }  		 
     }
     close ($F);
-	print Dumper ($d);
+	#print Dumper ($d);
 	return $d;
   }
    
@@ -289,13 +289,13 @@ sub vfopen
 sub data2bin
   {
     my $d = shift;
-    my $param = shift;
+    my $param = shift;    
     
     my $field = $param->{binField};
     my $nbin = $param->{binN};
     my $delta = $param->{binDelta};
     my $name = $param->{binName};
-      
+        
     if (!$field) {$field="flight";}
     if (!$nbin) {$nbin=1;}
     if (!$delta) {$delta=0.02;}
@@ -382,7 +382,7 @@ sub genericWriteData
           }
         elsif ($p->{format} eq "R")
           {
-            $file .= $RExt;
+            if ($file) {$file .= $RExt;}
             &writeData2R ($d, $p, $file);
           }
         else
@@ -392,7 +392,7 @@ sub genericWriteData
       }
     else
       {
-         $file .= $csvExt;
+         if ($file) {$file .= $csvExt;}
          &writeData2csv ($d, $p, $file); 
       }      
   }  
@@ -430,7 +430,7 @@ sub writeData2csv
 #            $file .= ".csv";
 #          }  
                     
-        if ($p->{binBoundaries}) {print $F "#d;1;0;bin;BEGIN;file;$f;\n";}                      
+        if ($p->{binBoundaries}) {print $F "#d;1;0;bin;BEGIN;file;$f;flight;0;\n";}                      
         foreach $i (sort {$a <=> $b} keys(%{$d->{$f}}))
           {            
             
@@ -443,36 +443,58 @@ sub writeData2csv
             print $F "\n";  
               
           } 
-        if ($p->{binBoundaries}) {print $F "#d;1;", "$last", ";bin;END;file;$f;\n";}                                        
+        if ($p->{binBoundaries}) {print $F "#d;1;", "$last", ";bin;END;file;$f;flight;0;\n";}                                        
         
       }
     close ($F);
-  }  
+  } 
+   
+ sub writeData2R
+  {
+    my $d = shift;
+    my $p=shift;
+    my $file = shift;
+    
+    my $F= new FileHandle;
+        
+    if (!$file){open ($F, ">-");}
+    else {open ($F, ">$file");}
+    
+    &data2tableNames ($d, $F);
+    &data2tableRec ($d, $F);
+    
+    close ($F);    
+    
+  } 
 
 sub data2tableNames
   {
     my $d = shift;
-	foreach my $c (sort ({$a<=>$b}keys(%$d)))
+    my $F = shift;
+    
+	foreach my $f (sort ({$a<=>$b}keys(%$d)))
 	  { 
-	    foreach my $i (sort {$a<=>$b}keys (%{$d->{$c}}))
+	    foreach my $i (sort {$a<=>$b}keys (%{$d->{$f}}))
 	      {
 		    my $first=0;
 		
-		foreach my $k (sort (keys (%{$d->{$c}{$i}})))
-		  {
-		    if ($first == 0) {print "$k"; $first=1;}
-		    else {print "\t$k";}		     
-		  }		
+		    foreach my $k (sort (keys (%{$d->{$f}{$i}})))
+		      {		        
+		        if ($first == 0) {print $F "$k"; $first=1;}
+		        else {print $F "\t$k";}		     
+		      }		
 		
-	   print "\n";
-	   last;
-	  }last;	    
+	       print $F "\n";
+	       last;
+	  }	  
+	  last;	    
     }	
   }
 
 sub data2tableRec
   {
     my $d = shift;
+	my $F = shift;
 	  
     foreach my $f (sort ({$a<=>$b}keys(%$d)))
       { 
@@ -483,16 +505,16 @@ sub data2tableRec
 	         {
 	           if ($first == 0) 
 	             {
-		          print "$d->{$f}{$i}{$k}"; 
+		          print $F "$d->{$f}{$i}{$k}"; 
 		          $first=1;
 	             }
 	           else 
 	             {
-		          print "\t$d->{$f}{$i}{$k}";
+		          print $F "\t$d->{$f}{$i}{$k}";
 	             }		     
 	         }		
 	      
-	    print "\n";
+	    print $F "\n";
       }	    
     }
   }
