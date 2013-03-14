@@ -35,6 +35,9 @@ if ($#ARGV ==-1)
 
 my $param;
 my $BIN=0;
+#Hash store length in tenth of seconds of the path
+#used for filtering
+my $lentghPath = {};
 
 $param = &process_param (@ARGV);
 
@@ -103,6 +106,7 @@ sub check_parameters
     $rp->{binName} = 1;
     $rp->{binBoundaries} = 1;
     $rp->{format} = 1;
+    $rp->{filterLength} = 1;
     $rp->{out} = 1;
 #    $rp->{output} = 1;
 
@@ -182,12 +186,15 @@ sub vectorFlightsFile2hash
     my $pFlight;
     my $ctr = 1;
     
+    my $length = 0;
+    
     vfopen ($F, $file);
     
     while (<$F>) 
       {
         my $l=$_;
         chomp($l);
+        $length++;
         
         my @aryL = split (" ",$l);
         
@@ -225,6 +232,8 @@ sub vectorFlightsFile2hash
         $d->{$file}{$index}{'file'} = $file;
            
       }
+    
+    $lentghPath->{$file} = $length;
       
     return ($d);  
   }
@@ -362,8 +371,7 @@ sub data2bin
     
     return ($d);
   }
-
-
+  
 sub genericWriteData
   {
     my $d = shift;
@@ -372,6 +380,9 @@ sub genericWriteData
     my $file = (exists ($p->{out}))? $p->{out} : "";
     my $csvExt = ".csv";
     my $RExt = ".R";
+    
+    ##filter files with less that a given number of records
+    $d = filterByPathLength ($d, $p);
     
     if (exists ($p->{format}))
       {       
@@ -396,7 +407,33 @@ sub genericWriteData
          &writeData2csv ($d, $p, $file); 
       }      
   }  
-  
+
+sub filterByPathLength
+  {
+    my $d = shift;
+    my $p = shift;
+    
+    my ($f, $i, $max, $ctrFiltered, $total);
+    $max = $p->{filterLength};
+    $ctrFiltered = 0;
+    $total = scalar keys %$d;
+    
+    if (!keys %$lentghPath) { &errorMng ("\nERROR: Filtering by path length only available if original file is a vectorFlight [FATAL]\n");} 
+    
+    foreach $f (sort {$a cmp $b} keys(%$d))
+      {         
+        #print STDERR "Looking at file --- $f\n";  
+        if ($lentghPath->{$f} > $max)
+          {
+            delete ($d->{$f});
+            #print STDERR "File $f filtered out ---- $lentghPath->{$f} ----max: $max\n";
+            $ctrFiltered ++;
+          }                           
+      }
+     print STDERR "$ctrFiltered filtered by path length out of $total files\n";
+     return ($d);
+  }
+    
 sub writeData2csv
   {
     my $d = shift;
