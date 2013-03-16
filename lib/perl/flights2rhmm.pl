@@ -382,7 +382,7 @@ sub genericWriteData
     my $RExt = ".R";
     
     ##filter files with less that a given number of records
-    $d = filterByPathLength ($d, $p);
+    $d = (exists ($p->{filterLength}))? filterByPathLength ($d, $p) : $d;
     
     if (exists ($p->{format}))
       {       
