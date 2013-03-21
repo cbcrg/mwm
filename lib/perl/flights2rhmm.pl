@@ -377,7 +377,7 @@ sub genericWriteData
     my $d = shift;
     my $p = shift;
     
-    my $file = (exists ($p->{out}))? $p->{out} : "";
+    my $file = (exists ($p->{out}) && $p->{out} != 1)? $p->{out} : "";
     my $csvExt = ".csv";
     my $RExt = ".R";
     
