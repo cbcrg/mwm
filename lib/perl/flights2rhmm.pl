@@ -7,29 +7,26 @@ use Data::Dumper;
 
 if ($#ARGV ==-1)
   {    
-    print "\n****************** Description **************************\n";
-    print "Read flights and generates a fiel readable by rhmm.pl\n";
-#    print "Bins the data and show statistics\n";
-    print "****************** Command Line  ***********************\n";
+    print "\n****************** Description  **************************\n";
+    print "Read flights and generates a file readable by rhmm.pl\n";
+    print "******************** Command Line **************************\n";
     print "flights2rhmm.pl -data <data_file>\n";
-    print "****************** Flags      **************************\n";
-    print "  -data  <file1 file2.. > ........File: input data from file(s).\n"; 
-#    print "  -infile_format <mode>.............Mode: csv or xml.\n";   
-#    print "  -output        <mode>.............Mode: csv or xml.\n";
-#    print "  -add           <mode>.............Mode: direction.\n";
-#    print "  -bin           <mode>.............Mode: angle.\n";
-#    print "  -action        <mode> ............Mode: 'convert' Converts xml files into csv.\n";
-#    print "  ........................................'countBins' Perform bins counts.\n";
-#    print "  ........................................'logodd' Calculates bins logodd ratio.\n";
-#    print "  -outBins       <mode> ............Mode:  name of the output files containning the bin and the dibin counts.\n";
-#    print "  .........................................'no' bins counts are not shown.\n";
-#    print "  -outLogodd     <mode> ............Mode:  'screen' logodd ratio results on screen\n";
-#    print "  ..........................................name of the output files containning the logodd ratio results.\n";
-#    print "  .........................................'no' logodd ratios not shown.\n";
-#    print "  -outdata       <mode> ............Mode:  'no' the data is not shown\n";
-    #print "  -stats         <mode> ............Mode: 'logodd' Calculates logodd of bins.\n"; #REVIEW IF IS WORTH TO IMPLEMENT A DIFFERENT OPTION (STATS)
-    #AND NO INSIDE -action    
-    print "****************** END **************************\n\n\n";
+    print "******************** Flags        **************************\n";
+    print "  -data           <file1 file2............File: input data from file(s).\n"; 
+    print "  -readMode       <mode>..................Mode: 'join' Consecutive flights of equal length are bind.\n"; 
+    print "  ........................................Mode: 'raw' Flights are read as they are in input file\n"; 
+    print "  -bin            <>........................<>:  Setting this parameter calls bin option\n";
+    print "  -binField       <parameter>........Parameter: 'flight' by default, allows the binning of other file fields\n";
+    print "  -binN           <int> ...................Int:  Set number of bins to be use.\n";
+    print "  -binDelta       <int> ...................Int:  Set delta, between bins.\n";
+    print "  -binName        <parameter> .......Parameter:  Customize name of bins by default BIN1_1...\n";  
+    print "  -binBoundaries  <> .......................<>:  Two artificial bins are generated BEGIN and END for each sequence of values\n";
+    print "  -filterLength   <int> ...................Int:  Sequences with length bigger than integer.\n";
+    print "  -format         <mode> .................Mode:  'R' output with readable format\n";
+    print "  ........................................Mode:  'csv' output with csv format\n";
+    print "  -outdata       <mode> ..................Mode:  'no' data not shown\n";
+    print "  -out           <mode> .............Parameter:   Name of output\n";            
+    print "******************** END ***********************************\n\n\n";
     die;  
   }
 
@@ -310,8 +307,8 @@ sub data2bin
     if (!$delta) {$delta=0.02;}
     if (!$name) 
       {
-    	$BIN++;
-    	$name = "BIN$BIN"."_";
+    	 $BIN++;
+    	 $name = "BIN$BIN"."_";
       }
     elsif ($name eq "numeric")
       {
