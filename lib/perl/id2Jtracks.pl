@@ -32,7 +32,7 @@ while (<$FIdGen>)
 		$hGenID->{$ary[1].$ary[2]}->{$ary[0]} = 1;		
 	}
 
-print Dumper ($hGenID);
+#print Dumper ($hGenID);
 #die;
 my $F=new FileHandle;
 open($F, $file);        
@@ -78,7 +78,7 @@ while (<$F>)
 #      				print "mouse->$mouse\n";
       				if ($id =~ /$mouse/)
       					{
-     						print "$id--- WT2\n";
+#     						print "$id--- WT2\n";
       						push (@aryWtEGCG, $id);
       						$mouseFind = 1;
       						next;
