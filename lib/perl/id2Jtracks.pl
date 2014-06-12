@@ -107,7 +107,7 @@ foreach my $wtAnimal (@aryWtSaline)
 	{
 		if ($first == 1) 
 			{
-				print "WTSaline\n";
+				print "WT_Saline\n";
 				print "$wtAnimal"; 
 				$first=0;
 			}
@@ -123,7 +123,7 @@ foreach my $TSAnimal (@aryTSSaline)
 	{
 		if ($first == 1) 
 			{
-				print "TSSaline\n";
+				print "TS_Saline\n";
 				print "$TSAnimal"; 
 				$first=0;
 			}
