@@ -24,24 +24,39 @@ my @fileLines;
 
 my $coordReached = 0;
 my $session = "";
+my $wrongHeight = "";
 
 while (<$F>)
 	{   
-		#Skip lines above coordinates
-		if ($_ =~ /^( )+\d/)
+#	Image Size (W/H)
+		if ($_ =~ /^(Image Size \(W\/H\))(\s+)\:(\s+)(\d*\.?\d*)(\s+)(\d*\.?\d*)/)
+#		if ($_ =~ m/(\d*\.?\d*)$/g)
+			{
+				print "$_";
+				chomp;				
+				$wrongHeight = $6;
+#				print "$wrongHeight\n";
+				
+			}
+		#Skip all the remaining lines above coordinates
+		elsif ($_ =~ /^( )+\d/)
 			{
 				chomp;
-#				print $_;
 				my $aryLine = [ split('\t', $_) ];
-#				print Dumper ($aryLine);
-#				last;
-				print "$aryLine->[3]\t";
-				$aryLine->[3] = $aryLine->[3] * 175 / 1475.25; 
-				print "$aryLine->[3]\n";		
+#				print STDERR "$wrongHeight\n";
+#				print "$aryLine->[3]\t";
+				$aryLine->[3] = $aryLine->[3] * 175 / $wrongHeight; 
+				
+				foreach my $i  (@$aryLine)
+      				{
+      					print "$i\t"
+      				}
+      			print "\n";	
 			}
+			
 		else 
 			{
-#				print $_;
+				print $_;
 			}
 									
 	}
