@@ -27,358 +27,129 @@ WT
 
 # TS vs TSEEEGCG
 df.TS <- as.data.frame(TS)
+id <- c(1:length(df.TS$V1))
 colnames (df.TS) <- c("A1", "A2", "A3", "A4", "A5")
 df.TS.m <- melt(df.TS)
 df.TS.m$group <- "TS"
-
+df.TS.m$id <- id
+# TSEEEGCG
 df.TSEEEGCG <- as.data.frame(TSEEEGCG)
 colnames (df.TSEEEGCG) <- c("A1", "A2", "A3", "A4", "A5")
+id_TSEEEGCG <- c((length(df.TS$A1) + 1) : (length(df.TS$A1) + 1 +length(df.TSEEEGCG$A1)-1))
 df.TSEEEGCG.m <- melt(df.TSEEEGCG)
 df.TSEEEGCG.m$group <- "TSEEEGCG"
+df.TSEEEGCG.m$id <- id_TSEEEGCG
 df.plot <- rbind(df.TS.m, df.TSEEEGCG.m)
+#TSEE
+df.TSEE <- as.data.frame(TSEE)
+colnames (df.TSEE) <- c("A1", "A2", "A3", "A4", "A5")
+id_TSEE <- c(((id_TSEEEGCG[length(id_TSEEEGCG)]+1) : (id_TSEEEGCG[length(id_TSEEEGCG)] + length(df.TSEE$A1))))
+df.TSEE.m <- melt(df.TSEE)
+df.TSEE.m$group <- "TSEE"
+df.TSEE.m$id <- id_TSEE
+df.anova <- rbind(df.plot, df.TSEE.m)
+#TSEGCG
+df.TSEGCG <- as.data.frame(TSEGCG)
+colnames (df.TSEGCG) <- c("A1", "A2", "A3", "A4", "A5")
+id_TSEGCG <- c(((id_TSEE[length(id_TSEE)]+1) : (id_TSEE[length(id_TSEE)] + length(df.TSEGCG$A1))))
+df.TSEGCG.m <- melt(df.TSEGCG)
+df.TSEGCG.m$group <- "TSEGCG"
+df.TSEGCG.m$id <- id_TSEGCG
+df.anova <- rbind(df.anova, df.TSEGCG.m)
+#WT
+df.WT <- as.data.frame(WT)
+colnames (df.WT) <- c("A1", "A2", "A3", "A4", "A5")
+id_WT <- c(((id_TSEGCG[length(id_TSEGCG)]+1) : (id_TSEGCG[length(id_TSEGCG)] + length(df.WT$A1))))
+df.WT.m <- melt(df.WT)
+df.WT.m$group <- "WT"
+df.WT.m$id <- id_WT
+df.anova <- rbind(df.anova, df.WT.m)
+
+load("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/3setsPC1.R")
+WTEE
+WTEGCG
+WTEEEGCG
+
+#WT
+df.WTEE <- as.data.frame(WTEE)
+colnames (df.WTEE) <- c("A1", "A2", "A3", "A4", "A5")
+id_WTEE <- c(((id_WT[length(id_WT)]+1) : (id_WT[length(id_WT)] + length(df.WTEE$A1))))
+df.WTEE.m <- melt(df.WTEE)
+df.WTEE.m$group <- "WTEE"
+df.WTEE.m$id <- id_WTEE
+df.anova <- rbind(df.anova, df.WTEE.m)
+
+#WTEGCG
+df.WTEGCG <- as.data.frame(WTEGCG)
+colnames (df.WTEGCG) <- c("A1", "A2", "A3", "A4", "A5")
+id_WTEGCG <- c(((id_WTEE[length(id_WTEE)]+1) : (id_WTEE[length(id_WTEE)] + length(df.WTEGCG$A1))))
+df.WTEGCG.m <- melt(df.WTEGCG)
+df.WTEGCG.m$group <- "WTEGCG"
+df.WTEGCG.m$id <- id_WTEGCG
+df.anova <- rbind(df.anova, df.WTEGCG.m)
+
+#WTEEEGCG
+df.WTEEEGCG <- as.data.frame(WTEEEGCG)
+colnames (df.WTEEEGCG) <- c("A1", "A2", "A3", "A4", "A5")
+id_WTEEEGCG <- c(((id_WTEGCG[length(id_WTEGCG)]+1) : (id_WTEGCG[length(id_WTEGCG)] + length(df.WTEEEGCG$A1))))
+df.WTEEEGCG.m <- melt(df.WTEEEGCG)
+df.WTEEEGCG.m$group <- "WTEEEGCG"
+df.WTEEEGCG.m$id <- id_WTEEEGCG
+df.anova <- rbind(df.anova, df.WTEEEGCG.m)
+
+### PLOT 2 groups
 
 boxPlots <- ggplot(df.plot , aes (variable, value, fill = group, color=group)) + 
   geom_boxplot(show_guide=FALSE) + 
   scale_color_manual(values = c("black", "brown")) +
   scale_fill_manual(name = "Group", values = c("green", "black"), labels = c ("TS", "TSEEEGCG")) +
   #scale_fill_manual (name = "Group", values = c ("green", "brown")) +
-  labs(title = "") + xlab ("\nAdquisition days") + ylab("PC1\n")
-
-label.df <- data.frame(
-                       variable = c("A1", "A2","A3","A4", "A5"),
-                       value = c(7,7,7,7,8))
+  labs(title = "") + xlab ("\nAcquisition days") + ylab("PC1\n")
 
 boxPlots + annotate("text", x=4, y=6, label="*", size=10) + 
            annotate("text", x=5, y=7.6, label="*", size=10)
 
 
-
-
-m.deltaWeight
-boxPlots <- ggplot(m.deltaWeight, aes (DWeek, deltaWeight, fill = group)) + 
-  geom_boxplot() +
-  scale_fill_manual(name = "Group", values = c("green", "brown"), labels = c ("Control", "Free Choice")) +
-  #scale_fill_manual (name = "Group", values = c ("green", "brown")) +
-  labs(title = "Boxplots % of delta weight by development week") 
-
-
-##Getting HOME directory
-home <- Sys.getenv("HOME")
-
-setwd ("/Users/jespinosa/phecomp/data/CRG/20130130_FCSC_CRG/")
-## Adquisition day 1
-# path2WeightTbl <- paste (home, "/phecomp/data/CRG/20130130_FCSC_CRG/20130130to0411rawWeights.tbl", sep = "")
-path2WeightTbl <- paste (home, "/phecomp/data/CRG/20130130_FCSC_CRG/20130130to0411rawWeightsHabDev.tbl", sep = "")
-path2WeightTbl <- paste (home, "/phecomp/data/CRG/20130130_FCSC_CRG/20130130to0411rawWeightsHabDevOneOcurrencePerWeek.tbl", sep = "")
-
-# High fat group 20120502
-path2WeightTbl<- paste (home, "/phecomp/data/CRG/20120502_FDF_CRG/weightData/20120502to0711rawWeightsHabDevOneWeightPerWeek.tbl", sep="")
-rawWeight <- read.table (path2WeightTbl, sep=" ", dec=".", header=T, stringsAsFactors=T)
-head (rawWeight)
-
-## Calculation of delta weight to respect last weight of the habituation phase
-iniW <- rawWeight$Hab
-deltaWeight <-sapply (rawWeight [,c (-1,-2)], y <- function (x, iniW) { return ((x - iniW) / x * 100) }, iniW <- rawWeight$Hab )
-deltaWeight <- as.data.frame (deltaWeight)
-deltaWeight$cage <- rawWeight$cage
-
-## Calculation of delta weight to respect the initial weight of the animal
-iniW <- rawWeight$Initial
-# deltaWeight <-sapply (rawWeight [,c (-1,-2)], y <- function (x, iniW) { return ((x - iniW) / x * 100) }, iniW <- rawWeight$Initial )
-deltaWeight <-sapply (rawWeight [,c (-1)], y <- function (x, iniW) { return ((x - iniW) / x * 100) }, iniW <- rawWeight$Initial )
-deltaWeight <- as.data.frame (deltaWeight)
-deltaWeight$cage <- rawWeight$cage
-
-#Label by experimental group (control, free choice, force diet...)
-#Hard code
-caseGroupLabel <- "freeChoice"
-controlGroupLabel <- "control"
-nAnimals <- 18
-cage <- c (1 : nAnimals)
-group <- c (rep (controlGroupLabel, nAnimals/2), rep (caseGroupLabel, nAnimals/2))
-df.miceGroup <- data.frame (cage, group)
-df.miceGroup$group [which (cage %% 2 != 0)] <- caseGroupLabel
-df.miceGroup$group [which (cage %% 2 == 0)] <- controlGroupLabel
-
-## HIGH-FAT group
-#Label by experimental group (control, free choice, force diet...)
-#Hard code
-caseGroupLabel <- "HF diet"
-controlGroupLabel <- "SC diet"
-
-nAnimals <- 18
-cage <- c (1 : nAnimals)
-group <- c (rep (controlGroupLabel, nAnimals/2), rep (caseGroupLabel, nAnimals/2))
-df.miceGroup <- data.frame (cage, group)
-df.miceGroup$group [which (cage %% 2 != 0)] <- controlGroupLabel
-df.miceGroup$group [which (cage %% 2 == 0)] <- caseGroupLabel
-
-#Adding group labels to the table
-deltaWeight <- merge (deltaWeight, df.miceGroup, by.x= "cage", by.y = "cage")
-head (deltaWeight)
-
-#The data is melted maintaining cage and group columns
-m.deltaWeight <- melt (deltaWeight, id = c("cage", "group"))
-colnames (m.deltaWeight) [3] <- "DWeek"
-colnames (m.deltaWeight) [4] <- "deltaWeight"
-
-head (m.deltaWeight)
-
-## Get summary table with min, max, mean, median, 1Q and 3Q
-summaryDeltaWeight <- ddply(m.deltaWeight, .(DWeek, group), function(x) summary(x$deltaWeight))
-theme_set (theme_grey())
-
-## PLOTTING
-## Boxplots of delta weight
-boxPlots <- ggplot(m.deltaWeight, aes (DWeek, deltaWeight, fill = group)) + 
-  geom_boxplot() +
-  scale_fill_manual(name = "Group", values = c("green", "brown"), labels = c ("Control", "Free Choice")) +
-  #scale_fill_manual (name = "Group", values = c ("green", "brown")) +
-  labs(title = "Boxplots % of delta weight by development week") 
-#+
-#facet_wrap (~group)
-boxPlots
-
-subplot <- ggplot (data = summaryDeltaWeight, aes (x=DWeek, y = Mean, colour = group, group=group), linetype = "dashed", size=2) + 
-  scale_color_manual("group", values = c("darkgreen", "brown")) +
-  opts (panel.border = theme_blank()) +
-  labs (y = NULL, x=NULL) + #scale_x_continuous (breaks = NA) +
-  scale_y_continuous(breaks = NULL) +
-  scale_x_discrete (breaks = NULL)+
-  opts(legend.position = "none") +
-  opts(title = "Means") +
-  geom_line (size=1) 
-
-theme_subPlot <- function() 
-{
-  theme_update(panel.background =theme_rect (fill='grey90'),
-               plot.background = theme_blank ())        
-}
-
-subplot
-
-## Combining the 2 plots in the same figure
-# Placing and setting the size of the subplot
-vp <- viewport (width = 0.3, height = 0.30, x = 0.07,
-                y = unit (24, "lines"), just = c ("left",
-                                                  "top"))
-
-# Creating the function to plot the whole plot
-full <- function() 
-{
-  print(boxPlots)
-  theme_white()
-  print(subplot, vp = vp)           
-}
-
-full ()
-
-#Gray background and big titles
-base_size<-12
-dailyInt_theme <- theme_update (
-  axis.text.x = theme_text (angle = 90, hjust = 1, size = base_size * 1.5),                   
-  axis.text.y = theme_text (size = base_size * 1.3),
-  axis.title.x = theme_text (size=base_size * 1.5, face="bold"),
-  axis.title.y = theme_text (size=base_size * 1.5, angle = 90, face="bold"),
-  strip.text.x = theme_text (size=base_size * 1.3, face="bold"),#facet titles size 
-  strip.text.y = theme_text (size=base_size * 1.3, face="bold"),
-  plot.title = theme_text (size=base_size * 1.5, face="bold"), 
-  legend.text = theme_text (size=base_size * 1.2),
-  legend.title = theme_text (size=base_size * 1.2),
-  panel.grid.major = theme_line (colour = "grey90"),
-  panel.grid.minor = theme_blank(), 
-  axis.ticks = theme_blank())
-
-# Each animal as a line of its delta weight
-# Lines of percentage of weight of each animal by weeks
-p <- ggplot (m.deltaWeight, aes (x=DWeek, y = deltaWeight, colour = group, group=cage)) + 
-  #scale_fill_manual (name = "group", values = c("green", "brown")) +
-  scale_color_manual("group", values = c("darkgreen", "brown")) +
-  opts (title = "Evolution of % of delta weight increased by animal")+
-  geom_line (size=1)   
-p
-
-#adding a line with mean values of each group
-pMeans <- p + geom_line (data = summaryDeltaWeight, aes (x=DWeek, y = Mean, colour = group, group=group), linetype = "dashed", size=2) 
-pMeans <- p + geom_line (data = summaryDeltaWeight, aes (x=DWeek, y = Mean, colour = group, group=group), linetype = "dashed", size=2)
-pMeans 
-
-#adding the name of each cage to the lines
-# m.deltaWeightLastWeek <- m.deltaWeight [which (m.deltaWeight$DWeek == "DPW9_1"),] 
-m.deltaWeightLastWeek <- m.deltaWeight [which (m.deltaWeight$DWeek == "DP_9"),] 
-
-pMeans + geom_text (data = m.deltaWeightLastWeek, aes (x =DWeek, y =deltaWeight, label = cage), size=6, face="bold") 
-
-m.deltaWeightLastWeek <- m.deltaWeight [which (m.deltaWeight$DWeek == "DPW9_1"),] 
-pMeans + geom_text (data = m.deltaWeightLastWeek, aes (x = DWeek, y =deltaWeight, label = cage), size=6, face="bold") +
-  xlab ("weeks") + ylab ("Delta Weight (%)")
-
-###############################
-#The two plots in the same plot
-pMeans <- p + geom_text (data = m.deltaWeightLastWeek, aes (x = DWeek, y =deltaWeight, label = cage), size=6, face="bold")
-
-vp <- viewport (width = 0.4, height = 0.4, x = 0.45,
-                y = unit (15, "lines"), just = c ("right",
-                                                  "bottom"))       
-full ()
-
-theme_white <- function() {
-  theme_update(#panel.background = theme_blank(),
-    panel.grid.major = theme_blank())
-}
-
-theme_set(theme_bw())
-full <- function() {
-  print(pMeans)
-  theme_set(theme_bw(base_size = 8))
-  theme_white()
-  print(subplot, vp = vp)
-  theme_set(theme_bw())
-}
-
-full ()
-
-?viewport
-ggplot(ChickWeight, aes(x=Time, y=weight, colour=Diet, group=Chick)) +
-  geom_line()
-
-a_plot <- ggplot(cars, aes(speed, dist)) + geom_line()
-
-#A viewport taking up a fraction of the plot area
-vp <- viewport(width = 0.4, height = 0.4, x = 0.8, y = 0.2)
-print(a_plot)
-print(a_plot, vp = vp)
-
-## Identifying outliers of boxplot
-#Control group 
-#Week DPW9_1:
-m.deltaWeight
-min (m.deltaWeight$deltaWeight [m.deltaWeight$DWeek == "DPW9_1" & m.deltaWeight$group == "control" ])
-# --> Cage 10 with -2.167 % DW
-
-#Week DPW8_2:
-min (m.deltaWeight$deltaWeight [m.deltaWeight$DWeek == "DPW8_2" & m.deltaWeight$group == "control" ])
-# --> Cage 10 with -4.93653
-max (m.deltaWeight$deltaWeight [m.deltaWeight$DWeek == "DPW8_2" & m.deltaWeight$group == "control" ])
-# --> Cage 12 with 15.8371 
-
-#Week DPW7_2:
-min (m.deltaWeight$deltaWeight [m.deltaWeight$DWeek == "DPW7_2" & m.deltaWeight$group == "control" ])
-# --> Cage 10 with -1.917808
-
-#Week DPW6_1:
-min (m.deltaWeight$deltaWeight [m.deltaWeight$DWeek == "DPW6_1" & m.deltaWeight$group == "control" ])
-# --> Cage 10 with -11.586052
-
-# Significancy ttest
-? t.test
-apply (m.deltaWeight [,c('x','z')], 1, function(x) sum(x) )
-
-# T.test of weights between groups (control and free choice)
-# With by I subset the dataframe by weeks
-# Then I apply the t.test to each of the groups with "with"
-ttestRes <- by (m.deltaWeight, m.deltaWeight [,"DWeek"],
-                function(x) 
-                {
-                  with (x, t.test (deltaWeight[group =="freeChoice"], deltaWeight[group == "control"]))$p.value
-                } 
-)
-
-ttestRes [1]
-as.vector (ttestRes)    
-
-## Filter animals 9 and 15 of free choice group
-m.deltaWeight9i15Filt <- m.deltaWeight [ - which (m.deltaWeight$cage == 9 | m.deltaWeight$cage == 15 ),]
-
-ttestRes9i15Filt <- by (m.deltaWeight9i15Filt, m.deltaWeight9i15Filt [,"DWeek"],
-                        function(x) 
-                        {
-                          with (x, t.test (deltaWeight[group =="freeChoice"], deltaWeight[group == "control"], alternative = "two.sided", var.equal = TRUE))$p.value
-                        } 
-)
-as.vector (ttestRes9i15Filt)
-
-m.deltaWeight1i9Filt <- m.deltaWeight [ - which (m.deltaWeight$cage == 9 | m.deltaWeight$cage == 1 ),]
-rm (ttestRes1i9Filt)
-ttestRes1i9Filt <- by (m.deltaWeight1i9Filt, m.deltaWeight1i9Filt [,"DWeek"],
-                       function(x) 
-                       {
-                         with (x, t.test (deltaWeight[group =="freeChoice"], deltaWeight[group == "control"], alternative = "two.sided", var.equal = TRUE))$p.value
-                       } 
-)
-
-
-## ASSESSMENT OF THE VALUES OF T.TEST
-?t.test
-ttestRes1i9Filt
-as.vector (ttestRes1i9Filt)
-t.test (m.deltaWeight1i9Filt$deltaWeight [which (m.deltaWeight1i9Filt$group == "control" & m.deltaWeight1i9Filt$DWeek == "DPW9_1")],
-        m.deltaWeight1i9Filt$deltaWeight [which (m.deltaWeight1i9Filt$group == "freeChoice" & m.deltaWeight1i9Filt$DWeek == "DPW9_1")],
-        #alternative = "two.sided",
-        #var.equal = TRUE                
-)
-
-
-
-x<-summary (m.deltaWeight)
-x<-"3"
-y<-"1"
-c (x,y)
-rm(x)
-ddply (m.deltaWeight, .(DWeek, group), function (x) 
-{
-  #qnt <- quantile(x$Weight, probs=c(.25, .75))
-  H <- 1.5 * IQR (x$Weight)
-  meanV <- mean (x$Weight)
-  return ( c (H, meanV))
-  #return (H)
-  #         with (x, t.test (Weight[group =="freeChoice"], Weight[group == "control"]))$p.value
+## ANOVA
+demo1 <- read.csv("http://www.ats.ucla.edu/stat/data/demo1.csv")
+class(demo1$time)
+# df.plot$time <- as.integer(df.plot$variable)
+# 
+# df.plot [with(df.plot, order(id)), ]
+## Convert variables to factor
+df.anova <- within(df.anova, {
+  group <- factor(group)
+  time <- factor(variable)
+  id <- factor(id)
 })
-ddply (df.logOddTblSlidWin, .(odd_ratio, iteration, group), y <- function (x) { sum <- summary (lm(odd_ratio_value ~ delta_w, data = x))
-                                                                                r_sqr <- sum$r.squared
-                                                                                return (r_sqr)})
-by (m.deltaWeight, m.deltaWeight [,"DWeek" & "freeChoice"], 
-    function(x) 
-    {
-      print (x)
-    } 
-)
 
-#Printar pesos por grupos
-by (m.deltaWeight, m.deltaWeight [,"DWeek"],
-    function(x) 
-    {
-      with (x, print (Weight[group =="freeChoice"]))
-    } 
-)
+df.anova
 
+with(df.anova, interaction.plot(df.anova, group, time,
+                              ylim = c(5, 20), lty= c(1, 12), lwd = 3,
+                             ylab = "mean of pulse", xlab = "time", trace.label = "group"))
 
-xm <- melt(x, id = c('site', 'status')) 
-m.deltaWeight 
-with (dd, wilcox.test(y[as.numeric(g)==idx[1,i]], 
-                      y[as.numeric(g)==idx[2,i]]))$p.value
+demo1.aov <- aov(value ~ group * time + Error(id), data = df.anova)
+demo1.aov <- aov(pulse ~ group * time + Error(id), data = demo1)
+summary(demo1.aov)
+class(df.plot$value)
 
-#kk <- sapply (df, function (x) { x -  (as.numeric(x)) } )
-ddply (df, function (x) { x -  (as.numeric(x)) } )
-class (as.data.frame (kk))
-
-m.rawWeight <- melt (rawWeight)
+demo1 <- read.csv("http://www.ats.ucla.edu/stat/data/demo1.csv")
+## Convert variables to factor
+demo1 <- within(demo1, {
+  group <- factor(group)
+  time <- factor(time)
+  id <- factor(id)
+})
 
 
-# Some toy data
-df <- data.frame(Year = rep(c(1:30), each=20), Value = rnorm(600))
-str(df)
+summary(demo1.aov)
 
-Note that Year is an integer variable
-
-ggplot(df, aes(Year, Value)) + geom_boxplot()   # One boxplot
-df
-
-head (df)
-
-nba <- read.csv("http://datasets.flowingdata.com/ppg2008.csv")
-nba$Name <- with(nba, reorder(Name, PTS))
-nba
-nba.m <- melt(nba)
-
-/Users/jespinosa/phecomp/data/CRG/20130130_FCSC_CRG/20130130to0411rawWeights.tbl
+boxPlots <- ggplot(df.anova , aes (variable, value, fill = group, color=group)) + 
+#   geom_boxplot(show_guide=FALSE) + 
+  geom_boxplot() + 
+  scale_color_manual(values = c("black", "brown","black", "black","black","black", "black","black")) +
+  scale_fill_manual(name = "Group", values = c("green", "black","red","blue","pink","yellow", "purple", "gray", "brown")) +
+  #scale_fill_manual (name = "Group", values = c ("green", "brown")) +
+  labs(title = "") + xlab ("\nAcquisition days") + ylab("PC1\n")
+boxPlots
