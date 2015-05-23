@@ -18,7 +18,7 @@ home <- Sys.getenv("HOME")
 source (paste (home, "/git/phecomp/lib/R/plotParamPublication.R", sep=""))
 
 load("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/5setsPC1.R")
-
+load("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/8setsGall.R")
 TS
 TSEE
 TSEEEGCG
@@ -131,8 +131,24 @@ with(df.anova, interaction.plot(df.anova, group, time,
 
 demo1.aov <- aov(value ~ group * time + Error(id), data = df.anova)
 demo1.aov <- aov(pulse ~ group * time + Error(id), data = demo1)
+df.anova$interaction <- paste(df.anova$group, df.anova$time, sep="_")
+  pairwise.t.test(df.anova$value, df.anova$interaction, , p.adj="bonferroni", paired=T)
+length(df.anova$value)
+length(df.anova$interaction)
+?pairwise.t.test
+
 summary(demo1.aov)
 class(df.plot$value)
+length(Group)
+length(Value)
+
+pairwise.t.test(Value, Group, p.adj="bonferroni", paired=T)
+Group <- c("A","A","A","A","A","A","A","A","B","B","B","B","B","B","B","B", "C","C","C","C","C","C","C","C") 
+Value <- c(1,2,4,1,1,2,2,3,3,4,4,2,3,4,4,3,4,5,3,5,5,3,4,6) 
+Participant <- c("1","2","3","4","5","6","7","8","1","2","3","4","5","6","7","8", "1","2","3","4","5","6","7","8") 
+data <- data.frame(Participant, Group, Value) 
+aov <- aov(Value ~ factor(Group) + Error(factor(Participant)/factor(Group)), data) 
+summary(aov)
 
 demo1 <- read.csv("http://www.ats.ucla.edu/stat/data/demo1.csv")
 ## Convert variables to factor
@@ -142,8 +158,6 @@ demo1 <- within(demo1, {
   id <- factor(id)
 })
 
-
-summary(demo1.aov)
 
 boxPlots <- ggplot(df.anova , aes (variable, value, fill = group, color=group)) + 
 #   geom_boxplot(show_guide=FALSE) + 
