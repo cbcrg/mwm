@@ -17,8 +17,12 @@ home <- Sys.getenv("HOME")
 # Loading functions:
 source (paste (home, "/git/phecomp/lib/R/plotParamPublication.R", sep=""))
 
+# All acquisition variables used to perform the PCA 
+# Here I load the first PC
 load("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/5setsPC1.R")
-load("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/8setsGall.R")
+# Gallagher used to perform the PCA. Here I load the first PC
+#load("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/8setsGall.R")
+
 TS
 TSEE
 TSEEEGCG
@@ -65,6 +69,7 @@ df.WT.m$group <- "WT"
 df.WT.m$id <- id_WT
 df.anova <- rbind(df.anova, df.WT.m)
 
+# Adding wt guys that for the anova of the first PC1
 load("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/3setsPC1.R")
 WTEE
 WTEGCG
@@ -110,6 +115,7 @@ boxPlots + annotate("text", x=4, y=6, label="*", size=10) +
            annotate("text", x=5, y=7.6, label="*", size=10)
 
 
+
 ## ANOVA
 demo1 <- read.csv("http://www.ats.ucla.edu/stat/data/demo1.csv")
 class(demo1$time)
@@ -125,14 +131,18 @@ df.anova <- within(df.anova, {
 
 df.anova
 
-with(df.anova, interaction.plot(df.anova, group, time,
-                              ylim = c(5, 20), lty= c(1, 12), lwd = 3,
-                             ylab = "mean of pulse", xlab = "time", trace.label = "group"))
-
 demo1.aov <- aov(value ~ group * time + Error(id), data = df.anova)
-demo1.aov <- aov(pulse ~ group * time + Error(id), data = demo1)
+# demo1.aov <- aov(pulse ~ group * time + Error(id), data = demo1)
+# I set the interaction to perform the ttest
 df.anova$interaction <- paste(df.anova$group, df.anova$time, sep="_")
-  pairwise.t.test(df.anova$value, df.anova$interaction, , p.adj="bonferroni", paired=T)
+pairwise.t.test(df.anova$value, df.anova$interaction, , p.adj="hochberg", paired=F)
+
+
+# Comparison only TS vs TSEEEGCG
+df_TS_TSEEEGCG <- rbind(df.TS.m, df.TSEEEGCG.m)
+df_TS_TSEEEGCG$interaction <- paste (df_TS_TSEEEGCG$variable, df_TS_TSEEEGCG$group,sep="_")
+pairwise.t.test (df_TS_TSEEEGCG$value, df_TS_TSEEEGCG$interaction, , p.adj="bonferroni", paired=F)
+
 length(df.anova$value)
 length(df.anova$interaction)
 ?pairwise.t.test
@@ -142,22 +152,39 @@ class(df.plot$value)
 length(Group)
 length(Value)
 
-pairwise.t.test(Value, Group, p.adj="bonferroni", paired=T)
-Group <- c("A","A","A","A","A","A","A","A","B","B","B","B","B","B","B","B", "C","C","C","C","C","C","C","C") 
-Value <- c(1,2,4,1,1,2,2,3,3,4,4,2,3,4,4,3,4,5,3,5,5,3,4,6) 
-Participant <- c("1","2","3","4","5","6","7","8","1","2","3","4","5","6","7","8", "1","2","3","4","5","6","7","8") 
-data <- data.frame(Participant, Group, Value) 
-aov <- aov(Value ~ factor(Group) + Error(factor(Participant)/factor(Group)), data) 
-summary(aov)
+# Example
+# Group <- c("A","A","A","A","A","A","A","A","B","B","B","B","B","B","B","B", "C","C","C","C","C","C","C","C") 
+# Value <- c(1,2,4,1,1,2,2,3,3,4,4,2,3,4,4,3,4,5,3,5,5,3,4,6) 
+# Participant <- c("1","2","3","4","5","6","7","8","1","2","3","4","5","6","7","8", "1","2","3","4","5","6","7","8") 
+# pairwise.t.test(Value, Group, p.adj="bonferroni", paired=T)
+# 
+# data <- data.frame(Participant, Group, Value) 
+# aov <- aov(Value ~ factor(Group) + Error(factor(Participant)/factor(Group)), data) 
+# summary(aov)
 
-demo1 <- read.csv("http://www.ats.ucla.edu/stat/data/demo1.csv")
-## Convert variables to factor
-demo1 <- within(demo1, {
-  group <- factor(group)
-  time <- factor(time)
-  id <- factor(id)
-})
+# demo1 <- read.csv("http://www.ats.ucla.edu/stat/data/demo1.csv")
+# ## Convert variables to factor
+# demo1 <- within(demo1, {
+#   group <- factor(group)
+#   time <- factor(time)
+#   id <- factor(id)
+# })
 
+# Exporting the data to excel
+df.WT$group <- "WT"
+df.WTEE$group <- "WTEE"
+df.WTEGCG$group <- "WTEGCG"
+df.WTEEEGCG$group <- "WTEEEGCG"
+df.TS$group <- "TS"
+df.TSEE$group <- "TSEE"
+df.TSEGCG$group <- "TSEGCG"
+df.TSEEEGCG$group <- "TSEEEGCG"
+
+df.spss <- rbind (df.WT, df.WTEE, df.WTEGCG, df.WTEEEGCG, df.TS, df.TSEE, df.TSEGCG, df.TSEEEGCG)
+
+library(xlsx)
+write.xlsx (df.spss, paste(home, "/20150515_PCA_old_frotiersPaper/data/anova_PC1.xlsx", sep="")) 
+write.xlsx (df.spss, paste(home, "/sharedWin/anova_PC1.xlsx", sep=""))
 
 boxPlots <- ggplot(df.anova , aes (variable, value, fill = group, color=group)) + 
 #   geom_boxplot(show_guide=FALSE) + 
@@ -167,3 +194,28 @@ boxPlots <- ggplot(df.anova , aes (variable, value, fill = group, color=group)) 
   #scale_fill_manual (name = "Group", values = c ("green", "brown")) +
   labs(title = "") + xlab ("\nAcquisition days") + ylab("PC1\n")
 boxPlots
+
+#### 
+# Comparison of only day 5 and TS
+df.anova
+
+df.anova.ts<-subset(df.anova, grepl("TS", df.anova$group))
+df.anova.ts.a5 <- subset(df.anova.ts, grepl("A5", df.anova.ts$variable))
+
+ts_a5.aov <- aov(value ~ group  + Error(id), data = df.anova.ts.a5)
+summary(ts_a5.aov)
+
+pairwise.t.test (df.anova.ts.a5$value, df.anova.ts.a5$group, p.adj="bonferroni")
+pairwise.t.test (df.anova.ts.a5$value, df.anova.ts.a5$group,p.adj="hochberg")
+
+boxPlots <- ggplot(df.anova.ts.a5 , aes (variable, value, fill = group, color=group)) + 
+  geom_boxplot(show_guide=TRUE) + 
+#   scale_color_manual(values = c("green", "black","red", "blue")) +
+  scale_fill_manual(name = "Group", values = c("green", "black","red", "blue"))+
+#                     , labels = c ("TS", "TSEEEGCG")) +
+  #scale_fill_manual (name = "Group", values = c ("green", "brown")) +
+  labs(title = "") + xlab ("\nAcquisition days") + ylab("PC1\n")
+
+boxPlots + annotate("text", x=4, y=6, label="*", size=10) + 
+  annotate("text", x=5, y=7.6, label="*", size=10)
+                 
