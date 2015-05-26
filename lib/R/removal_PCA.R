@@ -34,15 +34,38 @@ tail (ma3_filt_rem_data)
 rem_data_var = rem_data [ , c(1,7:10)]
 rem_data_all_var <- merge(rem_data, ma3_filt_rem_data, all=TRUE)
 
+# Guys starting with 1400277xx are missing in the second table, thus when merging they appear as NA, I delete them
+rem_data_all_var <- head (rem_data_all_var, -5)
+
+# Median with all available rem variables
+# tbl_stat_median <-with (rem_data_all_var, aggregate (cbind (NUMBER.ENTRIES, PERM.TIME, PERCENT.PERM.TIME, LATENCY.TARGET), list (GENTREAT), FUN=function (x) median=median(x)))
+tbl_stat_median <-with (rem_data_all_var, aggregate (cbind (NUMBER.ENTRIES, PERM.TIME, PERCENT.PERM.TIME, LATENCY.TARGET, DIST.REM, GALLINDEX.REM, GALLDIST.REM, SPEED.REM, PERC.NE.REM, PERC.CENTRE.REM, PERC.PERI.REM, WISHAW.REM), list (GENTREAT), FUN=function (x) median=median(x)))
+genotype_tt <- as.factor(tbl_stat_median$Group.1)
+genotype_tt_ionas <- as.factor(c("WT","TS","WTEE","TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"))
+tbl_stat_median <- tbl_stat_median [,-1]
+PCA_rem <- prcomp(tbl_stat_median, scale=TRUE)
+summary(PCA_rem)
+
+# Plot PCA color by genotype
+pca_rem_2plot <- as.data.frame (PCA_rem$x)
+pca_rem_2plot$PC1_neg <- -pca_rem_2plot$PC1
+g_genotype_tt <- ggplot(pca_rem_2plot, aes(PC1_neg, PC2)) + geom_point(aes(colour=genotype_tt_ionas), size=4) +                                                           
+  labs (title = "PCA") +
+  #   scale_color_manual(values=cols, labels=c("1", "2", "3")) +
+  #   geom_text (aes (label=genotype_tt), hjust=0, vjust=-0.5)
+  geom_text (aes (label=genotype_tt_ionas), hjust=0.5, vjust=-0.5)+
+  xlim (c(-5, 5)) + ylim (c(-1.5,2))+
+  labs (title = "PCA removal") +  
+  labs (x = "\nPC1", y="PC2\n") +
+  theme (legend.key=element_rect(fill=NA), legend.title=element_blank())
+#, position=position_jitter(h=0), alpha = 1)
+
+g_genotype_tt
 
 
 
 
-
-
-# rem_data_var = rem_data [ , c(7:10)]
-ma3[ , which(names(ma3) %in% c("REM"))] 
-GALLINDEX.REM
+# OLD code with only data from removal data from file TS_old_removal.sav
 # tbl_stat_mean <-with (df.act_sum, aggregate (cbind (V6), list (index=index, V4=V4), FUN=function (x) c (mean=mean(x), std.error=std.error(x))))
 # tbl_stat_mean$mean <- tbl_stat_mean$V18 [,1]
 # tbl_stat_mean$std.error <- tbl_stat_mean$V18 [,2]
@@ -51,7 +74,7 @@ tbl_stat_median <-with (rem_data, aggregate (cbind (NUMBER.ENTRIES, PERM.TIME, P
 # First column are labels, transform to row.names
 rownames(tbl_stat_median) <- tbl_stat_median$Group.1
 tbl_stat_median <- tbl_stat_median [,-1]
-res_rem <- prcomp(tbl_stat_median)
+res_rem <- prcomp(tbl_stat_median, scale=TRUE)
 summary(res_rem)
 res_rem$x
 # png("figures/PCAmedians.png",res=300,width=15,height=15,unit="cm")
