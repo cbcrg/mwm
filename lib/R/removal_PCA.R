@@ -15,10 +15,34 @@ home <- Sys.getenv("HOME")
 # Loading functions:
 source (paste (home, "/git/phecomp/lib/R/plotParamPublication.R", sep=""))
 
-rem_data=spss.get("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/TS_old_removal.sav")
+rem_data = spss.get(paste (home, "/20150515_PCA_old_frotiersPaper/data/TS_old_removal.sav", sep=""))
+ma3 = spss.get(paste (home, "/20150515_PCA_old_frotiersPaper/data/Jtracks parameters except latency.sav", sep=""))
+
+# Last 5 rows are empty 
+ma3 <- head(ma3,-5)
+
+ma3_filt_rem_data <- ma3[ , grepl( "REM" , names( ma3 ) ) ]
+ma3_filt_rem_data$ID <- ma3 [ , grepl( "ID" , names( ma3 ) ) ]
+
+tail (rem_data)
+tail (ma3_filt_rem_data)
+
+
+# All variables in rem_data are not present in ma3_filt_rem_data
+# We need to add them: NUMBER.ENTRIES, PERM.TIME, PERCENT.PERM.TIME, LATENCY.TARGET
+# We keep IDs to perform the joining
+rem_data_var = rem_data [ , c(1,7:10)]
+rem_data_all_var <- merge(rem_data, ma3_filt_rem_data, all=TRUE)
+
+
+
+
+
+
 
 # rem_data_var = rem_data [ , c(7:10)]
-
+ma3[ , which(names(ma3) %in% c("REM"))] 
+GALLINDEX.REM
 # tbl_stat_mean <-with (df.act_sum, aggregate (cbind (V6), list (index=index, V4=V4), FUN=function (x) c (mean=mean(x), std.error=std.error(x))))
 # tbl_stat_mean$mean <- tbl_stat_mean$V18 [,1]
 # tbl_stat_mean$std.error <- tbl_stat_mean$V18 [,2]
@@ -62,6 +86,28 @@ g_genotype_tt <- ggplot(pca_rem_2plot, aes(PC1, PC2)) + geom_point(aes(colour=ge
   geom_text (aes (label=genotype_tt), hjust=0.3, vjust=-0.5)
 #, position=position_jitter(h=0), alpha = 1)
 g_genotype_tt
+
+# Biplot
+PCbiplot <- function(PC, x="PC1", y="PC2") {
+  # PC being a prcomp object
+  data <- data.frame(obsnames=row.names(PC$x), PC$x)
+  plot <- ggplot(data, aes_string(x=x, y=y)) + geom_text(alpha=.4, size=3, aes(label=obsnames))
+  plot <- plot + geom_hline(aes(0), size=.2) + geom_vline(aes(0), size=.2)
+  datapc <- data.frame(varnames=rownames(PC$rotation), PC$rotation)
+  mult <- min(
+    (max(data[,y]) - min(data[,y])/(max(datapc[,y])-min(datapc[,y]))),
+    (max(data[,x]) - min(data[,x])/(max(datapc[,x])-min(datapc[,x])))
+  )
+  datapc <- transform(datapc,
+                      v1 = .7 * mult * (get(x)),
+                      v2 = .7 * mult * (get(y))
+  )
+  plot <- plot + coord_equal() + geom_text(data=datapc, aes(x=v1, y=v2, label=varnames), size = 5, vjust=1, color="red")
+  plot <- plot + geom_segment(data=datapc, aes(x=0, y=0, xend=v1, yend=v2), arrow=arrow(length=unit(0.2,"cm")), alpha=0.75, color="red")
+  plot
+}
+
+PCbiplot(res_rem)
 
 textxy(res_rem$x[2,1],res_rem$x[2,2], row.names(res_rem$x)[1], cex=0.7,col="green")
 lines(res_rem$x[2,1], res_rem$x[2,2],col="black")
