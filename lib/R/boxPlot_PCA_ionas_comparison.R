@@ -212,19 +212,31 @@ pairwise.t.test (df.anova.ts.a5$value, df.anova.ts.a5$group,p.adj="hochberg")
 uniqueInitials <- c("red", "lightblue","lightgreen", "darkgreen")
 initialShapes <- unlist(lapply(uniqueInitials, utf8ToInt))
 
+# Setting order for ploting
+df.anova.ts.a5$group <- factor(df.anova.ts.a5$group , levels=c("TS","TSEE", "TSEGCG", "TSEEEGCG"), 
+                             labels=c("TS","TSEE", "TSEGCG", "TSEEEGCG"))
+
+
 
 # dailyInt_theme <- theme_update (panel.border = element_rect(colour = "black"))
 # boxPlots <- ggplot(df.anova.ts.a5 , aes (variable, value, fill = group, color=group)) + 
-boxPlots <- ggplot(df.anova.ts.a5 , aes (variable, value, fill = group)) + 
+boxPlots <- ggplot(df.anova.ts.a5 , aes (group, value, fill = group)) + 
 #                    geom_boxplot() +
                    geom_boxplot(show_guide=FALSE) +
 #             guides(color=guide_legend('Model',override.aes=list(shape=c(1,1,6,6))))
   
-  scale_fill_manual(name = "Group", values = c("red", "lightblue","lightgreen", "darkgreen")) +
-  labs(title = "") + xlab ("\nAcquisition day") + ylab("PC1\n") +
-  theme(legend.title=element_blank())
+  scale_fill_manual(name = "Group", values=c("green", "lightblue", "orange", "black")) +
+  labs(title = "Day 5 PC1\n") + xlab ("\ngentreat") + ylab("PC1\n") +
+  theme (legend.title=element_blank()) 
+
+
   
 boxPlots 
+
+#PLOT_paper
+ggsave (boxPlots, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "boxPlot_ts_a5.jpg", sep=""), dpi=900)
+
+
 
 
 
