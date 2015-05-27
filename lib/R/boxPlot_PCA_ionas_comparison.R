@@ -219,7 +219,8 @@ df.anova.ts.a5$group <- factor(df.anova.ts.a5$group , levels=c("TS","TSEE", "TSE
 
 
 # dailyInt_theme <- theme_update (panel.border = element_rect(colour = "black"))
-# boxPlots <- ggplot(df.anova.ts.a5 , aes (variable, value, fill = group, color=group)) + 
+# boxPlots <- ggplot(df.anova.ts.a5 , aes (variable, value, fill = group, color=group)) +
+
 boxPlots <- ggplot(df.anova.ts.a5 , aes (group, value, fill = group)) + 
 #                    geom_boxplot() +
                    geom_boxplot(show_guide=FALSE) +
@@ -227,10 +228,9 @@ boxPlots <- ggplot(df.anova.ts.a5 , aes (group, value, fill = group)) +
   
   scale_fill_manual(name = "Group", values=c("green", "lightblue", "orange", "black")) +
   labs(title = "Day 5 PC1\n") + xlab ("\ngentreat") + ylab("PC1\n") +
-  theme (legend.title=element_blank()) 
+  theme (legend.title=element_blank())+ 
+  scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-5.5, 9.5))
 
-
-  
 boxPlots 
 
 #PLOT_paper
