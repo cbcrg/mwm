@@ -15,7 +15,7 @@ library (grid) #viewport
 home <- Sys.getenv("HOME")
 
 # Loading functions:
-source (paste (home, "/git/phecomp/lib/R/plotParamPublication.R", sep=""))
+source (paste (home, "/git/mwm/lib/R/plot_param_public.R", sep=""))
 
 # All acquisition variables used to perform the PCA 
 # Here I load the first PC
@@ -208,14 +208,57 @@ summary(ts_a5.aov)
 pairwise.t.test (df.anova.ts.a5$value, df.anova.ts.a5$group, p.adj="bonferroni")
 pairwise.t.test (df.anova.ts.a5$value, df.anova.ts.a5$group,p.adj="hochberg")
 
-boxPlots <- ggplot(df.anova.ts.a5 , aes (variable, value, fill = group, color=group)) + 
-  geom_boxplot(show_guide=TRUE) + 
-#   scale_color_manual(values = c("green", "black","red", "blue")) +
-  scale_fill_manual(name = "Group", values = c("green", "black","red", "blue"))+
+
+uniqueInitials <- c("red", "lightblue","lightgreen", "darkgreen")
+initialShapes <- unlist(lapply(uniqueInitials, utf8ToInt))
+
+
+# dailyInt_theme <- theme_update (panel.border = element_rect(colour = "black"))
+# boxPlots <- ggplot(df.anova.ts.a5 , aes (variable, value, fill = group, color=group)) + 
+boxPlots <- ggplot(df.anova.ts.a5 , aes (variable, value, fill = group)) + 
+#                    geom_boxplot() +
+                   geom_boxplot(show_guide=FALSE) +
+#             guides(color=guide_legend('Model',override.aes=list(shape=c(1,1,6,6))))
+  
+  scale_fill_manual(name = "Group", values = c("red", "lightblue","lightgreen", "darkgreen")) +
+  labs(title = "") + xlab ("\nAcquisition day") + ylab("PC1\n") +
+  theme(legend.title=element_blank())
+  
+boxPlots 
+
+
+
+#                     guides(colour = guide_legend(override.aes = list(shape = 11)))
+
+#scale_color_manual(values = c("green", "black","red", "blue")) +
+#              scale_fill_manual(name = "Group", values = c("red", "lightblue","lightgreen", "darkgreen"))+
 #                     , labels = c ("TS", "TSEEEGCG")) +
   #scale_fill_manual (name = "Group", values = c ("green", "brown")) +
-  labs(title = "") + xlab ("\nAcquisition days") + ylab("PC1\n")
 
+#             theme(legend.text = element_text(colour=c("red", "lightblue","lightgreen", "darkgreen"), size = 16, face = "bold"))
+#             theme(element_text(colour=c("red", "lightblue","lightgreen", "darkgreen"), size = 16, face = "bold"))
+            guides(colour = guide_legend(override.aes = list(values=initialShapes)))+
+        
+#               theme (legend.text = element_text(colour = c('red', "lightblue","lightgreen", "darkgreen")))+
+            theme(legend.key=element_rect(fill=NA))
+
+
+
+
+
+
+          scale_shape_manual(values = initialShapes) 
+       
+              guides(fill = guide_legend(override.aes = list(values=initialShapes)))
+              
+guides(fill = guide_legend(override.aes = list(linetype = 0, shape='')), 
+                   colour = guide_legend(override.aes = list(linetype=c(0,1,1)
+                                                     , shape=c(16,NA,NA))))
+
+#   theme (legend.text = element_text(colour=c("red", "lightblue","lightgreen", "darkgreen"), size = 16, face = "bold"))
+
+boxPlots + scale_shape_manual(values = initialShapes) 
+boxPlots$theme$legend.text$colour<-c("red", "lightblue","lightgreen", "darkgreen")
 boxPlots + annotate("text", x=4, y=6, label="*", size=10) + 
   annotate("text", x=5, y=7.6, label="*", size=10)
                  
