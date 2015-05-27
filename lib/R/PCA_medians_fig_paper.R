@@ -1,3 +1,8 @@
+library("ggplot2")
+
+##Getting HOME directory
+home <- Sys.getenv("HOME")
+
 #path of R session is /users/cn/ierb/work/MaraDierssen/Silvina/
 
 # Loading functions:
@@ -81,18 +86,21 @@ pca2plot$gentreat <- factor(pca2plot$gentreat , levels=c("WT", "TS", "WTEE", "TS
                             labels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"))
 
 pca_medians_acq <- ggplot(pca2plot, aes(x=PC1, y=PC2, colour=gentreat )) + 
-                          geom_path (size = 1.5) + 
-                          scale_color_manual(values=c("red", "green", "blue", "lightgreen", 
-                                                      "pink", "orange", "gray", "black")) +
-                          geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4)+
+                          geom_path (size = 1,show_guide = T) + 
+                          scale_color_manual(values=c("red", "green", "blue", "lightblue", 
+                                                      "magenta", "orange", "gray", "black")) +
+                          geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show_guide = T)+
                           theme(legend.key=element_rect(fill=NA)) +
                           labs(title = "PCA of group medians\n", x = "\nPC1 (80% of variance)", y="PC2 (12% of variance)\n") +
 #                           guides(colour = guide_legend(override.aes = list(size = 10)))+
                           guides(colour = guide_legend(override.aes = list(size = 1)))+
                           theme(legend.key=element_rect(fill=NA))
-                         
+ 
+#PLOT_paper
 pca_medians_acq 
-ggsave (pca_medians_acq, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_medians.jpg", sep=""), dpi=900)
+ggsave (pca_medians_acq, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_medians_legend.jpg", sep=""), dpi=900)
+ggsave (pca_medians_acq, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_medians_NO_legend.jpg", sep=""), width = 10, height = 10, dpi=900)
+
 
 
 
@@ -163,8 +171,10 @@ dev.off()
 
 row.names(res$var$coord)
 circle_plot <- as.data.frame (res$var$coord)
-circle_plot$labels <- row.names(res$var$coord)
 labels_v <- row.names(res$var$coord)
+labels_v[6] <- "whishaw"
+circle_plot$labels <- lab_names
+
 neg_labels <- labels_v [c(1,2,3,7)]
 neg_positions <- circle_plot [c(1,2,3,7), c(1,2)]
 # change positions for labels
@@ -183,56 +193,112 @@ circle_plot <- ggplot(circle_plot) +
                        geom_hline (yintercept=0, linetype="dotted") +
                        labs (title = "Variable contributions\n", x = "\nPC1 (80% of variance)", y="PC2 (12% of variance)\n") +
                 #        geom_polygon(aes(x, y), data = df, inherit.aes = F, Fill=NA)
+#                         scale_x_continuous(breaks=1:10)  
                        geom_polygon (data = df, aes(x, y), alpha=1,colour="black", fill=NA, size=1)
 circle_plot
 ggsave (circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 
+############
+## BARPLOT
+df.bars <- cbind (as.numeric(sort(res$var$coord[,1]^2/sum(res$var$coord[,1]^2)*100,decreasing=TRUE)), names(res$var$coord[,1])[order(res$var$coord[,1]^2,decreasing=TRUE)])
+df.bars[6,2] <- "whishaw"
+df.bars_to_plot <- as.data.frame(df.bars)
+df.bars_to_plot$index <- as.factor (df.bars_to_plot$V2)
+class (df.bars_to_plot$V1)
+df.bars_to_plot$value <- as.numeric(sort(res$var$coord[,1]^2/sum(res$var$coord[,1]^2)*100,decreasing=TRUE))
+
+df.bars_to_plot$index <- factor(df.bars_to_plot$index , levels=c("gallindex", "latency", "percentne", "dist", "percentperi", "whishaw", "speed"), 
+                            labels=c("gallindex", "latency", "percentne", "dist", "percentperi", "whishaw", "speed"))
 
 
+bars_plot <- ggplot (data=df.bars_to_plot, aes(x=index, y=value)) + 
+                    geom_bar (stat="identity", fill="gray", width=0.8) + 
+                    labs (title = "Variable contribution to PC1\n", x = "", y="Contribution in %\n") +
+                     theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1) )
+bars_plot
+
+#PLOT_paper
+ggsave (bars_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "bar_contribution.jpg", sep=""), dpi=900, height=5, width=10)
+
+df.bars_PC2 <- cbind (as.numeric(sort(res$var$coord[,2]^2/sum(res$var$coord[,2]^2)*100,decreasing=TRUE)), names(res$var$coord[,2])[order(res$var$coord[,2]^2,decreasing=TRUE)])
+df.bars_PC2[2,2] <- "whishaw"
+df.bars_to_plot_PC2 <- as.data.frame(df.bars_PC2)
+df.bars_to_plot_PC2$index <- as.factor (df.bars_to_plot_PC2$V2)
+# class (df.bars_to_plot_PC2$V1)
+# df.bars_to_plot_PC2$value <- as.numeric(sort(res$var$coord[,2]^2/sum(res$var$coord[,2]^2)*100,decreasing=TRUE))
+df.bars_to_plot_PC2$value <- as.numeric(sort(res$var$coord[,2]^2/sum(res$var$coord[,2]^2)*100,decreasing=TRUE))
+
+df.bars_to_plot_PC2$index
+df.bars_to_plot_PC2$index <- factor(df.bars_to_plot$index , levels=c("speed", "whishaw", "percentperi", "dist", "percentne", "latency", "gallindex"), 
+                                labels=c("speed", "whishaw", "percentperi", "dist", "percentne", "latency", "gallindex"))
 
 
-vjust=-0.5, hjust=1,
+df.bars_to_plot_PC2$value <- rev(df.bars_to_plot_PC2$value)
+bars_plot_PC2 <- ggplot (data=df.bars_to_plot_PC2, aes(x=index, y=value)) + 
+  geom_bar (stat="identity", fill="gray", width=0.8) + 
+  labs (title = "Variable contribution to PC2\n", x = "", y="Contribution in %\n") +
+  theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1) )
+bars_plot_PC2
 
+#PLOT_paper
+ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "bar_contribution_PC2.jpg", sep=""), dpi=900, height=5, width=10)
 
-png("figures/PCAmed_varcontr1.png",res=300,width=15,height=7.5,unit="cm")
-barplot(sort(res$var$coord[,1]^2/sum(res$var$coord[,1]^2)*100,decreasing=TRUE),names=names(res$var$coord)[order(res$var$coord[,1]^2),decreasing=TRUE],cex.names=0.7,ylab="contribution in %",main="Variable contributions to PC1")
-dev.off()
-png("figures/PCAmed_varcontr2.png",res=300,width=15,height=7.5,unit="cm")
-barplot(sort(res$var$coord[,2]^2/sum(res$var$coord[,2]^2)*100,decreasing=TRUE),names=names(res$var$coord)[order(res$var$coord[,1]^2),decreasing=TRUE],cex.names=0.7,ylab="contribution in %",main="Variable contributions to PC2")
-dev.off()
+names(-res.pca$ind$coord[,1])
+# Plot of all gays
+# png("figures/PCAmed_individuals.png",res=300,width=15,height=15,unit="cm")
+# dataframe creation
 
+new_coord <- cbind(-res$ind.sup$coord[,1],-res$ind.sup$coord[,2])
+new_coord
 
-png("figures/PCAmed_medians.png",res=300,width=15,height=15,unit="cm")
-plot(-res$ind$coord[,1],-res$ind$coord[,2],type="n",xlim=c(-4.2,4),main="PCA of group medians",xlab="PC1 (80% of variance)",ylab="PC2 (12% of variance)")
-for (j in 1:length(tgt)){
-  for (i in 1:length(acq)){
-    ind=(i-1)*length(tgt)+j
-    textxy(-res.pca$ind$coord[c(ind,ind2),1],-res.pca$ind$coord[c(ind,ind2),2],i,col=cols[j],cex=0.8)
-    if (i<5){
-      ind2=i*length(tgt)+j
-      lines(-res.pca$ind$coord[c(ind,ind2),1],-res.pca$ind$coord[c(ind,ind2),2],col=cols[j])
-    }
-    
-  }
-}
-legend(x="bottomleft",c("WT","TS","WTEE","TSEE","WTEGCG","TSEGCG","WTEEEGCG","TSEEEGCG"),col=c("red","green","blue","lightblue","magenta","orange","grey","black"),lty=1,cex=0.6)
-dev.off()
+res
 
-png("figures/PCAmed_individuals.png",res=300,width=15,height=15,unit="cm")
 plot(-res$ind.sup$coord[,1],-res$ind.sup$coord[,2],type="n",main="Individual variation as supplementary points",xlab="PC1 (80% of variance)",ylab="PC2 (12% of variance)")
+
+day <- c()
+genotype <- c()
+new_coord <- as.data.frame( cbind(-res$ind.sup$coord[,1],-res$ind.sup$coord[,2]))
+new_coord$day <- c(1:415)
+new_coord$genotype <- c()
+
+# myset=which(iddaytreat[,2]==tgt[1] & iddaytreat[,3]==acq[1])
+myset<-c()
 for (j in 1:length(tgt)){
   for (i in 1:length(acq)){
     if (i<5){
       ind=(i-1)*length(tgt)+j
-      ind2=i*length(tgt)+j
-      lines(-res.pca$ind$coord[c(ind,ind2),1],-res.pca$ind$coord[c(ind,ind2),2],col=cols[j])
+      ind2=i*length(tgt)+j 
+      #       lines(-res.pca$ind$coord[c(ind,ind2),1],-res.pca$ind$coord[c(ind,ind2),2],col=cols[j])
+#       day <- c(day, i)
+#       genotype <- c(genotype, tgt[j])
     }
     myset=which(iddaytreat[,2]==tgt[j] & iddaytreat[,3]==acq[i])
-    text(-res.pca$ind.sup$coord[myset,1],-res.pca$ind.sup$coord[myset,2],i,col=cols[j],cex=0.5)
+    new_coord [myset,c("day")] <- i
+    new_coord [myset,c("genotype")] <- tgt[j]
+#     text(-res.pca$ind.sup$coord[myset,1],-res.pca$ind.sup$coord[myset,2],i,col=cols[j],cex=0.5)
+    
   }
 }
-dev.off()
+
+new_coord$genotype <- factor(new_coord$genotype , levels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"), 
+                            labels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"))
+
+pca_plot_individuals <- ggplot (data=new_coord, aes (V1, V2)) + 
+      geom_text (aes(label=day, colour = genotype), size=3, show_guide = FALSE) +
+      scale_color_manual(values=c("red", "green", "blue", "lightblue", 
+                        "magenta", "orange", "gray", "black")) +
+      xlim (c(-6, 6.5)) + ylim (c(-8, 6.5)) +
+      geom_path (data=pca2plot, aes(x=PC1, y=PC2, colour=gentreat),size = 0.5,show_guide = FALSE) +
+      labs(title = "Individual variation as supplementary points\n", x = "\nPC1 (80% of variance)", y="PC2 (12% of variance)\n") 
+pca_plot_individuals
+#PLOT_paper
+ggsave (pca_plot_individuals, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_individuals.jpg", sep=""), dpi=900)
+
+
+
+      
+      
 
 
 
