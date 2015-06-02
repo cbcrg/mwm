@@ -250,6 +250,8 @@ bars_plot_PC2
 ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "bar_contribution_PC2.jpg", sep=""), dpi=900, height=5, width=10)
 
 names(-res.pca$ind$coord[,1])
+
+#############################
 # Plot of all gays
 # png("figures/PCAmed_individuals.png",res=300,width=15,height=15,unit="cm")
 # dataframe creation
@@ -301,221 +303,145 @@ pca_plot_individuals
 ggsave (pca_plot_individuals, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_individuals.jpg", sep=""), dpi=900)
 
 
+##############
+# Adding the plot of PCA cloud for day A1 and day A5
+new_coord
 
-      
-      
+PC1_acq1 <- subset(new_coord, day=="1", c("V1", "V2", "day","genotype"))
+colnames (PC1_acq1) <- c("PC1","PC2", "day", "genotype_tt")
+p_cloud_acq1 <- ggplot(PC1_acq1, aes(PC1, PC2, color=genotype_tt, label=rownames(pca_indiv_2plot))) + 
+  stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
+                 geom="polygon", color=NA, n=100, h=4, bins=6, show_guide = FALSE) + 
+  #   geom_smooth(se=F, method='lm', show_guide = FALSE) + 
+  geom_point(show_guide = FALSE) + 
+  scale_color_manual(name='genotype_tt', 
+                     values = c("red", "green", "blue", "lightblue", 
+                                "magenta", "orange", "yellow", "black"), 
+                     labels = c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG")) + 
+  scale_fill_manual( name='gentreat', 
+                     values = c("red", "green", "blue", "lightblue", 
+                                "magenta", "orange", "yellow", "black"), 
+                     labels = c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG")) + 
+  geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
+  scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
+  scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
+  coord_cartesian(xlim=c(-7, 9),
+                  ylim=c(-10, 10))  
 
+p_cloud_acq1
 
+PC1_acq5 <- subset(new_coord, day=="5", c("V1", "V2", "day","genotype"))
+colnames (PC1_acq5) <- c("PC1","PC2", "day", "genotype_tt")
+p_cloud_acq5 <- ggplot(PC1_acq5, aes(PC1, PC2, color=genotype_tt, label=rownames(pca_indiv_2plot))) + 
+  stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
+                 geom="polygon", color=NA, n=100, h=4, bins=6, show_guide = FALSE) + 
+#   geom_smooth(se=F, method='lm', show_guide = FALSE) + 
+  geom_point(show_guide = FALSE) + 
+  scale_color_manual(name='genotype_tt', 
+                     values = c("red", "green", "blue", "lightblue", 
+                                "magenta", "orange", "yellow", "black"), 
+                     labels = c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG")) + 
+  scale_fill_manual( name='gentreat', 
+                     values = c("red", "green", "blue", "lightblue", 
+                                "magenta", "orange", "yellow", "black"), 
+                     labels = c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG")) + 
+  geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
+  scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
+  scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
+  coord_cartesian(xlim=c(-7, 9),
+                  ylim=c(-10, 10))   
 
+#p_cloud_acq1
+p_cloud_acq5
 
-#permutation test:
-di=2
-for (a in 1:5){
-  set1=which(iddaytreat[,2]=="TS" & iddaytreat[,3]==acq[a])
-  set2=which(iddaytreat[,2]=="TSEGCG" & iddaytreat[,3]==acq[a])
-  M1=mean(res.pca$ind.sup$coord[set1,di])
-  M2=mean(res.pca$ind.sup$coord[set2,di])
-  m=length(set1)
-  n=length(set2)
-  S=sqrt((sum((res.pca$ind.sup$coord[set1,di]-M1)^2)+sum((res.pca$ind.sup$coord[set1,di]-M2)^2))/(m+n-2))
-  truestat=((M1-M2)*sqrt(m*n))/(S*sqrt(m+n))
-  
-  set=c(set1,set2)
-  set.seed(317)
-  st=c(1:10000)
-  st[1]=truestat
-  for (i in 2:10000){
-    #print(i)
-    sam=sample(set)
-    set1=sam[1:m]
-    set2=sam[(m+1):(m+n)]
-    M1=mean(res.pca$ind.sup$coord[set1,di])
-    M2=mean(res.pca$ind.sup$coord[set2,di])
-    S=sqrt((sum((res.pca$ind.sup$coord[set1,di]-M1)^2)+sum((res.pca$ind.sup$coord[set1,di]-M2)^2))/(m+n-2))
-    stat=((M1-M2)*sqrt(m*n))/(S*sqrt(m+n))
-    st[i]=stat
-  }
-  p=max(which (sort(st,decreasing=TRUE)==st[1])/10000)
-  print (acq[a])
-  print (p)
-}
+ggsave (p_cloud_acq1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_acq1_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
+ggsave (p_cloud_acq5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_acq5_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
 
-#R objects for Jose:
+##############
+# Adding the plot of PCA cloud for day A1 and day A5 only for trisomics
+new_coord
+indiv <- rownames(pca_indiv_2plot)
+new_coord_indiv <- rbind(indiv, new_coord)
+PC1_TS  <- subset(new_coord, grepl("TS", genotype))
+PC1_TS_acq1 <- subset(PC1_TS, day=="1", c("V1", "V2", "day","genotype"))
 
-set=which(iddaytreat[,2]=="TS" & iddaytreat[,3]==acq[a])
-m=length(set)
-s1=matrix(0,m,5)
-for (a in 1:5){
-  set=which(iddaytreat[,2]=="TS" & iddaytreat[,3]==acq[a])
-  s1[,a]=-res.pca$ind.sup$coord[set,1]
-}
+colnames (PC1_TS_acq1) <- c("PC1","PC2", "day", "genotype_tt")
+p_cloud_ts_acq1 <- ggplot(PC1_TS_acq1, aes(PC1, PC2, color=genotype_tt, label=rownames(PC1_TS_acq1))) + 
+  stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
+                 geom="polygon", color=NA, n=100, h=4, bins=6, show_guide = FALSE) + 
+  #   geom_smooth(se=F, method='lm', show_guide = FALSE) + 
+  geom_point(show_guide = FALSE) + 
+  scale_color_manual(name='genotype_tt', 
+                     values = c("green", "lightblue", "orange", "black"), 
+                     labels = c("TS", "TSEE", "TSEGCG", "TSEEEGCG")) + 
+  scale_fill_manual( name='gentreat', 
+                     values = c("green", "lightblue", "orange", "black"),
+                     labels = c("TS", "TSEE", "TSEGCG", "TSEEEGCG")) + 
+  geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
+  scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
+  scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
+  coord_cartesian(xlim=c(-7, 9),
+                  ylim=c(-10, 10))  
 
-set=which(iddaytreat[,2]=="TSEEEGCG" & iddaytreat[,3]==acq[a])
-n=length(set)
-s2=matrix(0,n,5)
-for (a in 1:5){
-  set=which(iddaytreat[,2]=="TSEEEGCG" & iddaytreat[,3]==acq[a])
-  s2[,a]=-res.pca$ind.sup$coord[set,1]
-}
+PC1_TS_acq5 <- subset(PC1_TS, day=="5", c("V1", "V2", "day","genotype"))
 
-set=which(iddaytreat[,2]=="TSEE" & iddaytreat[,3]==acq[a])
-n=length(set)
-s3=matrix(0,n,5)
-for (a in 1:5){
-  set=which(iddaytreat[,2]=="TSEE" & iddaytreat[,3]==acq[a])
-  s3[,a]=-res.pca$ind.sup$coord[set,1]
-}
-
-set=which(iddaytreat[,2]=="TSEGCG" & iddaytreat[,3]==acq[a])
-n=length(set)
-s4=matrix(0,n,5)
-for (a in 1:5){
-  set=which(iddaytreat[,2]=="TSEGCG" & iddaytreat[,3]==acq[a])
-  s4[,a]=-res.pca$ind.sup$coord[set,1]
-}
-
-set=which(iddaytreat[,2]=="WT" & iddaytreat[,3]==acq[a])
-n=length(set)
-s5=matrix(0,n,5)
-for (a in 1:5){
-  set=which(iddaytreat[,2]=="WT" & iddaytreat[,3]==acq[a])
-  s5[,a]=-res.pca$ind.sup$coord[set,1]
-}
-
-TS=s1
-TSEEEGCG=s2
-TSEE=s3
-TSEGCG=s4
-WT=s5
-save(TS,TSEEEGCG,TSEE,TSEGCG,WT,file="5setsPC1.R")
-
-set=which(iddaytreat[,2]=="WTEE" & iddaytreat[,3]==acq[a])
-n=length(set)
-s6=matrix(0,n,5)
-for (a in 1:5){
-  set=which(iddaytreat[,2]=="WTEE" & iddaytreat[,3]==acq[a])
-  s6[,a]=-res.pca$ind.sup$coord[set,1]
-}
-
-WTEE=s6
-
-set=which(iddaytreat[,2]=="WTEGCG" & iddaytreat[,3]==acq[a])
-n=length(set)
-s7=matrix(0,n,5)
-for (a in 1:5){
-  set=which(iddaytreat[,2]=="WTEGCG" & iddaytreat[,3]==acq[a])
-  s7[,a]=-res.pca$ind.sup$coord[set,1]
-}
-
-WTEGCG=s7
-
-set=which(iddaytreat[,2]=="WTEEEGCG" & iddaytreat[,3]==acq[a])
-n=length(set)
-s8=matrix(0,n,5)
-for (a in 1:5){
-  set=which(iddaytreat[,2]=="WTEEEGCG" & iddaytreat[,3]==acq[a])
-  s8[,a]=-res.pca$ind.sup$coord[set,1]
-}
-
-WTEEEGCG=s8
-
-save(WTEEEGCG,WTEE,WTEGCG,file="3setsPC1.R")
-
-
-
-
-boxplot(s1,ylim=c(-6.2,7.2),ylab="PC1",xlab="Acquisition day")
-boxplot(s2,add=TRUE,col=rgb(0,1,0,0.5))
-legend("topleft",pch=0,col=c("green","white"),c("TS","TSEEEGCG"))
+colnames (PC1_TS_acq5) <- c("PC1","PC2", "day", "genotype_tt")
+p_cloud_ts_acq5 <- ggplot(PC1_TS_acq5, aes(PC1, PC2, color=genotype_tt, label=rownames(PC1_TS_acq5))) + 
+  stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
+                 geom="polygon", color=NA, n=100, h=4, bins=6, show_guide = FALSE) + 
+  #   geom_smooth(se=F, method='lm', show_guide = FALSE) + 
+  geom_point(show_guide = FALSE) + 
+  scale_color_manual(name='genotype_tt', 
+                     values = c("green", "lightblue", "orange", "black"), 
+                     labels = c("TS", "TSEE", "TSEGCG", "TSEEEGCG")) + 
+  scale_fill_manual( name='gentreat', 
+                     values = c("green", "lightblue", "orange", "black"),
+                     labels = c("TS", "TSEE", "TSEGCG", "TSEEEGCG")) + 
+  geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
+  scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
+  scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
+  coord_cartesian(xlim=c(-7, 9),
+                  ylim=c(-10, 10))  
+p_cloud_ts_acq5
+p_cloud_ts_acq1
 
 
 
 
 
-#analyse removal session:
-
-ma3=spss.get("Jtracks parameters except latency.sav")
-MR=ma3[1:83,c("DIST.REM","GALLINDEX.REM","SPEED.REM","PERC.NE.REM","PERC.PERI.REM","WISHAW.REM")]
-gt=sort(unique(idgentreat[,2]))
-idgentreat=ma3[1:83,c("Mouse.ID","GEN.TREAT")]
-
-MR.med=matrix(0,8,6)
-for (i in 1:length(gt)){
-  print (i)
-  MR.med[i,]=apply(MR[idgentreat[1:83,2]==gt[i],],2,median)
-  
-}
-colnames(MR.med)=colnames(MR)
-rownames(MR.med)=gt
-
-joint=rbind(MR.med,MR)
-resR = PCA(joint, scale.unit=TRUE, ind.sup=c(9:91))
-
-#permutation test:
-di=3
-set1=which(idgentreat[,2]=="TS")
-set2=which(idgentreat[,2]=="TSEEEGCG")
-M1=mean(resR$ind.sup$coord[set1,di])
-M2=mean(resR$ind.sup$coord[set2,di])
-m=length(set1)
-n=length(set2)
-S=sqrt((sum((resR$ind.sup$coord[set1,di]-M1)^2)+sum((resR$ind.sup$coord[set1,di]-M2)^2))/(m+n-2))
-truestat=((M1-M2)*sqrt(m*n))/(S*sqrt(m+n))
-
-set=c(set1,set2)
-set.seed(317)
-st=c(1:10000)
-st[1]=truestat
-for (i in 2:10000){
-  #print(i)
-  sam=sample(set)
-  set1=sam[1:m]
-  set2=sam[(m+1):(m+n)]
-  M1=mean(resR$ind.sup$coord[set1,di])
-  M2=mean(resR$ind.sup$coord[set2,di])
-  S=sqrt((sum((resR$ind.sup$coord[set1,di]-M1)^2)+sum((resR$ind.sup$coord[set1,di]-M2)^2))/(m+n-2))
-  stat=((M1-M2)*sqrt(m*n))/(S*sqrt(m+n))
-  st[i]=stat
-}
-p=max(which (sort(st)==st[1])/10000)
-print (p)
 
 
-#check original variables: Gallagher index: 
-
-a=4
-set1=which(iddaytreat[,2]=="TS" & iddaytreat[,3]==acq[a])
-set2=which(iddaytreat[,2]=="TSEEEGCG" & iddaytreat[,3]==acq[a])
-GA1=as.numeric(M.ind[set1,"gallindex"])
-GA2=as.numeric(M.ind[set2,"gallindex"])
-
-a=4
-set1=which(iddaytreat[,2]=="TS" & iddaytreat[,3]==acq[a])
-set2=which(iddaytreat[,2]=="TSEEEGCG" & iddaytreat[,3]==acq[a])
-LA1=as.numeric(M.ind[set1,"latency"])
-LA2=as.numeric(M.ind[set2,"latency"])
 
 
-#discriminant analysis trisomic:
-
-M.ind=as.matrix(ma2[ma2$day%in%acq,var])
-iddaytreat=as.matrix(ma2[ma2$day%in%acq,1:3])
-rownames(iddaytreat)=c(1:415)
-
-M.med=matrix(0,40,7)
-rnames=c(1:40)
-for (i in 1:length(acq)){
-  for (j in 1:length(tgt)){
-    ind=(i-1)*length(tgt)+j
-    print (ind)
-    M.med[ind,]=apply(M.ind[iddaytreat[,3]==acq[i] & iddaytreat[,2]==tgt[j],],2,median)
-    rnames[ind]=paste(tgt[j],acq[i]," ")
-  }
-}
-colnames(M.med)=colnames(M.ind)
-rownames(M.med)=rnames
-
-jm=rbind(M.med,M.ind)
 
 
+
+
+
+
+
+lat_2 <- subset(ma2, day=="Day 2", c("id", "latency"))
+
+
+
+
+new_coord
+p_genotype_tt <- ggplot(pca_indiv_2plot, aes(PC1, PC2, color=genotype_tt, label=rownames(pca_indiv_2plot))) + 
+  stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
+                 geom="polygon", color=NA, n=200, h=4, bins=6) + 
+  geom_smooth(se=F, method='lm') + 
+  geom_point() + 
+  scale_color_manual(name='genotype_tt', 
+                     values = c("red", "green", "blue", "lightblue", 
+                                "magenta", "orange", "yellow", "black"), 
+                     labels = c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG")) + 
+  scale_fill_manual( name='mutation', 
+                     values = c("red", "green", "blue", "lightblue", 
+                                "magenta", "orange", "yellow", "black"), 
+                     labels = c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG")) + 
+  geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
+  scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
+  scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
+  coord_cartesian(xlim=c(-14, 10),
+                  ylim=c(-8, 8))   
 
