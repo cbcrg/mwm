@@ -79,7 +79,87 @@ df.ACQ_data <- merge (df.ACQ_data_except_latency, acq_latency, by=c("id"))
 
 # Perform a PCA of all the variables and inviduals during acquisition sessions
 # filtering group labels
-df.ACQ_data <- df.ACQ_data []
+df.ACQ_data_no_groups <- df.ACQ_data [ , c(5:length(df.ACQ_data[1,]))]
+
+# PCA individuals
+PCA_individuals_acq <- prcomp (df.ACQ_data_no_groups, scale=TRUE)
+summary(PCA_individuals_acq)
+
+# Plot
+genotype_tt <- as.factor (df.ACQ_data$GEN.TREAT)
+genotype_tt <- factor(genotype_tt , levels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"), 
+                      labels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"))
+
+pca_indiv_2plot <- as.data.frame (PCA_individuals_acq$x)
+
+
+p_genotype_tt <- ggplot(pca_indiv_2plot, aes(PC1, PC2)) + geom_point(aes(colour=genotype_tt), size=4) +                                                           
+  #   scale_color_manual(values=cols, labels=c("1", "2", "3")) +
+  #   geom_text (aes (label=genotype_tt), hjust=0, vjust=-0.5)
+#   geom_text (aes (label=genotype_tt), hjust=0.5, vjust=-0.5) +
+  scale_color_manual(values=c("red", "green", "blue", "lightblue", 
+                              "magenta", "orange", "gray", "black")) +
+  xlim (c(-10, 10)) + ylim (c(-5,5)) +
+  labs (title = "PCA individuals") +  
+  labs (x = "\nPC1", y="PC2\n") +
+  theme (legend.key=element_rect(fill=NA), legend.title=element_blank())
+#, position=position_jitter(h=0), alpha = 1)
+
+p_genotype_tt
+
+
+p_genotype_tt <- ggplot(pca_indiv_2plot, aes(PC1, PC2, color=genotype_tt, label=rownames(pca_indiv_2plot))) + 
+                        stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
+                                       geom="polygon", color=NA, n=200, h=4, bins=6) + 
+                        geom_smooth(se=F, method='lm') + 
+                        geom_point() + 
+                        scale_color_manual(name='genotype_tt', 
+                                           values = c("red", "green", "blue", "lightblue", 
+                                                      "magenta", "orange", "yellow", "black"), 
+                                           labels = c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG")) + 
+                        scale_fill_manual( name='mutation', 
+                                           values = c("red", "green", "blue", "lightblue", 
+                                                      "magenta", "orange", "yellow", "black"), 
+                                           labels = c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG")) + 
+                        geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
+                        scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
+                        scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
+                        coord_cartesian(xlim=c(-10, 10),
+                                        ylim=c(-5, 8))                    
+#     coord_cartesian(xlim=c(-10, 10)) + ylim=c(-5,5))
+                        
+# 
+p_genotype_tt
+
+PCA_all <- prcomp (tbl_median, scale=TRUE)
+summary(PCA_all)
+
+# Plot PCA color by genotype
+pca_all_2plot <- as.data.frame (PCA_all$x)
+
+PCA_all
+g_genotype_tt <- ggplot(pca_all_2plot, aes(PC1, PC2)) + geom_point(aes(colour=genotype_tt_ionas), size=4) +                                                           
+  labs (title = "PCA") +
+  #   scale_color_manual(values=cols, labels=c("1", "2", "3")) +
+  #   geom_text (aes (label=genotype_tt), hjust=0, vjust=-0.5)
+  geom_text (aes (label=genotype_tt_ionas), hjust=0.5, vjust=-0.5) +
+  xlim (c(-10, 10)) + ylim (c(-5,5)) +
+  labs (title = "PCA all sessions") +  
+  labs (x = "\nPC1", y="PC2\n") +
+  theme (legend.key=element_rect(fill=NA), legend.title=element_blank())
+#, position=position_jitter(h=0), alpha = 1)
+
+g_genotype_tt
+
+
+
+
+
+
+
+
+
+===============
 
 data_all_sessions_var <- data_all_sessions [ , c(9:length(data_all_sessions[1,]))]
 
