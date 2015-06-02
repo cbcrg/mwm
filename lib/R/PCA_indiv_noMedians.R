@@ -45,6 +45,105 @@ tail(data_all_sessions)
 # I eliminate all columns but GEN.TREAT and variables
 data_all_sessions_var <- data_all_sessions [ , c(9:length(data_all_sessions[1,]))]
 tail (data_all_sessions_var)
+
+# Reading latency, the structure of the table is not the correct, days are in rows
+ma2=spss.get("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/Ts65Dn OLD ACQ1_ACQ5_SUBCONJ.sav")
+tail (ma2)
+
+# filter by day
+lat_1 <- subset(ma2, day=="Day 1", c("id", "latency"))
+lat_2 <- subset(ma2, day=="Day 2", c("id", "latency"))
+lat_3 <- subset(ma2, day=="Day 3", c("id", "latency"))
+lat_4 <- subset(ma2, day=="Day 4", c("id", "latency"))
+lat_5 <- subset(ma2, day=="Day 5", c("id", "latency"))
+
+acq_latency <- c()
+acq_latency <- merge(lat_1, lat_2, by=c("id"))
+colnames(acq_latency) <- c ("id", "lat.ACQ1", "lat.ACQ2")
+acq_latency <- merge(acq_latency, lat_3, by=c("id"))
+acq_latency <- merge(acq_latency, lat_4, by=c("id"))
+acq_latency <- merge(acq_latency, lat_5, by=c("id"))
+colnames(acq_latency) <- c ("id", "lat.ACQ1", "lat.ACQ2", "lat.ACQ3", "lat.ACQ4", "lat.ACQ5")
+head (data_all_sessions_var)
+
+# I eliminate all columns but GEN.TREAT and variables
+df.ACQ_data_except_latency <- data_all_sessions [ , grepl( "ACQ" , names( data_all_sessions ) ) ]
+head(df.ACQ_data_except_latency)
+# I add the ids to the table
+id_and_groups<- data_all_sessions[,c(6:9)]
+colnames(id_and_groups) [1] <- "id"
+df.ACQ_data_except_latency <- cbind(id_and_groups,df.ACQ_data_except_latency)
+head (df.ACQ_data_except_latency)
+
+df.ACQ_data <- merge (df.ACQ_data_except_latency, acq_latency, by=c("id"))
+
+# Perform a PCA of all the variables and inviduals during acquisition sessions
+# filtering group labels
+df.ACQ_data <- df.ACQ_data []
+
+data_all_sessions_var <- data_all_sessions [ , c(9:length(data_all_sessions[1,]))]
+
+
+
+
+data_all_sessions [ , c(9:length(data_all_sessions[1,]))]
+cbind (data_all_sessions_var$GEN.TREAT, data_all_sessions_var$)
+merge (df.ACQ_data_except_latency, acq_latency, by=c("id"))
+
+
+
+
+
+
+
+acq_latency <- merge(lat_1, lat_2, by=c("id"))
+
+
+
+acq_latency <- merge(acq_latency, lat_4, by=c("id"))
+acq_latency <- merge(acq_latency, lat_5, by=c("id"))
+
+
+
+                     lat_3, lat_4, lat_5, by=c("id"))
+
+""
+
+
+day1_latency <- subset(dat, Subject==2, latency)
+
+
+ma2 []
+studentdata[studentdata$Drink == 'water',]
+
+
+
+session <- colnames (ma2)
+gentreat <- ma2$gentreat
+
+
+# transpose all but the first column (name)
+t.ma2 <- as.data.frame(t(ma2))
+head(t.ma2)
+row.names(t.ma2)
+
+# Get only the rowname of the variable that we want and add to the first table as column
+# lantency is row 7
+latency <- t.ma2[7,]
+id <- t.ma2[1,]
+
+day1[studentdata$Drink == 'water',]
+t(rbind (id,latency))
+
+rbind (row.names (t.ma2)[4], t.ma2$day)
+
+
+
+colnames(df.aree) <- n
+df.aree$myfactor <- factor(row.names(df.aree))
+
+str(df.aree)
+
 tbl_median <- aggregate(.~GEN.TREAT,data_all_sessions_var, median)
 
 # another way of doing the same
