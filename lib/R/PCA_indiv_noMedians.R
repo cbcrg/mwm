@@ -92,7 +92,6 @@ genotype_tt <- factor(genotype_tt , levels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG
 
 pca_indiv_2plot <- as.data.frame (PCA_individuals_acq$x)
 
-
 p_genotype_tt <- ggplot(pca_indiv_2plot, aes(PC1, PC2)) + geom_point(aes(colour=genotype_tt), size=4) +                                                           
   #   scale_color_manual(values=cols, labels=c("1", "2", "3")) +
   #   geom_text (aes (label=genotype_tt), hjust=0, vjust=-0.5)
@@ -106,7 +105,6 @@ p_genotype_tt <- ggplot(pca_indiv_2plot, aes(PC1, PC2)) + geom_point(aes(colour=
 #, position=position_jitter(h=0), alpha = 1)
 
 p_genotype_tt
-
 
 p_genotype_tt <- ggplot(pca_indiv_2plot, aes(PC1, PC2, color=genotype_tt, label=rownames(pca_indiv_2plot))) + 
                         stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
@@ -131,151 +129,10 @@ p_genotype_tt <- ggplot(pca_indiv_2plot, aes(PC1, PC2, color=genotype_tt, label=
 # 
 p_genotype_tt
 
-PCA_all <- prcomp (tbl_median, scale=TRUE)
-summary(PCA_all)
+# Statistical comparison of the groups
+# PCA results --> pca_indiv_2plot
+pca_indiv_2plot
 
-# Plot PCA color by genotype
-pca_all_2plot <- as.data.frame (PCA_all$x)
-
-PCA_all
-g_genotype_tt <- ggplot(pca_all_2plot, aes(PC1, PC2)) + geom_point(aes(colour=genotype_tt_ionas), size=4) +                                                           
-  labs (title = "PCA") +
-  #   scale_color_manual(values=cols, labels=c("1", "2", "3")) +
-  #   geom_text (aes (label=genotype_tt), hjust=0, vjust=-0.5)
-  geom_text (aes (label=genotype_tt_ionas), hjust=0.5, vjust=-0.5) +
-  xlim (c(-10, 10)) + ylim (c(-5,5)) +
-  labs (title = "PCA all sessions") +  
-  labs (x = "\nPC1", y="PC2\n") +
-  theme (legend.key=element_rect(fill=NA), legend.title=element_blank())
-#, position=position_jitter(h=0), alpha = 1)
-
-g_genotype_tt
-
-
-
-
-
-
-
-
-
-===============
-
-data_all_sessions_var <- data_all_sessions [ , c(9:length(data_all_sessions[1,]))]
-
-
-
-
-data_all_sessions [ , c(9:length(data_all_sessions[1,]))]
-cbind (data_all_sessions_var$GEN.TREAT, data_all_sessions_var$)
-merge (df.ACQ_data_except_latency, acq_latency, by=c("id"))
-
-
-
-
-
-
-
-acq_latency <- merge(lat_1, lat_2, by=c("id"))
-
-
-
-acq_latency <- merge(acq_latency, lat_4, by=c("id"))
-acq_latency <- merge(acq_latency, lat_5, by=c("id"))
-
-
-
-                     lat_3, lat_4, lat_5, by=c("id"))
-
-""
-
-
-day1_latency <- subset(dat, Subject==2, latency)
-
-
-ma2 []
-studentdata[studentdata$Drink == 'water',]
-
-
-
-session <- colnames (ma2)
-gentreat <- ma2$gentreat
-
-
-# transpose all but the first column (name)
-t.ma2 <- as.data.frame(t(ma2))
-head(t.ma2)
-row.names(t.ma2)
-
-# Get only the rowname of the variable that we want and add to the first table as column
-# lantency is row 7
-latency <- t.ma2[7,]
-id <- t.ma2[1,]
-
-day1[studentdata$Drink == 'water',]
-t(rbind (id,latency))
-
-rbind (row.names (t.ma2)[4], t.ma2$day)
-
-
-
-colnames(df.aree) <- n
-df.aree$myfactor <- factor(row.names(df.aree))
-
-str(df.aree)
-
-tbl_median <- aggregate(.~GEN.TREAT,data_all_sessions_var, median)
-
-# another way of doing the same
-# median_tbl <- data_all_sessions_var %>% group_by(GEN.TREAT) %>% summarise_each(funs(median))
-# tail (median_tbl)
-
-genotype_tt_ionas <- as.factor (tbl_median$GEN.TREAT)
-tbl_median <- tbl_median [,-1]
-PCA_all <- prcomp (tbl_median, scale=TRUE)
-summary(PCA_all)
-
-# Plot PCA color by genotype
-pca_all_2plot <- as.data.frame (PCA_all$x)
-
-PCA_all
-g_genotype_tt <- ggplot(pca_all_2plot, aes(PC1, PC2)) + geom_point(aes(colour=genotype_tt_ionas), size=4) +                                                           
-  labs (title = "PCA") +
-  #   scale_color_manual(values=cols, labels=c("1", "2", "3")) +
-  #   geom_text (aes (label=genotype_tt), hjust=0, vjust=-0.5)
-  geom_text (aes (label=genotype_tt_ionas), hjust=0.5, vjust=-0.5) +
-  xlim (c(-10, 10)) + ylim (c(-5,5)) +
-  labs (title = "PCA all sessions") +  
-  labs (x = "\nPC1", y="PC2\n") +
-  theme (legend.key=element_rect(fill=NA), legend.title=element_blank())
-#, position=position_jitter(h=0), alpha = 1)
-
-g_genotype_tt
-
-
-
-
-
-
-
-genotype_tt_ionas <- as.factor(tbl_median$GEN.TREAT)
-tbl_median <- tbl_median [,-1]
-PCA_all <- prcomp(tbl_median, scale=TRUE)
-summary(PCA_all)
-
-# Plot PCA color by genotype
-pca_all_2plot <- as.data.frame (PCA_all$x)
-# pca_all_2plot$PC1_neg <- -pca_rem_2plot$PC1
-g_genotype_tt <- ggplot(pca_all_2plot, aes(PC1, PC2)) + geom_point(aes(colour=genotype_tt_ionas), size=4) +                                                           
-  labs (title = "PCA") +
-  #   scale_color_manual(values=cols, labels=c("1", "2", "3")) +
-  #   geom_text (aes (label=genotype_tt), hjust=0, vjust=-0.5)
-  geom_text (aes (label=genotype_tt_ionas), hjust=0.5, vjust=-0.5) +
-  xlim (c(-10, 10)) + ylim (c(-5,5)) +
-  labs (title = "PCA all sessions") +  
-  labs (x = "\nPC1", y="PC2\n") +
-  theme (legend.key=element_rect(fill=NA), legend.title=element_blank())
-#, position=position_jitter(h=0), alpha = 1)
-
-g_genotype_tt
+# I can just add to this table the genotype and treatment
+cbind (pca_indiv_2plot, 
 
