@@ -134,5 +134,11 @@ p_genotype_tt
 pca_indiv_2plot
 
 # I can just add to this table the genotype and treatment
-cbind (pca_indiv_2plot, 
+id <- df.ACQ_data$id
+df.pca2anova <- cbind (id, genotype_tt, pca_indiv_2plot)
+head (df.pca2anova)
+pca2anova.aov <- aov(PC1 ~ genotype_tt + Error(id), data = df.pca2anova)
+summary(pca2anova.aov)
+
+pairwise.t.test(df.pca2anova$PC1, df.pca2anova$genotype_tt, , p.adj="hochberg", paired=F)
 
