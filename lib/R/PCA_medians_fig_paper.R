@@ -133,11 +133,13 @@ apply(smWT[11:20,],2,median)%*%ResMMALL$rotation[,1]==ResMMALL$x[9,1]
 
 acq=c("Day 1","Day 2","Day 3","Day 4","Day 5")
 var=c(4,5,7,8,9,11,12)
-tgt=sort(unique(iddaytreat[,2]))
 
 M.ind=as.matrix(ma2[ma2$day%in%acq,var])
 iddaytreat=as.matrix(ma2[ma2$day%in%acq,1:3])
 rownames(iddaytreat)=c(1:415)
+tgt=sort(unique(iddaytreat[,2]))
+
+
 
 M.med=matrix(0,40,7)
 rnames=c(1:40)
@@ -183,8 +185,11 @@ neg_positions [3,2] <-neg_positions [3,2] - 0.04
 pos_labels <- labels_v [c(4,5,6)]
 pos_positions <- circle_plot [c(4,5,6), c(1,2)]
 
+angle <- seq(-pi, pi, length = 50)
+df.circle <- data.frame(x = sin(angle), y = cos(angle))
+
 #aes(x=PC1, y=PC2, colour=gentreat )) 
-circle_plot <- ggplot(circle_plot) + 
+p_circle_plot <- ggplot(circle_plot) + 
                        geom_segment (data=circle_plot, aes(x=0, y=0, xend=-Dim.1, yend=-Dim.2), arrow=arrow(length=unit(0.2,"cm")), alpha=1, size=1, color="red") +
                        xlim (c(-1.2, 1.2)) + ylim (c(-1.2, 1.2)) +
                        geom_text (data=neg_positions, aes (x=-Dim.1, y=-Dim.2, label=neg_labels, hjust=1.2), show_guide = FALSE, size=5) + 
@@ -194,8 +199,8 @@ circle_plot <- ggplot(circle_plot) +
                        labs (title = "Variable contributions\n", x = "\nPC1 (80% of variance)", y="PC2 (12% of variance)\n") +
                 #        geom_polygon(aes(x, y), data = df, inherit.aes = F, Fill=NA)
 #                         scale_x_continuous(breaks=1:10)  
-                       geom_polygon (data = df, aes(x, y), alpha=1,colour="black", fill=NA, size=1)
-circle_plot
+                       geom_polygon (data = df.circle, aes(x, y), alpha=1, colour="black", fill=NA, size=1)
+p_circle_plot
 ggsave (circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 
