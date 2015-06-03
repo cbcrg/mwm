@@ -405,12 +405,46 @@ p_cloud_ts_acq5 <- ggplot(PC1_TS_acq5, aes(PC1, PC2, color=genotype_tt, label=ro
 p_cloud_ts_acq5
 p_cloud_ts_acq1
 
+# Plot saved
+ggsave (p_cloud_ts_acq1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_acq1_ts_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
+ggsave (p_cloud_ts_acq5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_acq5_ts_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
+
+## Only comparison between TS and TSEEEGCG day 1 vs day 5
+# Day 1
+PC1_TS_acq1 <- subset(PC1_TS, day=="1", c("V1", "V2", "day","genotype"))
+
+PC1_TS_TSEEEGCG_acq1  <- subset(PC1_TS_acq1, genotype=="TS" | genotype=="TSEEEGCG")
+
+colnames (PC1_TS_TSEEEGCG_acq1) <- c("PC1","PC2", "day", "genotype_tt")
+
+p_cloud_ts_tseeegcg_acq1 <- ggplot(PC1_TS_TSEEEGCG_acq1, aes(PC1, PC2, color=genotype_tt, label=rownames(PC1_TS_TSEEEGCG_acq1))) + 
+  stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
+                 geom="polygon", color=NA, n=100, h=4, bins=6, show_guide = FALSE) + 
+  #   geom_smooth(se=F, method='lm', show_guide = FALSE) + 
+  geom_point(show_guide = FALSE) + 
+  scale_color_manual(name='genotype_tt', 
+                     values = c("green", "black"), 
+                     labels = c("TS", "TSEEEGCG")) + 
+  scale_fill_manual( name='gentreat', 
+                     values = c("green", "black"),
+                     labels = c("TS",  "TSEEEGCG")) + 
+  geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
+  scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
+  scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
+  coord_cartesian(xlim=c(-7, 9),
+                  ylim=c(-10, 10))  
+p_cloud_ts_tseeegcg_acq1
+
+# Plot saved
+ggsave (p_cloud_ts_tseeegcg_acq1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_acq1_ts_tseeegcg_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
+
+# Day 5
 PC1_TS_acq5 <- subset(PC1_TS, day=="5", c("V1", "V2", "day","genotype"))
 
-PC1_TS_TSEEEGCG  <- subset(PC1_TS_acq5, genotype_tt=="TS" | genotype_tt=="TSEEEGCG")
+PC1_TS_TSEEEGCG_acq5  <- subset(PC1_TS_acq5, genotype=="TS" | genotype=="TSEEEGCG")
 
-colnames (PC1_TS_TSEEEGCG) <- c("PC1","PC2", "day", "genotype_tt")
-p_cloud_ts_tseeegcg_acq5 <- ggplot(PC1_TS_TSEEEGCG, aes(PC1, PC2, color=genotype_tt, label=rownames(PC1_TS_TSEEEGCG))) + 
+colnames (PC1_TS_TSEEEGCG_acq5) <- c("PC1","PC2", "day", "genotype_tt")
+p_cloud_ts_tseeegcg_acq5 <- ggplot(PC1_TS_TSEEEGCG_acq5, aes(PC1, PC2, color=genotype_tt, label=rownames(PC1_TS_TSEEEGCG_acq5))) + 
   stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
                  geom="polygon", color=NA, n=100, h=4, bins=6, show_guide = FALSE) + 
   #   geom_smooth(se=F, method='lm', show_guide = FALSE) + 
@@ -427,6 +461,9 @@ p_cloud_ts_tseeegcg_acq5 <- ggplot(PC1_TS_TSEEEGCG, aes(PC1, PC2, color=genotype
   coord_cartesian(xlim=c(-7, 9),
                   ylim=c(-10, 10))  
 p_cloud_ts_tseeegcg_acq5
+
+# Plot saved
+ggsave (p_cloud_ts_tseeegcg_acq5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_acq5_ts_tseeegcg_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 
 
