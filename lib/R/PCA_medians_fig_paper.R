@@ -283,10 +283,13 @@ for (j in 1:length(tgt)){
     myset=which(iddaytreat[,2]==tgt[j] & iddaytreat[,3]==acq[i])
     new_coord [myset,c("day")] <- i
     new_coord [myset,c("genotype")] <- tgt[j]
+    new_coord [myset,c("id")] <- substr(iddaytreat[myset,1], 7, 9)
 #     text(-res.pca$ind.sup$coord[myset,1],-res.pca$ind.sup$coord[myset,2],i,col=cols[j],cex=0.5)
     
   }
 }
+
+# substr(new_coord$id, 7,9)
 
 new_coord$genotype <- factor(new_coord$genotype , levels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"), 
                             labels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"))
@@ -307,9 +310,9 @@ ggsave (pca_plot_individuals, file=paste(home, "/20150515_PCA_old_frotiersPaper/
 # Adding the plot of PCA cloud for day A1 and day A5
 new_coord
 
-PC1_acq1 <- subset(new_coord, day=="1", c("V1", "V2", "day","genotype"))
-colnames (PC1_acq1) <- c("PC1","PC2", "day", "genotype_tt")
-p_cloud_acq1 <- ggplot(PC1_acq1, aes(PC1, PC2, color=genotype_tt, label=rownames(pca_indiv_2plot))) + 
+PC1_acq1 <- subset(new_coord, day=="1", c("V1", "V2", "day","genotype", "id"))
+colnames (PC1_acq1) <- c("PC1","PC2", "day", "genotype_tt", "id")
+p_cloud_acq1 <- ggplot(PC1_acq1, aes(PC1, PC2, color=genotype_tt, label=id)) + 
   stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
                  geom="polygon", color=NA, n=100, h=4, bins=6, show_guide = FALSE) + 
   #   geom_smooth(se=F, method='lm', show_guide = FALSE) + 
@@ -326,13 +329,14 @@ p_cloud_acq1 <- ggplot(PC1_acq1, aes(PC1, PC2, color=genotype_tt, label=rownames
   scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
   scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
   coord_cartesian(xlim=c(-7, 9),
-                  ylim=c(-10, 10))  
+                  ylim=c(-10, 10)) +
+  labs(title = "PCA coordinates density, day 1\n", x = "\nPC1", y="PC2\n")
 
 p_cloud_acq1
 
-PC1_acq5 <- subset(new_coord, day=="5", c("V1", "V2", "day","genotype"))
-colnames (PC1_acq5) <- c("PC1","PC2", "day", "genotype_tt")
-p_cloud_acq5 <- ggplot(PC1_acq5, aes(PC1, PC2, color=genotype_tt, label=rownames(pca_indiv_2plot))) + 
+PC1_acq5 <- subset(new_coord, day=="5", c("V1", "V2", "day","genotype", "id"))
+colnames (PC1_acq5) <- c("PC1","PC2", "day", "genotype_tt", "id")
+p_cloud_acq5 <- ggplot(PC1_acq5, aes(PC1, PC2, color=genotype_tt, label=id)) + 
   stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
                  geom="polygon", color=NA, n=100, h=4, bins=6, show_guide = FALSE) + 
 #   geom_smooth(se=F, method='lm', show_guide = FALSE) + 
@@ -349,7 +353,8 @@ p_cloud_acq5 <- ggplot(PC1_acq5, aes(PC1, PC2, color=genotype_tt, label=rownames
   scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
   scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
   coord_cartesian(xlim=c(-7, 9),
-                  ylim=c(-10, 10))   
+                  ylim=c(-10, 10)) +
+  labs(title = "PCA coordinates density, trisomic group, day 5\n", x = "\nPC1", y="PC2\n")
 
 #p_cloud_acq1
 p_cloud_acq5
@@ -363,10 +368,10 @@ new_coord
 indiv <- rownames(pca_indiv_2plot)
 new_coord_indiv <- rbind(indiv, new_coord)
 PC1_TS  <- subset(new_coord, grepl("TS", genotype))
-PC1_TS_acq1 <- subset(PC1_TS, day=="1", c("V1", "V2", "day","genotype"))
+PC1_TS_acq1 <- subset(PC1_TS, day=="1", c("V1", "V2", "day","genotype", "id"))
 
-colnames (PC1_TS_acq1) <- c("PC1","PC2", "day", "genotype_tt")
-p_cloud_ts_acq1 <- ggplot(PC1_TS_acq1, aes(PC1, PC2, color=genotype_tt, label=rownames(PC1_TS_acq1))) + 
+colnames (PC1_TS_acq1) <- c("PC1","PC2", "day", "genotype_tt", "id")
+p_cloud_ts_acq1 <- ggplot(PC1_TS_acq1, aes(PC1, PC2, color=genotype_tt, label=id)) + 
   stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
                  geom="polygon", color=NA, n=100, h=4, bins=6, show_guide = FALSE) + 
   #   geom_smooth(se=F, method='lm', show_guide = FALSE) + 
@@ -381,12 +386,13 @@ p_cloud_ts_acq1 <- ggplot(PC1_TS_acq1, aes(PC1, PC2, color=genotype_tt, label=ro
   scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
   scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
   coord_cartesian(xlim=c(-7, 9),
-                  ylim=c(-10, 10))  
+                  ylim=c(-10, 10)) +
+  labs(title = "PCA coordinates density, trisomic group, day 1\n", x = "\nPC1", y="PC2\n")
 
-PC1_TS_acq5 <- subset(PC1_TS, day=="5", c("V1", "V2", "day","genotype"))
+PC1_TS_acq5 <- subset(PC1_TS, day=="5", c("V1", "V2", "day","genotype", "id"))
 
-colnames (PC1_TS_acq5) <- c("PC1","PC2", "day", "genotype_tt")
-p_cloud_ts_acq5 <- ggplot(PC1_TS_acq5, aes(PC1, PC2, color=genotype_tt, label=rownames(PC1_TS_acq5))) + 
+colnames (PC1_TS_acq5) <- c("PC1","PC2", "day", "genotype_tt", "id")
+p_cloud_ts_acq5 <- ggplot(PC1_TS_acq5, aes(PC1, PC2, color=genotype_tt, label=id)) + 
   stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
                  geom="polygon", color=NA, n=100, h=4, bins=6, show_guide = FALSE) + 
   #   geom_smooth(se=F, method='lm', show_guide = FALSE) + 
@@ -401,7 +407,9 @@ p_cloud_ts_acq5 <- ggplot(PC1_TS_acq5, aes(PC1, PC2, color=genotype_tt, label=ro
   scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
   scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
   coord_cartesian(xlim=c(-7, 9),
-                  ylim=c(-10, 10))  
+                  ylim=c(-10, 10)) +
+  labs(title = "PCA coordinates density, trisomic group, day 5\n", x = "\nPC1", y="PC2\n")
+
 p_cloud_ts_acq5
 p_cloud_ts_acq1
 
@@ -411,13 +419,13 @@ ggsave (p_cloud_ts_acq5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figur
 
 ## Only comparison between TS and TSEEEGCG day 1 vs day 5
 # Day 1
-PC1_TS_acq1 <- subset(PC1_TS, day=="1", c("V1", "V2", "day","genotype"))
+PC1_TS_acq1 <- subset(PC1_TS, day=="1", c("V1", "V2", "day","genotype", "id"))
 
 PC1_TS_TSEEEGCG_acq1  <- subset(PC1_TS_acq1, genotype=="TS" | genotype=="TSEEEGCG")
 
-colnames (PC1_TS_TSEEEGCG_acq1) <- c("PC1","PC2", "day", "genotype_tt")
+colnames (PC1_TS_TSEEEGCG_acq1) <- c("PC1","PC2", "day", "genotype_tt", "id")
 
-p_cloud_ts_tseeegcg_acq1 <- ggplot(PC1_TS_TSEEEGCG_acq1, aes(PC1, PC2, color=genotype_tt, label=rownames(PC1_TS_TSEEEGCG_acq1))) + 
+p_cloud_ts_tseeegcg_acq1 <- ggplot(PC1_TS_TSEEEGCG_acq1, aes(PC1, PC2, color=genotype_tt, label=id)) + 
   stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
                  geom="polygon", color=NA, n=100, h=4, bins=6, show_guide = FALSE) + 
   #   geom_smooth(se=F, method='lm', show_guide = FALSE) + 
@@ -432,19 +440,21 @@ p_cloud_ts_tseeegcg_acq1 <- ggplot(PC1_TS_TSEEEGCG_acq1, aes(PC1, PC2, color=gen
   scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
   scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
   coord_cartesian(xlim=c(-7, 9),
-                  ylim=c(-10, 10))  
+                  ylim=c(-10, 10)) +
+  labs(title = "PCA coordinates density, trisomic not treated\nversus trisomic EE and EGCG, day 1\n", x = "\nPC1", y="PC2\n")
+
 p_cloud_ts_tseeegcg_acq1
 
 # Plot saved
 ggsave (p_cloud_ts_tseeegcg_acq1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_acq1_ts_tseeegcg_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 # Day 5
-PC1_TS_acq5 <- subset(PC1_TS, day=="5", c("V1", "V2", "day","genotype"))
+PC1_TS_acq5 <- subset(PC1_TS, day=="5", c("V1", "V2", "day", "genotype", "id"))
 
 PC1_TS_TSEEEGCG_acq5  <- subset(PC1_TS_acq5, genotype=="TS" | genotype=="TSEEEGCG")
 
-colnames (PC1_TS_TSEEEGCG_acq5) <- c("PC1","PC2", "day", "genotype_tt")
-p_cloud_ts_tseeegcg_acq5 <- ggplot(PC1_TS_TSEEEGCG_acq5, aes(PC1, PC2, color=genotype_tt, label=rownames(PC1_TS_TSEEEGCG_acq5))) + 
+colnames (PC1_TS_TSEEEGCG_acq5) <- c("PC1","PC2", "day", "genotype_tt", "id")
+p_cloud_ts_tseeegcg_acq5 <- ggplot(PC1_TS_TSEEEGCG_acq5, aes(PC1, PC2, color=genotype_tt, label=id)) + 
   stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
                  geom="polygon", color=NA, n=100, h=4, bins=6, show_guide = FALSE) + 
   #   geom_smooth(se=F, method='lm', show_guide = FALSE) + 
@@ -459,7 +469,9 @@ p_cloud_ts_tseeegcg_acq5 <- ggplot(PC1_TS_TSEEEGCG_acq5, aes(PC1, PC2, color=gen
   scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
   scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
   coord_cartesian(xlim=c(-7, 9),
-                  ylim=c(-10, 10))  
+                  ylim=c(-10, 10)) +
+  labs(title = "PCA coordinates density, trisomic not treated\nversus trisomic EE and EGCG, day 1\n", x = "\nPC1", y="PC2\n")
+
 p_cloud_ts_tseeegcg_acq5
 
 # Plot saved
