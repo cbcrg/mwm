@@ -229,12 +229,60 @@ boxPlots <- ggplot(df.anova.ts.a5 , aes (group, value, fill = group)) +
   scale_fill_manual(name = "Group", values=c("green", "lightblue", "orange", "black")) +
   labs(title = "Day 5 PC1\n") + xlab ("\ngentreat") + ylab("PC1\n") +
   theme (legend.title=element_blank())+ 
-  scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-5.5, 9.5))
+  scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-5.5, 9.5)) +
+  geom_segment(aes(x = 3.63, y = median(df.anova.ts.a5[df.anova.ts.a1$group == "TSEEEGCG","value"]), 
+                 xend = 4.37, yend = median(df.anova.ts.a5[df.anova.ts.a1$group == "TSEEEGCG","value"])), colour="white")
 
 boxPlots 
 
 #PLOT_paper
 ggsave (boxPlots, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "boxPlot_ts_a5.jpg", sep=""), dpi=900)
+
+###########################################
+# Comparison of only day 5 and TS
+df.anova.ts
+
+df.anova.ts.a1 <- subset(df.anova.ts, grepl("A1", df.anova.ts$variable))
+
+ts_a1.aov <- aov(value ~ group  + Error(id), data = df.anova.ts.a1)
+summary(ts_a1.aov)
+
+# pairwise.t.test (df.anova.ts.a1$value, df.anova.ts.a1$group, p.adj="bonferroni")
+# pairwise.t.test (df.anova.ts.a1$value, df.anova.ts.a1$group,p.adj="hochberg")
+
+uniqueInitials <- c("red", "lightblue","lightgreen", "darkgreen")
+initialShapes <- unlist(lapply(uniqueInitials, utf8ToInt))
+
+# Setting order for ploting
+df.anova.ts.a1$group <- factor(df.anova.ts.a5$group , levels=c("TS","TSEE", "TSEGCG", "TSEEEGCG"), 
+                               labels=c("TS","TSEE", "TSEGCG", "TSEEEGCG"))
+
+
+
+# dailyInt_theme <- theme_update (panel.border = element_rect(colour = "black"))
+# boxPlots <- ggplot(df.anova.ts.a5 , aes (variable, value, fill = group, color=group)) +
+med_tseeegcg<-median(df.anova.ts.a1[df.anova.ts.a1$group == "TSEEEGCG","value"])
+boxPlots <- ggplot(df.anova.ts.a1 , aes (group, value, fill = group)) + 
+  #                    geom_boxplot() +
+  geom_boxplot(show_guide=FALSE) +
+  #             guides(color=guide_legend('Model',override.aes=list(shape=c(1,1,6,6))))
+  
+  scale_fill_manual(name = "Group", values=c("green", "lightblue", "orange", "black")) +
+#   scale_colour_manual (name="Group",values = c(rep("gray",4))) +
+  labs(title = "Day 1 PC1\n") + xlab ("\ngentreat") + ylab("PC1\n") +
+  theme (legend.title=element_blank())+ 
+  scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
+  geom_segment(aes(x = 3.63, y = median(df.anova.ts.a1[df.anova.ts.a1$group == "TSEEEGCG","value"]), xend = 4.37, yend = median(df.anova.ts.a1[df.anova.ts.a1$group == "TSEEEGCG","value"])), colour="white")
+                                 
+
+boxPlots 
+
+#PLOT_paper
+ggsave (boxPlots, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "boxPlot_ts_a1.jpg", sep=""), dpi=900)
+
+
+
+
 
 
 
