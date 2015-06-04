@@ -305,6 +305,49 @@ pca_plot_individuals
 #PLOT_paper
 ggsave (pca_plot_individuals, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_individuals.jpg", sep=""), dpi=900)
 
+####
+# Adding cloud to the individuals plot
+# By group, instead of the line let's see how it looks like
+pca_plot_individuals <- ggplot (data=new_coord, aes (V1, V2)) + 
+  geom_text (aes(label=day, colour = genotype), size=3, show_guide = FALSE) +
+  scale_color_manual(values=c("red", "green", "blue", "lightblue", 
+                              "magenta", "orange", "gray", "black")) +
+  xlim (c(-6, 6.5)) + ylim (c(-8, 6.5)) +
+  geom_path (data=pca2plot, aes(x=PC1, y=PC2, colour=gentreat),size = 0.5,show_guide = FALSE) +
+  labs(title = "Individual variation as supplementary points\n", x = "\nPC1 (80% of variance)", y="PC2 (12% of variance)\n") 
+pca_plot_individuals
+head(new_coord)
+
+pca2plot$genotype <- pca2plot$gentreat
+
+p_cloud_indiv_by_day <- ggplot(new_coord, aes(V1, V2, color=genotype, label=day)) + 
+  stat_density2d(aes(fill=factor(genotype), alpha = ..level..), 
+                 geom="polygon", color=NA, n=100, h=4, bins=6, show_guide = FALSE) + 
+  #   geom_smooth(se=F, method='lm', show_guide = FALSE) + 
+  geom_point(show_guide = FALSE) + 
+  scale_color_manual(name='genotype', 
+                     values = c("red", "green", "blue", "lightblue", 
+                                "magenta", "orange", "yellow", "black"), 
+                     labels = c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG")) + 
+  scale_fill_manual( name='gentreat', 
+                     values = c("red", "green", "blue", "lightblue", 
+                                "magenta", "orange", "yellow", "black"), 
+                     labels = c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG")) + 
+  geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
+  scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
+  scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
+  coord_cartesian(xlim=c(-7, 9),
+                  ylim=c(-10, 10)) +
+  labs(title = "Density plot of individual variation\n", x = "\nPC1", y="PC2\n") +
+  scale_alpha_continuous(range=c(0.3,0.5)) +
+  geom_path (data=pca2plot, aes(x=PC1, y=PC2), colour="black", size = 0.5, linetype = 2, show_guide = FALSE)
+#  geom_path (data=pca2plot, aes(x=PC1, y=PC2, colour=gentreat), size = 0.6, show_guide = FALSE) +
+#             scale_color_manual (name='genotype', values =c (rep ("black",7), "white")) 
+
+p_cloud_indiv_by_day_facet <- p_cloud_indiv_by_day + facet_wrap(~genotype, ncol = 2)
+p_cloud_indiv_by_day_facet
+ggsave (p_cloud_indiv_by_day_facet, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_cloud_indiv_byDay.jpg", sep=""), width = 10, height = 10, dpi=900)
+
 
 ##############
 # Adding the plot of PCA cloud for day A1 and day A5
@@ -371,18 +414,19 @@ PC1_TS  <- subset(new_coord, grepl("TS", genotype))
 PC1_TS_acq1 <- subset(PC1_TS, day=="1", c("V1", "V2", "day","genotype", "id"))
 
 colnames (PC1_TS_acq1) <- c("PC1","PC2", "day", "genotype_tt", "id")
-p_cloud_ts_acq1 <- ggplot(PC1_TS_acq1, aes(PC1, PC2, color=genotype_tt, label=id)) + 
+# p_cloud_ts_acq1 <- ggplot(PC1_TS_acq1, aes(PC1, PC2, color=genotype_tt, label=id)) + 
+p_cloud_ts_acq1 <- ggplot(PC1_TS_acq1, aes(PC1, PC2, color=genotype_tt)) + 
   stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
                  geom="polygon", color=NA, n=100, h=4, bins=6, show_guide = FALSE) + 
   #   geom_smooth(se=F, method='lm', show_guide = FALSE) + 
   geom_point(show_guide = FALSE) + 
   scale_color_manual(name='genotype_tt', 
-                     values = c("green", "lightblue", "orange", "black"), 
+                     values=c("darkgreen", "blue", "darkorange", "black"), 
                      labels = c("TS", "TSEE", "TSEGCG", "TSEEEGCG")) + 
   scale_fill_manual( name='gentreat', 
-                     values = c("green", "lightblue", "orange", "black"),
+                     values=c("darkgreen", "blue", "orange", "black"),
                      labels = c("TS", "TSEE", "TSEGCG", "TSEEEGCG")) + 
-  geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
+#   geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
   scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
   scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
   coord_cartesian(xlim=c(-7, 9),
@@ -392,26 +436,29 @@ p_cloud_ts_acq1 <- ggplot(PC1_TS_acq1, aes(PC1, PC2, color=genotype_tt, label=id
 PC1_TS_acq5 <- subset(PC1_TS, day=="5", c("V1", "V2", "day","genotype", "id"))
 
 colnames (PC1_TS_acq5) <- c("PC1","PC2", "day", "genotype_tt", "id")
-p_cloud_ts_acq5 <- ggplot(PC1_TS_acq5, aes(PC1, PC2, color=genotype_tt, label=id)) + 
+# p_cloud_ts_acq5 <- ggplot(PC1_TS_acq5, aes(PC1, PC2, color=genotype_tt, label=id)) + 
+p_cloud_ts_acq5 <- ggplot(PC1_TS_acq5, aes(PC1, PC2, color=genotype_tt)) + 
   stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
                  geom="polygon", color=NA, n=100, h=4, bins=6, show_guide = FALSE) + 
   #   geom_smooth(se=F, method='lm', show_guide = FALSE) + 
   geom_point(show_guide = FALSE) + 
   scale_color_manual(name='genotype_tt', 
-                     values = c("green", "lightblue", "orange", "black"), 
+                     values = c("darkgreen", "blue", "darkorange", "black"), 
                      labels = c("TS", "TSEE", "TSEGCG", "TSEEEGCG")) + 
   scale_fill_manual( name='gentreat', 
-                     values = c("green", "lightblue", "orange", "black"),
+                     values = c("green", "blue","orange", "black"),
                      labels = c("TS", "TSEE", "TSEGCG", "TSEEEGCG")) + 
-  geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
+#   geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
   scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
   scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
-  coord_cartesian(xlim=c(-7, 9),
-                  ylim=c(-10, 10)) +
+  coord_cartesian(xlim=c(-6, 8.5),
+                  ylim=c(-9, 6)) +
   labs(title = "PCA coordinates density, trisomic group, day 5\n", x = "\nPC1", y="PC2\n")
 
-p_cloud_ts_acq5
-p_cloud_ts_acq1
+p_cloud_ts_acq1 + scale_alpha_continuous(range=c(0.3,0.5))
+# p_cloud_ts_acq5 + scale_alpha_continuous(range=c(0.3,0.5))
+p_cloud_ts_acq5 <- p_cloud_ts_acq5 + facet_wrap(~genotype_tt, ncol = 2)  + geom_vline(xintercept = 0, colour="gray") + geom_hline(yintercept = 0, colour="gray")
+p_cloud_ts_acq1 <- p_cloud_ts_acq1 + facet_wrap(~genotype_tt, ncol = 2)  + geom_vline(xintercept = 0, colour="gray") + geom_hline(yintercept = 0, colour="gray")
 
 # Plot saved
 ggsave (p_cloud_ts_acq1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_acq1_ts_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
