@@ -263,8 +263,8 @@ df.anova.ts.a1$group <- factor(df.anova.ts.a5$group , levels=c("TS","TSEE", "TSE
 # boxPlots <- ggplot(df.anova.ts.a5 , aes (variable, value, fill = group, color=group)) +
 med_tseeegcg<-median(df.anova.ts.a1[df.anova.ts.a1$group == "TSEEEGCG","value"])
 boxPlots <- ggplot(df.anova.ts.a1 , aes (group, value, fill = group)) + 
-  #                    geom_boxplot() +
-  geom_boxplot(show_guide=FALSE) +
+                     geom_boxplot() +
+#   geom_boxplot(show_guide=FALSE) +
   #             guides(color=guide_legend('Model',override.aes=list(shape=c(1,1,6,6))))
   
   scale_fill_manual(name = "Group", values=c("green", "lightblue", "orange", "black")) +
@@ -274,12 +274,18 @@ boxPlots <- ggplot(df.anova.ts.a1 , aes (group, value, fill = group)) +
   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
   geom_segment(aes(x = 3.63, y = median(df.anova.ts.a1[df.anova.ts.a1$group == "TSEEEGCG","value"]), xend = 4.37, yend = median(df.anova.ts.a1[df.anova.ts.a1$group == "TSEEEGCG","value"])), colour="white")
                                  
-
 boxPlots 
 
 #PLOT_paper
 ggsave (boxPlots, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "boxPlot_ts_a1.jpg", sep=""), dpi=900)
 
+# Plotting a legend with squares
+l <- ggplot() + geom_point(data=df.anova.ts.a1 , aes (x=group, y=value, colour = group), shape=15, size=5) +
+     scale_colour_manual (values=c("green", "lightblue", "orange", "black"))
+l <- l + guides(color=guide_legend(title=NULL)) 
+l <- l + theme(legend.key = element_blank())
+l
+ggsave (l, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "boxPlot_Legend.jpg", sep=""), dpi=900)
 
 
 
