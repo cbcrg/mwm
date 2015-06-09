@@ -122,8 +122,8 @@ p_genotype_tt <- ggplot(pca_indiv_2plot, aes(PC1, PC2, color=genotype_tt, label=
                         geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
                         scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
                         scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
-                        coord_cartesian(xlim=c(-10, 10),
-                                        ylim=c(-5, 8))                    
+                        coord_cartesian(xlim=c(-14, 10),
+                                        ylim=c(-8, 8))                    
 #     coord_cartesian(xlim=c(-10, 10)) + ylim=c(-5,5))
                         
 # 
