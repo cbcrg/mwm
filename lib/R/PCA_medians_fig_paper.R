@@ -196,12 +196,12 @@ p_circle_plot <- ggplot(circle_plot) +
                        geom_text (data=pos_positions, aes (x=-Dim.1, y=-Dim.2, label=pos_labels, hjust=-0.3), show_guide = FALSE, size=5) +
                        geom_vline (xintercept = 0, linetype="dotted") +
                        geom_hline (yintercept=0, linetype="dotted") +
-                       labs (title = "Variable contributions\n", x = "\nPC1 (80% of variance)", y="PC2 (12% of variance)\n") +
+                       labs (title = "PCA of the variables\n", x = "\nPC1 (80% of variance)", y="PC2 (12% of variance)\n") +
                 #        geom_polygon(aes(x, y), data = df, inherit.aes = F, Fill=NA)
 #                         scale_x_continuous(breaks=1:10)  
                        geom_polygon (data = df.circle, aes(x, y), alpha=1, colour="black", fill=NA, size=1)
 p_circle_plot
-ggsave (circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
+ggsave (p_circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 
 ############
@@ -300,10 +300,11 @@ pca_plot_individuals <- ggplot (data=new_coord, aes (V1, V2)) +
                         "magenta", "orange", "gray", "black")) +
       xlim (c(-6, 6.5)) + ylim (c(-8, 6.5)) +
       geom_path (data=pca2plot, aes(x=PC1, y=PC2, colour=gentreat),size = 0.5,show_guide = FALSE) +
-      labs(title = "Individual variation as supplementary points\n", x = "\nPC1 (80% of variance)", y="PC2 (12% of variance)\n") 
+      labs(title = "Individual as supplementary points\n", x = "\nPC1 (80% of variance)", y="PC2 (12% of variance)\n") +
+      coord_fixed()
 pca_plot_individuals
 #PLOT_paper
-ggsave (pca_plot_individuals, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_individuals.jpg", sep=""), dpi=900)
+ggsave (pca_plot_individuals, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_individuals.jpg", sep=""), height = 10, width = 10, dpi=900)
 
 ####
 # Adding cloud to the individuals plot
