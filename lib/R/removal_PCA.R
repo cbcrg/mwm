@@ -257,6 +257,48 @@ pca_plot_individuals_rem <- ggplot (data=new_coord_rem, aes (V1, V2)) +
 #PLOT_paper
 ggsave (pca_plot_individuals, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_individuals.jpg", sep=""), dpi=900)
 
+### Circle with PCA of the variables in ggplot
+
+row.names(res_pca_rem$var$coord)
+circle_plot <- as.data.frame (res_pca_rem$var$coord)
+# Changing the sign of the first dimension and second dimension so that is the same direction as in the Acq
+circle_plot
+circle_plot[,1] <- -circle_plot[,1]
+circle_plot[,2] <- -circle_plot[,2]
+
+labels_v <- row.names(res_pca_rem$var$coord)
+labels_v
+# [1] "NUMBER.ENTRIES" "PERM.TIME"      "LATENCY.TARGET" "GALLINDEX.REM"  "SPEED.REM"      "PERC.NE.REM"    "PERC.PERI.REM" 
+# [8] "WISHAW.REM"    
+labels_v <- c("Nentries", "permtime", "latency", "gallindex", "speed", "percentne", "percentperi", "whishaw")
+
+# circle_plot$labels <- lab_names
+
+pos_labels <- labels_v [c(3,4,7)]
+pos_positions <- circle_plot [c(3,4,7), c(1,2)]
+pos_positions[3,2] <- pos_positions[3,2] - 0.04
+
+neg_labels <- labels_v [c(1,2,5,6,8)]
+neg_positions <- circle_plot [c(1,2,5,6,8), c(1,2)]
+
+angle <- seq(-pi, pi, length = 50)
+df.circle <- data.frame(x = sin(angle), y = cos(angle))
+
+#aes(x=PC1, y=PC2, colour=gentreat )) 
+p_circle_plot <- ggplot(circle_plot) + 
+  geom_segment (data=circle_plot, aes(x=0, y=0, xend=-Dim.1, yend=-Dim.2), arrow=arrow(length=unit(0.2,"cm")), alpha=1, size=1, color="red") +
+  xlim (c(-1.29, 1.29)) + ylim (c(-1.4, 1.4)) +
+  geom_text (data=neg_positions, aes (x=-Dim.1+0.25, y=-Dim.2, label=neg_labels, hjust=1.2), show_guide = FALSE, size=5) + 
+  geom_text (data=pos_positions, aes (x=-Dim.1-0.3, y=-Dim.2, label=pos_labels, hjust=-0.3), show_guide = FALSE, size=5) +
+  geom_vline (xintercept = 0, linetype="dotted") +
+  geom_hline (yintercept=0, linetype="dotted") +
+  labs (title = "PCA of the variables\n", x = "\nPC1 (80% of variance)", y="PC2 (12% of variance)\n") +
+  #        geom_polygon(aes(x, y), data = df, inherit.aes = F, Fill=NA)
+  #                         scale_x_continuous(breaks=1:10)  
+  geom_polygon (data = df.circle, aes(x, y), alpha=1, colour="black", fill=NA, size=1)
+p_circle_plot
+ggsave (p_circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "circle_plot_rem.jpg", sep=""), width = 10, height = 10, dpi=900)
+
 # ANOVA
 # TS all treatments
 new_coord_rem_TS <- subset(new_coord_rem, grepl("TS", new_coord_rem$genotype))
@@ -264,6 +306,23 @@ new_coord_rem_TS$id <- c(1:length(new_coord_rem_TS$V1))
 rem.aov <- aov(V1 ~ genotype  + Error(id), data = new_coord_rem_TS)
 summary(rem.aov)
 
+### Box plot for supplementary figure
+boxPlots_rem <- ggplot(new_coord_rem_TS , aes (genotype, V1, fill = genotype)) + 
+  #                    geom_boxplot() +
+  geom_boxplot(show_guide=FALSE) +
+  #             guides(color=guide_legend('Model',override.aes=list(shape=c(1,1,6,6))))
+  
+  scale_fill_manual(name = "Group", values=c("green", "lightblue", "orange", "black")) +
+  labs(title = "Probe trail PC1\n") + xlab ("\ngentreat") + ylab("PC1\n") +
+  theme (legend.title=element_blank())+ 
+  scale_y_continuous(breaks=c(-10,-8,-6,-4,-2,0,2,4,6,8,10,12), limits=c(-10.5, 12.5)) +
+  geom_segment(aes(x = 3.63, y = median(new_coord_rem_TS[new_coord_rem_TS$genotype == "TSEEEGCG","V1"]), 
+                   xend = 4.37, yend = median(new_coord_rem_TS[new_coord_rem_TS$genotype == "TSEEEGCG","V1"])), colour="white")
+
+boxPlots_rem 
+
+#PLOT_paper
+ggsave (boxPlots_rem, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "boxPlot_rem.jpg", sep=""), dpi=900)
 # TS vs TSEEEGCG 
 new_coord_rem_TS_TSEEEGCG <- subset(new_coord_rem_TS, genotype == "TS" | genotype == "TSEEEGCG")
 new_coord_rem_TS_TSEEEGCG$id <- c(1:length(new_coord_rem_TS_TSEEEGCG$V1))
