@@ -5,14 +5,14 @@
 ### Modified from Ionas script called PCA_clean for PCA analysis          ### 
 #############################################################################
 
+##Getting HOME directory
+home <- Sys.getenv("HOME")
+
 source (paste (home, "/git/mwm/lib/R/plot_param_public.R", sep=""))
 
 # Calling libraries
 library(Hmisc)
 library(calibrate)
-
-##Getting HOME directory
-home <- Sys.getenv("HOME") 
   
 # Loading functions:
 source (paste (home, "/git/phecomp/lib/R/plotParamPublication.R", sep=""))

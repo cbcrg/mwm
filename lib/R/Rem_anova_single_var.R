@@ -69,7 +69,7 @@ TukeyHSD(rem_latency.aov)
 bp_nEntries <- ggplot(rem_data_all_var , aes (genotype, NUMBER.ENTRIES, fill = genotype)) + 
   geom_boxplot(show_guide=FALSE) +
   scale_fill_manual(name = "genotype", values = c("red", "green", "blue", "lightblue", "magenta", "orange", "yellow", "black")) +
-  labs(title = "Removal latency first entry\n") + xlab ("\ngentreat") + ylab("nEntries\n") +
+  labs(title = "Removal number of entries\n") + xlab ("\ngentreat") + ylab("nEntries\n") +
   theme (legend.title=element_blank())
 
 bp_nEntries + geom_point (position = position_jitter(width = 0.2), colour="red")
@@ -85,15 +85,15 @@ bp_latency + geom_point (colour="red")
 bp_latency + geom_point (position = position_jitter(width = 0.2), colour="red")
 
 rem_data_all_var$NUMBER.ENTRIES
-subset(rem_data_all_var, genotype == "TS")
+rem_data_all_var_TS <- subset(rem_data_all_var, genotype == "TS" | genotype == "TSEEEGCG" | genotype == "TSEE" | genotype == "TSEGCG")
 
-bp_rem_latency <- ggplot(rem_data_all_var , aes (genotype, , fill = genotype)) + 
+bp_rem_latency_TS <- ggplot(rem_data_all_var_TS , aes (genotype, LATENCY.TARGET, fill = genotype)) + 
   geom_boxplot(show_guide=FALSE) +
-  scale_fill_manual(name = "genotype", values = c("red", "green", "blue", "lightblue", "magenta", "orange", "yellow", "black")) +
+  scale_fill_manual(name = "genotype", values = c("green", "lightblue", "orange", "black")) +
   labs(title = "Removal latency first entry\n") + xlab ("\ngentreat") + ylab("latency\n") +
   theme (legend.title=element_blank())
 
-bp_rem_latency + geom_point (position = position_jitter(width = 0.2), colour="red")
+bp_rem_latency_TS + geom_point (position = position_jitter(width = 0.2), colour="red")
 
 #### 
 # Anova with only TS group
@@ -112,6 +112,9 @@ bp_ts_rem_nEntries + geom_point (position = position_jitter(width = 0.2), colour
 
 rem_TS_latency.aov <- aov(LATENCY.TARGET ~ genotype  + Error(ID), data = rem_data_all_var_TS)
 summary(rem_TS_latency.aov)
+
+# Post-hoc
+pairwise.t.test (rem_data_all_var_TS$LATENCY.TARGET, rem_data_all_var_TS$genotype, , p.adj="hochberg", paired=F)
 
 bp_ts_rem_latency <- ggplot(rem_data_all_var_TS , aes (genotype, LATENCY.TARGET, fill = genotype)) + 
   geom_boxplot() +
