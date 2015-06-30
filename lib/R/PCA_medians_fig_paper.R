@@ -1,3 +1,10 @@
+#############################################################################
+### Jose A Espinosa. NPMMD/CB-CRG Group. May 2015                         ###
+#############################################################################
+### MWM Paper Silvina frontiers                                           ###
+### PCA analysis figures for frontiers paper                              ### 
+#############################################################################
+
 library("ggplot2")
 
 ##Getting HOME directory
