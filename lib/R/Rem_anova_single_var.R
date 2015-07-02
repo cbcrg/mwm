@@ -65,6 +65,11 @@ rem_nEntries.aov
 pairwise.t.test (rem_data_all_var$LATENCY.TARGET, rem_data_all_var$genotype, , p.adj="hochberg", paired=F)
 TukeyHSD(rem_latency.aov)
 
+# Anova gall index
+rem_gallIndex.aov <- aov (GALLINDEX.REM ~ genotype  + Error(ID), data = rem_data_all_var)
+summary(rem_gallIndex.aov)
+pairwise.t.test (rem_data_all_var$GALLINDEX.REM, rem_data_all_var$genotype, , p.adj="hochberg", paired=F)
+
 # boxplot number entries
 bp_nEntries <- ggplot(rem_data_all_var , aes (genotype, NUMBER.ENTRIES, fill = genotype)) + 
   geom_boxplot(show_guide=FALSE) +
@@ -94,6 +99,8 @@ bp_rem_latency_TS <- ggplot(rem_data_all_var_TS , aes (genotype, LATENCY.TARGET,
   theme (legend.title=element_blank())
 
 bp_rem_latency_TS + geom_point (position = position_jitter(width = 0.2), colour="red")
+
+
 
 #### 
 # Anova with only TS group
@@ -125,6 +132,30 @@ bp_ts_rem_latency <- ggplot(rem_data_all_var_TS , aes (genotype, LATENCY.TARGET,
 bp_ts_rem_latency + geom_point (colour="red")
 bp_ts_rem_latency + geom_point (position = position_jitter(width = 0.2), colour="red")
 
+
+#### 
+# Anova with only TS group
+rem_data_all_var_TS <- subset(rem_data_all_var, grepl("TS", rem_data_all_var$genotype))
+rem_TS_nEntries.aov <- aov(NUMBER.ENTRIES ~ genotype  + Error(ID), data = rem_data_all_var_TS)
+summary(rem_TS_nEntries.aov)
+
+###########
+### Gallagher Index
+head(rem_data_all_var_TS)
+
+rem_TS_gallIndex.aov <- aov(GALLINDEX.REM ~ genotype  + Error(ID), data = rem_data_all_var_TS)
+summary(rem_TS_gallIndex.aov)
+
+# boxplot gallagher
+bp_ts_rem_gallIndex <- ggplot(rem_data_all_var_TS, aes (genotype, GALLINDEX.REM, fill = genotype)) + 
+  geom_boxplot() +
+  scale_fill_manual(name = "genotype", values =c("green","lightblue","orange",  "black")) +
+  labs(title = "Removal latency first entry\n") + xlab ("\ngentreat") + ylab("latency\n") +
+  theme (legend.title=element_blank())
+
+bp_ts_rem_gallIndex
+
+pairwise.t.test(rem_data_all_var_TS$GALLINDEX.REM, rem_data_all_var_TS$genotype, , p.adj="hochberg", paired=F)
 
 # Post-hoc
 # df.anova$interaction <- paste(df.anova$group, df.anova$time, sep="_")
