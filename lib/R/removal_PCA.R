@@ -19,7 +19,7 @@ source (paste (home, "/git/phecomp/lib/R/plotParamPublication.R", sep=""))
 
 rem_data = spss.get(paste (home, "/20150515_PCA_old_frotiersPaper/data/TS_old_removal.sav", sep=""))
 ma3 = spss.get(paste (home, "/20150515_PCA_old_frotiersPaper/data/Jtracks parameters except latency.sav", sep=""))
-
+head (ma3)
 # Last 5 rows are empty 
 ma3 <- head(ma3,-5)
 
