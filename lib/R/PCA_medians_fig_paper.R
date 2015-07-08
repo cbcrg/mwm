@@ -104,7 +104,7 @@ pca_medians_acq <- ggplot(pca2plot, aes(x=PC1, y=PC2, colour=gentreat )) +
                           theme(legend.key=element_rect(fill=NA))
 
 # Plot for presentation
-setwd("/Users/jespinosa/Dropbox (Personal)/presentations_2015/20150630_GM_Cedric/figures")
+# setwd("/Users/jespinosa/Dropbox (Personal)/presentations_2015/20150630_GM_Cedric/figures")
 pca_medians_acq <- ggplot(pca2plot, aes(x=PC1, y=PC2, colour=gentreat )) + 
   geom_path (size = 2,show_guide = T) + 
   scale_color_manual(values=c("red", "green", "blue", "lightblue", 
@@ -118,8 +118,8 @@ pca_medians_acq <- ggplot(pca2plot, aes(x=PC1, y=PC2, colour=gentreat )) +
 
 #PLOT_paper
 pca_medians_acq 
-ggsave (pca_medians_acq, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_medians_legend.jpg", sep=""), dpi=900)
-ggsave (pca_medians_acq, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_medians_NO_legend.jpg", sep=""), width = 10, height = 10, dpi=900)
+# ggsave (pca_medians_acq, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_medians_legend.jpg", sep=""), dpi=900)
+# ggsave (pca_medians_acq, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_medians_NO_legend.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 
 
@@ -183,13 +183,13 @@ plot(res,choix="var")
 cols=c("green","lightblue","black","orange","red","blue","darkgrey","magenta")
 
 
-png("figures/PCAmed_variables.png",res=300,width=15,height=15,unit="cm")
+# png("figures/PCAmed_variables.png",res=300,width=15,height=15,unit="cm")
 plot(res$var$coord[,1],res$var$coord[,2],asp=1,ylim=c(-1.1,1.1),type="n",main="Mapped variables",xlab="PC1 (80% of variance)",ylab="PC2 (12% of variance)")
 arrows(0,0,-res$var$coord[,1],-res$var$coord[,2],length=0.1,angle=10)
 textxy(-res$var$coord[,1],-res$var$coord[,2],colnames(M.med),cex=0.9,offset=0.5,col="red")
 circle(1,c(0,0))
 origin(lty=2)
-dev.off()
+# dev.off()
 
 row.names(res$var$coord)
 circle_plot <- as.data.frame (res$var$coord)
@@ -221,7 +221,7 @@ p_circle_plot <- ggplot(circle_plot) +
 #                         scale_x_continuous(breaks=1:10)  
                        geom_polygon (data = df.circle, aes(x, y), alpha=1, colour="black", fill=NA, size=1)
 p_circle_plot
-ggsave (p_circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
+# ggsave (p_circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 
 ############
@@ -244,7 +244,7 @@ bars_plot <- ggplot (data=df.bars_to_plot, aes(x=index, y=value)) +
 bars_plot
 
 #PLOT_paper
-ggsave (bars_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "bar_contribution.jpg", sep=""), dpi=900, height=5, width=10)
+# ggsave (bars_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "bar_contribution.jpg", sep=""), dpi=900, height=5, width=10)
 
 df.bars_PC2 <- cbind (as.numeric(sort(res$var$coord[,2]^2/sum(res$var$coord[,2]^2)*100,decreasing=TRUE)), names(res$var$coord[,2])[order(res$var$coord[,2]^2,decreasing=TRUE)])
 df.bars_PC2[2,2] <- "whishaw"
@@ -267,7 +267,7 @@ bars_plot_PC2 <- ggplot (data=df.bars_to_plot_PC2, aes(x=index, y=value)) +
 bars_plot_PC2
 
 #PLOT_paper
-ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "bar_contribution_PC2.jpg", sep=""), dpi=900, height=5, width=10)
+# ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "bar_contribution_PC2.jpg", sep=""), dpi=900, height=5, width=10)
 
 names(-res.pca$ind$coord[,1])
 
@@ -323,8 +323,9 @@ pca_plot_individuals <- ggplot (data=new_coord, aes (V1, V2)) +
       labs(title = "Individual as supplementary points\n", x = "\nPC1 (80% of variance)", y="PC2 (12% of variance)\n") +
       coord_fixed()
 pca_plot_individuals
+
 #PLOT_paper
-ggsave (pca_plot_individuals, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_individuals.jpg", sep=""), height = 10, width = 10, dpi=900)
+#ggsave (pca_plot_individuals, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_individuals.jpg", sep=""), height = 10, width = 10, dpi=900)
 
 ####
 # Adding cloud to the individuals plot
@@ -367,7 +368,9 @@ p_cloud_indiv_by_day <- ggplot(new_coord, aes(V1, V2, color=genotype, label=day)
 
 p_cloud_indiv_by_day_facet <- p_cloud_indiv_by_day + facet_wrap(~genotype, ncol = 2)
 p_cloud_indiv_by_day_facet
-ggsave (p_cloud_indiv_by_day_facet, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_cloud_indiv_byDay.jpg", sep=""), width = 10, height = 10, dpi=900)
+
+#PLOT_presentation
+# ggsave (p_cloud_indiv_by_day_facet, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_cloud_indiv_byDay.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 
 ##############
@@ -420,11 +423,12 @@ p_cloud_acq5 <- ggplot(PC1_acq5, aes(PC1, PC2, color=genotype_tt, label=id)) +
                   ylim=c(-10, 10)) +
   labs(title = "PCA coordinates density, trisomic group, day 5\n", x = "\nPC1", y="PC2\n")
 
-#p_cloud_acq1
+p_cloud_acq1
 p_cloud_acq5
 
-ggsave (p_cloud_acq1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_acq1_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
-ggsave (p_cloud_acq5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_acq5_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
+#PLOT_presentation
+# ggsave (p_cloud_acq1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_acq1_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
+# ggsave (p_cloud_acq5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_acq5_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 ##############
 # Adding the plot of PCA cloud for day A1 and day A5 only for trisomics
@@ -442,10 +446,10 @@ p_cloud_ts_acq1 <- ggplot(PC1_TS_acq1, aes(PC1, PC2, color=genotype_tt)) +
   #   geom_smooth(se=F, method='lm', show_guide = FALSE) + 
   geom_point(show_guide = FALSE) + 
   scale_color_manual(name='genotype_tt', 
-                     values=c("darkgreen", "blue", "darkorange", "black"), 
+                     values=c("darkgreen", "lightblue", "darkorange", "black"), 
                      labels = c("TS", "TSEE", "TSEGCG", "TSEEEGCG")) + 
   scale_fill_manual( name='gentreat', 
-                     values=c("darkgreen", "blue", "orange", "black"),
+                     values=c("darkgreen", "lightblue", "orange", "black"),
                      labels = c("TS", "TSEE", "TSEGCG", "TSEEEGCG")) + 
 #   geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
   scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
@@ -464,10 +468,10 @@ p_cloud_ts_acq5 <- ggplot(PC1_TS_acq5, aes(PC1, PC2, color=genotype_tt)) +
   #   geom_smooth(se=F, method='lm', show_guide = FALSE) + 
   geom_point(show_guide = FALSE) + 
   scale_color_manual(name='genotype_tt', 
-                     values = c("darkgreen", "blue", "darkorange", "black"), 
+                     values = c("darkgreen", "lightblue", "darkorange", "black"), 
                      labels = c("TS", "TSEE", "TSEGCG", "TSEEEGCG")) + 
   scale_fill_manual( name='gentreat', 
-                     values = c("green", "blue","orange", "black"),
+                     values = c("darkgreen", "lightblue","orange", "black"),
                      labels = c("TS", "TSEE", "TSEGCG", "TSEEEGCG")) + 
 #   geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
   scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
@@ -480,10 +484,15 @@ p_cloud_ts_acq1 + scale_alpha_continuous(range=c(0.3,0.5))
 # p_cloud_ts_acq5 + scale_alpha_continuous(range=c(0.3,0.5))
 p_cloud_ts_acq5 <- p_cloud_ts_acq5 + facet_wrap(~genotype_tt, ncol = 2)  + geom_vline(xintercept = 0, colour="gray") + geom_hline(yintercept = 0, colour="gray")
 p_cloud_ts_acq1 <- p_cloud_ts_acq1 + facet_wrap(~genotype_tt, ncol = 2)  + geom_vline(xintercept = 0, colour="gray") + geom_hline(yintercept = 0, colour="gray")
+p_cloud_ts_acq1
+p_cloud_ts_acq5
 
-# Plot saved
-ggsave (p_cloud_ts_acq1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_acq1_ts_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
-ggsave (p_cloud_ts_acq5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_acq5_ts_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
+# Plot for paper
+setwd("/Users/jespinosa/20150515_PCA_old_frotiersPaper/figures/fig2_PCA")
+
+#PLOT_paper
+# ggsave (p_cloud_ts_acq1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "PCA_acq1_ts_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
+# ggsave (p_cloud_ts_acq5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "PCA_acq5_ts_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 ## Only comparison between TS and TSEEEGCG day 1 vs day 5
 # Day 1
@@ -513,8 +522,8 @@ p_cloud_ts_tseeegcg_acq1 <- ggplot(PC1_TS_TSEEEGCG_acq1, aes(PC1, PC2, color=gen
 
 p_cloud_ts_tseeegcg_acq1
 
-# Plot saved
-ggsave (p_cloud_ts_tseeegcg_acq1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_acq1_ts_tseeegcg_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
+#PLOT_presentation
+# ggsave (p_cloud_ts_tseeegcg_acq1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_acq1_ts_tseeegcg_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 # Day 5
 PC1_TS_acq5 <- subset(PC1_TS, day=="5", c("V1", "V2", "day", "genotype", "id"))
@@ -542,8 +551,8 @@ p_cloud_ts_tseeegcg_acq5 <- ggplot(PC1_TS_TSEEEGCG_acq5, aes(PC1, PC2, color=gen
 
 p_cloud_ts_tseeegcg_acq5
 
-# Plot saved
-ggsave (p_cloud_ts_tseeegcg_acq5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_acq5_ts_tseeegcg_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
+#PLOT_presentation
+# ggsave (p_cloud_ts_tseeegcg_acq5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_acq5_ts_tseeegcg_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 
 
