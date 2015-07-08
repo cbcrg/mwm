@@ -439,10 +439,23 @@ PC1_TS  <- subset(new_coord, grepl("TS", genotype))
 PC1_TS_acq1 <- subset(PC1_TS, day=="1", c("V1", "V2", "day","genotype", "id"))
 
 colnames (PC1_TS_acq1) <- c("PC1","PC2", "day", "genotype_tt", "id")
+
+# Link to the explanation of how to perform density plots with ggplot2
+# http://stackoverflow.com/questions/19791181/density-shadow-around-the-data-with-ggplot2-r
+# Quick facts
+# n controls the smoothness of the density polygon.
+# h is the bandwidth of the density estimation.
+# bins controls the number of density levels.
+# alpha transparency allows to make the cloud more or less transparent depending on the level
+# level, Computed density, is the amount you have to increase to change from one level to the next
+
 # p_cloud_ts_acq1 <- ggplot(PC1_TS_acq1, aes(PC1, PC2, color=genotype_tt, label=id)) + 
 p_cloud_ts_acq1 <- ggplot(PC1_TS_acq1, aes(PC1, PC2, color=genotype_tt)) + 
   stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
-                 geom="polygon", color=NA, n=100, h=4, bins=6, show_guide = FALSE) + 
+#                  geom="polygon", color=NA, n=100, h=4, bins=6, show_guide = FALSE) +
+                 geom="polygon", color=NA, h=5, n=100, bins=6, show_guide = FALSE) +
+#   scale_alpha(range = c(0.00, 1)) +
+#   scale_size(range = c(0, 0.01), guide = "none")  
   #   geom_smooth(se=F, method='lm', show_guide = FALSE) + 
   geom_point(show_guide = FALSE) + 
   scale_color_manual(name='genotype_tt', 
@@ -458,13 +471,16 @@ p_cloud_ts_acq1 <- ggplot(PC1_TS_acq1, aes(PC1, PC2, color=genotype_tt)) +
                   ylim=c(-10, 10)) +
   labs(title = "PCA coordinates density, trisomic group, day 1\n", x = "\nPC1", y="PC2\n")
 
+p_cloud_ts_acq1 <- p_cloud_ts_acq1 + facet_wrap(~genotype_tt, ncol = 2)  + geom_vline(xintercept = 0, colour="gray") + geom_hline(yintercept = 0, colour="gray")
+p_cloud_ts_acq1
+
 PC1_TS_acq5 <- subset(PC1_TS, day=="5", c("V1", "V2", "day","genotype", "id"))
 
 colnames (PC1_TS_acq5) <- c("PC1","PC2", "day", "genotype_tt", "id")
 # p_cloud_ts_acq5 <- ggplot(PC1_TS_acq5, aes(PC1, PC2, color=genotype_tt, label=id)) + 
 p_cloud_ts_acq5 <- ggplot(PC1_TS_acq5, aes(PC1, PC2, color=genotype_tt)) + 
   stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
-                 geom="polygon", color=NA, n=100, h=4, bins=6, show_guide = FALSE) + 
+                 geom="polygon", color=NA, n=100, h=5, bins=6, show_guide = FALSE) + 
   #   geom_smooth(se=F, method='lm', show_guide = FALSE) + 
   geom_point(show_guide = FALSE) + 
   scale_color_manual(name='genotype_tt', 
@@ -483,16 +499,14 @@ p_cloud_ts_acq5 <- ggplot(PC1_TS_acq5, aes(PC1, PC2, color=genotype_tt)) +
 p_cloud_ts_acq1 + scale_alpha_continuous(range=c(0.3,0.5))
 # p_cloud_ts_acq5 + scale_alpha_continuous(range=c(0.3,0.5))
 p_cloud_ts_acq5 <- p_cloud_ts_acq5 + facet_wrap(~genotype_tt, ncol = 2)  + geom_vline(xintercept = 0, colour="gray") + geom_hline(yintercept = 0, colour="gray")
-p_cloud_ts_acq1 <- p_cloud_ts_acq1 + facet_wrap(~genotype_tt, ncol = 2)  + geom_vline(xintercept = 0, colour="gray") + geom_hline(yintercept = 0, colour="gray")
-p_cloud_ts_acq1
 p_cloud_ts_acq5
 
 # Plot for paper
 setwd("/Users/jespinosa/20150515_PCA_old_frotiersPaper/figures/fig2_PCA")
 
 #PLOT_paper
-# ggsave (p_cloud_ts_acq1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "PCA_acq1_ts_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
-# ggsave (p_cloud_ts_acq5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "PCA_acq5_ts_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
+ggsave (p_cloud_ts_acq1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "PCA_acq1_ts_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
+ggsave (p_cloud_ts_acq5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "PCA_acq5_ts_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 ## Only comparison between TS and TSEEEGCG day 1 vs day 5
 # Day 1
