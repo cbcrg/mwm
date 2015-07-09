@@ -42,8 +42,8 @@ rem_data_all_var <- head (rem_data_all_var, -5)
 head (rem_data_all_var)
 rem_data_all_var$GENTREAT
 rem_data_all_var$genotype <- gsub("H20", "", rem_data_all_var$GENTREAT)
-rem_data_all_var$genotype <- gsub("NE", "", rem_data_all_var$GENTREAT)
-rem_data_all_var$genotype <- factor(new_coord_rem$genotype , levels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"), 
+rem_data_all_var$genotype <- gsub("NE", "", rem_data_all_var$genotype)
+rem_data_all_var$genotype <- factor(rem_data_all_var$genotype , levels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"), 
                                  labels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"))
 
 ########
@@ -99,6 +99,27 @@ bp_rem_latency_TS <- ggplot(rem_data_all_var_TS , aes (genotype, LATENCY.TARGET,
   theme (legend.title=element_blank())
 
 bp_rem_latency_TS + geom_point (position = position_jitter(width = 0.2), colour="red")
+
+# boxplot gallagher index
+bp_gallagher <- ggplot(rem_data_all_var , aes (genotype, GALLINDEX.REM, fill = genotype)) + 
+  geom_boxplot(show_guide=FALSE) +
+  scale_fill_manual(name = "genotype", values = c("red", "green", "blue", "lightblue", "magenta", "orange", "yellow", "black")) +
+  labs(title = "Removal gallagher index\n") + xlab ("\ngentreat") + ylab("gallagher\n") +
+  theme (legend.title=element_blank())
+
+bp_gallagher 
+
+bp_rem_gallagher_TS <- ggplot(rem_data_all_var_TS , aes (genotype, GALLINDEX.REM, fill = genotype)) + 
+  geom_boxplot(show_guide=FALSE) +
+  scale_fill_manual(name = "genotype", values = c("green", "lightblue", "orange", "black")) +
+  labs(title = "Removal gallagher\n") + xlab ("\ngentreat") + ylab("latency\n") +
+  theme (legend.title=element_blank())
+
+bp_rem_gallagher_TS 
+
+
+
+
 
 
 
