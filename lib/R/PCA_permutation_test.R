@@ -288,3 +288,9 @@ for (p in 1:perm) {
   t_s <- f_t_stat (new_coord)
   t.values[p] <- t_s
 }
+
+t.values <- t.values [order(t.values)]
+hist (t.values)
+t.values [950]
+real_t_stat
+(perm - length(t.values [t.values < real_t_stat])) / perm
