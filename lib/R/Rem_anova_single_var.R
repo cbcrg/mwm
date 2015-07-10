@@ -111,11 +111,13 @@ bp_gallagher
 
 bp_rem_gallagher_TS <- ggplot(rem_data_all_var_TS , aes (genotype, GALLINDEX.REM, fill = genotype)) + 
   geom_boxplot(show_guide=FALSE) +
+#   geom_text (aes (label=ID), vjust=-0.5, hjust=1, size=4, show_guide = T)
+  geom_text (aes (label=ID))+
   scale_fill_manual(name = "genotype", values = c("green", "lightblue", "orange", "black")) +
-  labs(title = "Removal gallagher\n") + xlab ("\ngentreat") + ylab("latency\n") +
+  labs(title = "Removal gallagher\n") + xlab ("\ngentreat") + ylab("gallagher\n") +
   theme (legend.title=element_blank())
 
-bp_rem_gallagher_TS 
+bp_rem_gallagher_TS + geom_point (position = position_jitter(width = 0.2), colour="red")
 
 
 

@@ -6,6 +6,7 @@
 #############################################################################
 
 library("ggplot2")
+library("Hmisc")
 
 ##Getting HOME directory
 home <- Sys.getenv("HOME")
