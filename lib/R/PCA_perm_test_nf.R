@@ -10,6 +10,9 @@
 ##Getting HOME directory
 home <- Sys.getenv("HOME")
 
+# To use this script in ant first export this:
+# export R_LIBS="/software/R/packages"
+
 ##Loading libraries
 #library(FactoMineR)
 #library(Hmisc)
@@ -69,7 +72,7 @@ print (argsL)
 {
   if (is.null (argsL$path2files)) 
   {
-    path2files <- "/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/Ts65Dn OLD ACQ1_ACQ5_SUBCONJ.sav"
+    path2files <- "/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/Ts65Dn_OLD_ACQ1_ACQ5_SUBCONJ.sav"
   }
   else
   {
@@ -77,7 +80,7 @@ print (argsL)
   }
 }
 
-ma2=spss.get("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/Ts65Dn OLD ACQ1_ACQ5_SUBCONJ.sav")
+ma2=spss.get(path2files)
 
 # Function t statistic calculation
 f_t_stat <- function (df_coord, gen_1 = "TS", gen_2 = "TSEEEGCG"){
