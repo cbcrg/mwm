@@ -17,7 +17,7 @@ MWM_tbl_path = "$HOME/${params.MWM_tbl}"
 println "path: $MWM_tbl_path"
 
 //MWM_file = Channel.fromPath(MWM_tbl_path)
-MWM_file = file(MWM_tbl_path).parent
+MWM_file = file(MWM_tbl_path)
 
 start_perm = 1111
 step = 5
