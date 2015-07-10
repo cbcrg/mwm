@@ -255,7 +255,7 @@ pca_plot_individuals_rem <- ggplot (data=new_coord_rem, aes (V1, V2)) +
   geom_point () 
 
 #PLOT_paper
-ggsave (pca_plot_individuals, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_individuals.jpg", sep=""), dpi=900)
+# ggsave (pca_plot_individuals, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_individuals.jpg", sep=""), dpi=900)
 
 ### Circle with PCA of the variables in ggplot
 
@@ -297,7 +297,7 @@ p_circle_plot <- ggplot(circle_plot) +
   #                         scale_x_continuous(breaks=1:10)  
   geom_polygon (data = df.circle, aes(x, y), alpha=1, colour="black", fill=NA, size=1)
 p_circle_plot
-ggsave (p_circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "circle_plot_rem.jpg", sep=""), width = 10, height = 10, dpi=900)
+# ggsave (p_circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "circle_plot_rem.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 # ANOVA
 # TS all treatments
@@ -309,10 +309,10 @@ summary(rem.aov)
 ### Box plot for supplementary figure
 boxPlots_rem <- ggplot(new_coord_rem_TS , aes (genotype, V1, fill = genotype)) + 
   #                    geom_boxplot() +
-  geom_boxplot(show_guide=FALSE) +
+  geom_boxplot(show_guide=TRUE) +
   #             guides(color=guide_legend('Model',override.aes=list(shape=c(1,1,6,6))))
   
-  scale_fill_manual(name = "Group", values=c("green", "lightblue", "orange", "black")) +
+  scale_fill_manual(name = "Group", values=c("darkgreen", "lightblue", "orange", "black")) +
   labs(title = "Probe trail PC1\n") + xlab ("\ngentreat") + ylab("PC1\n") +
   theme (legend.title=element_blank())+ 
   scale_y_continuous(breaks=c(-10,-8,-6,-4,-2,0,2,4,6,8,10,12), limits=c(-10.5, 12.5)) +
@@ -322,7 +322,7 @@ boxPlots_rem <- ggplot(new_coord_rem_TS , aes (genotype, V1, fill = genotype)) +
 boxPlots_rem 
 
 #PLOT_paper
-ggsave (boxPlots_rem, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "boxPlot_rem.jpg", sep=""), dpi=900)
+ggsave (boxPlots_rem, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig_2_PCA_sup/", "boxPlot_rem.jpg", sep=""), dpi=900)
 # TS vs TSEEEGCG 
 new_coord_rem_TS_TSEEEGCG <- subset(new_coord_rem_TS, genotype == "TS" | genotype == "TSEEEGCG")
 new_coord_rem_TS_TSEEEGCG$id <- c(1:length(new_coord_rem_TS_TSEEEGCG$V1))

@@ -94,14 +94,21 @@ pca2plot$gentreat <- factor(pca2plot$gentreat , levels=c("WT", "TS", "WTEE", "TS
 
 pca_medians_acq <- ggplot(pca2plot, aes(x=PC1, y=PC2, colour=gentreat )) + 
                           geom_path (size = 1,show_guide = T) + 
-                          scale_color_manual(values=c("red", "green", "blue", "lightblue", 
+#                           geom_path (size = 1,show_guide = F) + 
+                          scale_color_manual(values=c("red", "darkgreen", "blue", "lightblue", 
                                                       "magenta", "orange", "gray", "black")) +
                           geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show_guide = T)+
+#                           geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show_guide = F)+
                           theme(legend.key=element_rect(fill=NA)) +
                           labs(title = "PCA of group medians\n", x = "\nPC1 (80% of variance)", y="PC2 (12% of variance)\n") +
 #                           guides(colour = guide_legend(override.aes = list(size = 10)))+
                           guides(colour = guide_legend(override.aes = list(size = 1)))+
                           theme(legend.key=element_rect(fill=NA))
+
+#PLOT_paper
+pca_medians_acq 
+ggsave (pca_medians_acq, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "PCA_medians_legend.jpg", sep=""), dpi=900)
+# ggsave (pca_medians_acq, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "PCA_medians_NO_legend.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 # Plot for presentation
 # setwd("/Users/jespinosa/Dropbox (Personal)/presentations_2015/20150630_GM_Cedric/figures")
@@ -116,7 +123,7 @@ pca_medians_acq <- ggplot(pca2plot, aes(x=PC1, y=PC2, colour=gentreat )) +
   guides(colour = guide_legend(override.aes = list(size = 2)))+
   theme(legend.key=element_rect(fill=NA))
 
-#PLOT_paper
+#PLOT_presentation
 pca_medians_acq 
 # ggsave (pca_medians_acq, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_medians_legend.jpg", sep=""), dpi=900)
 # ggsave (pca_medians_acq, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_medians_NO_legend.jpg", sep=""), width = 10, height = 10, dpi=900)
@@ -316,7 +323,7 @@ new_coord$genotype <- factor(new_coord$genotype , levels=c("WT", "TS", "WTEE", "
 
 pca_plot_individuals <- ggplot (data=new_coord, aes (V1, V2)) + 
       geom_text (aes(label=day, colour = genotype), size=5, show_guide = FALSE) +
-      scale_color_manual(values=c("red", "green", "blue", "lightblue", 
+      scale_color_manual(values=c("red", "darkgreen", "blue", "lightblue", 
                         "magenta", "orange", "gray", "black")) +
       xlim (c(-6, 6.5)) + ylim (c(-8, 6.5)) +
       geom_path (data=pca2plot, aes(x=PC1, y=PC2, colour=gentreat),size = 1,show_guide = FALSE) +
@@ -325,7 +332,7 @@ pca_plot_individuals <- ggplot (data=new_coord, aes (V1, V2)) +
 pca_plot_individuals
 
 #PLOT_paper
-#ggsave (pca_plot_individuals, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_individuals.jpg", sep=""), height = 10, width = 10, dpi=900)
+ggsave (pca_plot_individuals, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig_1_PCA_sup/", "PCA_individuals.jpg", sep=""), height = 10, width = 10, dpi=900)
 
 ####
 # Adding cloud to the individuals plot
