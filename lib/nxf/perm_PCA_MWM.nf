@@ -46,7 +46,7 @@ process perm {
     println "Perm is $perm"
     
     """
-    Rscript \$HOME/git/MWM/lib/R/PCA_perm_test_nf.R --path2files=\$(readlink ${MWM_file}) --seed=${perm}    
+    Rscript \$HOME/git/mwm/lib/R/PCA_perm_test_nf.R --path2files=\$(readlink ${MWM_file}) --seed=${perm}    
     """ 
 }
 
