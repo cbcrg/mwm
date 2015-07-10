@@ -140,6 +140,9 @@ for (j in 1:length(tgt)){
 
 real_t_stat <- f_t_stat (new_coord)
 
+group1 <- subset (new_coord, genotype == "TS")
+group2 <- subset (new_coord, genotype == "TSEEEGCG")
+
 #################
 # Original set end
 #################
@@ -150,7 +153,7 @@ real_t_stat <- f_t_stat (new_coord)
 # permutations
 perm <- 1000
 
-set.seed(111)
+set.seed(333)
 
 t.values = numeric (perm)
 
@@ -231,6 +234,53 @@ for (p in 1:perm) {
   colnames(MMALL)=c("dist","gallindex","latency","speed","percentne","percenter","wishaw","percentperi")
   rownames(MMALL)=c("WT1","WTEE1","WTEGCG1","WTEEEGCG1","TS1","TSEE1","TSEGCG1","TSEEEGCG1","WT2","WTEE2","WTEGCG2","WTEEEGCG2","TS2","TSEE2","TSEGCG2","TSEEEGCG2","WT3","WTEE3","WTEGCG3","WTEEEGCG3","TS3","TSEE3","TSEGCG3","TSEEEGCG3","WT4","WTEE4","WTEGCG4","WTEEEGCG4","TS4","TSEE4","TSEGCG4","TSEEEGCG4","WT5","WTEE5","WTEGCG5","WTEEEGCG5","TS5","TSEE5","TSEGCG5","TSEEEGCG5")
   
+  
+  #####
+  # PLOT
+  #####
+#   ResMMALL=prcomp(MMALL,scale=TRUE)
+#   pca2plot <- as.data.frame(ResMMALL$x)
+#   row.names(pca2plot)
+#   pca2plot$gen_day <- row.names(pca2plot)
+#   
+#   pca2plot$days <-  as.factor(as.numeric (gsub(".*([0-9]+)$", "\\1", pca2plot$gen_day)))
+#   pca2plot$gentreat <-  as.factor(gsub("([A-Z]+).*$", "\\1", pca2plot$gen_day))
+#   pca2plot$PC1
+#   pca2plot [pca2plot$gentreat == "WT",]
+#   
+#   pca2plot$gentreat <- factor(pca2plot$gentreat , levels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"), 
+#                               labels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"))
+#   
+#   pca2plot <- as.data.frame(ResMMALL$x)
+#   row.names(pca2plot)
+#   pca2plot$gen_day <- row.names(pca2plot)
+#   
+#   pca2plot$days <-  as.factor(as.numeric (gsub(".*([0-9]+)$", "\\1", pca2plot$gen_day)))
+#   pca2plot$gentreat <-  as.factor(gsub("([A-Z]+).*$", "\\1", pca2plot$gen_day))
+#   pca2plot$PC1
+#   
+#   pca2plot$gentreat <- factor(pca2plot$gentreat , levels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"), 
+#                               labels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"))
+#   
+#   pca_medians_acq <- ggplot(pca2plot, aes(x=PC1, y=PC2, colour=gentreat )) + 
+#     geom_path (size = 1,show_guide = T) + 
+#     #                           geom_path (size = 1,show_guide = F) + 
+#     scale_color_manual(values=c("red", "darkgreen", "blue", "lightblue", 
+#                                 "magenta", "orange", "gray", "black")) +
+#     geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show_guide = T)+
+#     #                           geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show_guide = F)+
+#     theme(legend.key=element_rect(fill=NA)) +
+#     labs(title = "PCA of group medians\n", x = "\nPC1 (80% of variance)", y="PC2 (12% of variance)\n") +
+#     #                           guides(colour = guide_legend(override.aes = list(size = 10)))+
+#     guides(colour = guide_legend(override.aes = list(size = 1)))+
+#     theme(legend.key=element_rect(fill=NA))
+#   
+#   #PLOT_paper
+#   pca_medians_acq 
+  #####
+  # PLOT END
+  #####
+  
   # All individuals as supplementary points
   acq=c("Day 1","Day 2","Day 3","Day 4","Day 5")
   var=c(4,5,7,8,9,11,12)
@@ -259,7 +309,7 @@ for (p in 1:perm) {
   # jm[c(1:40),]
   
   res = PCA (jm, scale.unit=TRUE, ind.sup=c(41:455), graph=F) 
-  
+
   # Assigning again the labels of the groups for t statistic calculation
   #res$var$coord[,1]
   #new_coord <- cbind(res$ind.sup$coord[,1], res$ind.sup$coord[,2])
@@ -286,11 +336,40 @@ for (p in 1:perm) {
   }
   
   t_s <- f_t_stat (new_coord)
+#   t_s_ts_tseeegcg <- f_t_stat (new_coord)
+#   t_s_ts_tsee <- f_t_stat (new_coord, "TS", "TSEE")
+#   t_s_ts_tsegcg <- f_t_stat (new_coord, "TS", "TSEGCG")
+#   t_s_ts_tseeegcg <- f_t_stat (new_coord, "TS", "TSEGCG")
+   
   t.values[p] <- t_s
 }
+
+# Hacer esta funcion que contenga ya dentro las comparaciones y genere una tabla que tenga
+# dentro todas las comparaciones para luego poder hacer subset
 
 t.values <- t.values [order(t.values)]
 hist (t.values)
 t.values [950]
 real_t_stat
 (perm - length(t.values [t.values < real_t_stat])) / perm
+
+#t.values_111 <- t.values
+#t.values_222 <- t.values
+t.values_333 <- t.values
+
+hist (t.values)
+t.values_111 [950]
+t.values_222 [950]
+t.values_333 [950]
+
+(perm - length(t.values_111 [t.values_111 < real_t_stat])) / perm
+(perm - length(t.values_222 [t.values_222 < real_t_stat])) / perm
+(perm - length(t.values_333 [t.values_333 < real_t_stat])) / perm
+
+
+
+real_t_stat
+(perm - length(t.values [t.values < real_t_stat])) / perm
+
+
+
