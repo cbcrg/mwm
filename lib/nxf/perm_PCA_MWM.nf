@@ -9,6 +9,7 @@
 #################################################################################
 */
 
+
 params.MWM_tbl = "20150515_PCA_old_frotiersPaper/data/Ts65Dn_OLD_ACQ1_ACQ5_SUBCONJ.sav"
 
 MWM_tbl_path = "$HOME/${params.MWM_tbl}"
@@ -46,6 +47,8 @@ process perm {
     println "Perm is $perm"
     
     """
+    export R_LIBS="/software/R/packages"
+    
     Rscript \$HOME/git/mwm/lib/R/PCA_perm_test_nf.R --path2files=\$(readlink ${MWM_file}) --seed=${perm}    
     """ 
 }
