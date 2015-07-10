@@ -283,11 +283,11 @@ ggsave (boxPlots, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2
 
 # Plotting a legend with squares
 l <- ggplot() + geom_point(data=df.anova.ts.a1 , aes (x=group, y=value, colour = group), shape=15, size=5) +
-     scale_colour_manual (values=c("green", "lightblue", "orange", "black"))
+     scale_colour_manual (values=c("darkgreen", "lightblue", "orange", "black"))
 l <- l + guides(color=guide_legend(title=NULL)) 
 l <- l + theme(legend.key = element_blank())
 l
-ggsave (l, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "boxPlot_Legend.jpg", sep=""), dpi=900)
+ggsave (l, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "boxPlot_Legend_TS.jpg", sep=""), dpi=900)
 
 
 
