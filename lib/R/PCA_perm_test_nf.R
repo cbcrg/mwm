@@ -11,8 +11,10 @@
 home <- Sys.getenv("HOME")
 
 ##Loading libraries
-library(FactoMineR)
-library(Hmisc)
+#library(FactoMineR)
+#library(Hmisc)
+library(FactoMineR, lib.loc="/users/cn/jespinosa/R/library")
+library(Hmisc, lib.loc="/users/cn/jespinosa/R/library")
 
 #####################
 ### VARIABLES
