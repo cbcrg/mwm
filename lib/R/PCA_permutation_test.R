@@ -8,6 +8,7 @@
 #############################################################################
 
 library(FactoMineR)
+library(Hmisc)
 
 ma2=spss.get("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/Ts65Dn OLD ACQ1_ACQ5_SUBCONJ.sav")
 
