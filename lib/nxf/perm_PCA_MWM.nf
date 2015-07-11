@@ -19,8 +19,8 @@ println "path: $MWM_tbl_path"
 //MWM_file = Channel.fromPath(MWM_tbl_path)
 MWM_file = file(MWM_tbl_path)
 
-start_perm = 1111
-step = 5
+start_perm = 3333
+step = 10000
 end_perm = start_perm + step
 perm = Channel.from(start_perm..end_perm)
 
