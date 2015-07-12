@@ -372,5 +372,46 @@ t.values_333 [950]
 real_t_stat
 (perm - length(t.values [t.values < real_t_stat])) / perm
 
+#### 
+# Reading results from 10000 permutations 3X for all comparisons
+
+tbl_3333 <- read.table ("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/PCA_t_statistic3333.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
+head (tbl_3333)
+
+# Function to calculate significance
+# t_s_ts_tsee
+significance_perm <- function (tbl_perm, gr1="TS", gr2="TSEE", n_perm=10001) {
+  real_t_stat <- f_t_stat (new_coord, gr1, gr2)
+  t_perm_gr1_gr2 <- subset (tbl_perm, V4 == paste(gr1, gr2, sep="_"))$V1
+  t_perm_gr1_gr2 <- t_perm_gr1_gr2 [order(t_perm_gr1_gr2)]
+  sign_thr <- (n_perm - length(t_perm_gr1_gr2 [t_perm_gr1_gr2 < real_t_stat])) / n_perm
+  length_v <-length(t_perm_gr1_gr2 [t_perm_gr1_gr2 < real_t_stat])
+#   print ("real_t_stat", real_t_stat)
+#   print (length_v)
+#          " length:", length_v, "n_perm", n_perm)
+  print (sign_thr)
+}
+
+# "TS", "TSEE"
+significance_perm (tbl_3333, "TS", "TSEE")
+# "TS", "TSEGCG"
+significance_perm (tbl_3333, "TS", "TSEGCG")
+
+# "TS", "TSEEEGCG"
+significance_perm (tbl_3333, "TS", "TSEEEGCG")
+
+# "TS", "WT"
+significance_perm (tbl_3333, "TS", "WT")
+
+# "TS", "WTEE"
+significance_perm (tbl_3333, "TS", "WTEE")
 
 
+
+tbl_ts_tsee <- subset (tbl_3333, V4 == "TS_WT")$V1 
+t_ts_tsee <-  tbl_ts_tsee$V1
+t_ts_tsee <- t_ts_tsee [order(t_ts_tsee)]
+t_ts_tsee [9500]
+(10000 - length(t_ts_tsee [t_ts_tsee < real_t_s_ts_tsee])) / 10000
+
+t.values [order(t.values)]
