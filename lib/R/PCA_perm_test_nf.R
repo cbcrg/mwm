@@ -96,7 +96,7 @@ f_t_stat <- function (df_coord, gen_1 = "TS", gen_2 = "TSEEEGCG", acq_day=5){
   group1 <- subset (new_coord, genotype == gen_1 & day==acq_day)
   group2 <- subset (new_coord, genotype == gen_2 & day==acq_day)
   t_stat = t.test(group1$V1, group2$V1)$statistic  
-  return (t_stat)
+  return <- c(t_stat, gen_1, gen_2, paste (gen_1, gen_2, sep="_"))
 }
 
 id_group <- subset(ma2, grepl("PRE", ma2$day))
@@ -286,6 +286,7 @@ result <- rbind (t_s_ts_tseeegcg, t_s_ts_tsee, t_s_ts_tsegcg, t_s_ts_wt, t_s_ts_
                  t_s_wtegcg_tsegcg,t_s_wtegcg_tseeegcg,t_s_wteeegcg_tsee,t_s_wteeegcg_tsegcg,t_s_wteeegcg_tseeegcg)
 
 result <- cbind  (result, seed)
+
 colnames(result) <- c ("t", "gr1", "gr2", "comparison", "seed")
 wd <- getwd()
 write.table(result, file = paste(wd, "/tbl_t_stat.csv", sep=""), sep="\t", row.names=FALSE, col.names=FALSE)
