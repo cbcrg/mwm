@@ -19,7 +19,7 @@ println "path: $MWM_tbl_path"
 //MWM_file = Channel.fromPath(MWM_tbl_path)
 MWM_file = file(MWM_tbl_path)
 
-start_perm = 3333
+start_perm = 1111
 step = 10000
 end_perm = start_perm + step
 perm = Channel.from(start_perm..end_perm)
@@ -59,7 +59,7 @@ tbl_t_stat
     .subscribe {
         //println "Entries are saved to file: $it"
         //println "File content is: ${it.text}"
-        it.copyTo( dump_dir.resolve ( "PCA_t_statistic${start_perm}.csv" ) )
+        it.copyTo( dump_dir.resolve ( "PCA_t_statistic_${start_perm}.csv" ) )
     }
    
 /*

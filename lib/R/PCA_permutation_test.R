@@ -380,6 +380,7 @@ head (tbl_3333)
 
 # Function to calculate significance
 # t_s_ts_tsee
+
 significance_perm <- function (tbl_perm, gr1="TS", gr2="TSEE", n_perm=10001) {
   real_t_stat <- f_t_stat (new_coord, gr1, gr2)
   t_perm_gr1_gr2 <- subset (tbl_perm, V4 == paste(gr1, gr2, sep="_"))$V1
@@ -402,6 +403,9 @@ significance_perm (tbl_3333, "TS", "TSEEEGCG")
 
 # "TS", "WT"
 significance_perm (tbl_3333, "TS", "WT")
+
+# "TS", "WT"
+significance_perm (tbl_3333, "TSEEEGCG", "TSEGCG")
 
 # "TS", "WTEE"
 significance_perm (tbl_3333, "TS", "WTEE")

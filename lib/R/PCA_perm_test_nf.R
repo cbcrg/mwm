@@ -228,6 +228,13 @@ t_s_ts_tseeegcg <- f_t_stat (new_coord, "TS", "TSEEEGCG")
 t_s_ts_tsee <- f_t_stat (new_coord, "TS", "TSEE")
 
 t_s_ts_tsegcg <- f_t_stat (new_coord, "TS", "TSEGCG")
+
+t_s_tseeegcg_tsegcg <- f_t_stat (new_coord, "TSEEEGCG", "TSEGCG")
+
+t_s_tseeegcg_tsee <- f_t_stat (new_coord, "TSEEEGCG", "TSEE")
+
+t_s_tsee_tsegcg <- f_t_stat (new_coord, "TSEE", "TSEGCG")
+
 # t_s_ts_tseeegcg <- f_t_stat (new_coord, "TS", "TSEEEGCG")
 #1
 t_s_ts_wt <- f_t_stat (new_coord, "TS", "WT")
