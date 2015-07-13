@@ -13,9 +13,9 @@ library(Hmisc)
 ma2=spss.get("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/Ts65Dn OLD ACQ1_ACQ5_SUBCONJ.sav")
 
 # Function t statistic calculation
-f_t_stat <- function (df_coord, gen_1 = "TS", gen_2 = "TSEEEGCG"){
-  group1 <- subset (new_coord, genotype == gen_1)
-  group2 <- subset (new_coord, genotype == gen_2)
+f_t_stat <- function (df_coord, gen_1 = "TS", gen_2 = "TSEEEGCG", acq_day=5){
+  group1 <- subset (new_coord, genotype == gen_1 & day==acq_day)
+  group2 <- subset (new_coord, genotype == gen_2 & day==acq_day)
   t_stat = t.test(group1$V1, group2$V1)$statistic  
   return (t_stat)
 }
@@ -141,8 +141,11 @@ for (j in 1:length(tgt)){
 
 real_t_stat <- f_t_stat (new_coord)
 
-group1 <- subset (new_coord, genotype == "TS")
-group2 <- subset (new_coord, genotype == "TSEEEGCG")
+#group1 <- subset (new_coord, genotype == "TS")
+group1 <- subset (new_coord, genotype == "TS" & day==5)
+#group2 <- subset (new_coord, genotype == "TSEEEGCG")
+group2 <- subset (new_coord, genotype == "TSEEEGCG" & day==5)
+t.test(group1$V1, group2$V1)$statistic 
 
 #################
 # Original set end

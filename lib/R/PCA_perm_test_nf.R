@@ -83,19 +83,27 @@ print (argsL)
 ma2=spss.get(path2files)
 
 # Function t statistic calculation
-f_t_stat <- function (df_coord, gen_1 = "TS", gen_2 = "TSEEEGCG"){
-  group1 <- subset (new_coord, genotype == gen_1)
-  group2 <- subset (new_coord, genotype == gen_2)
-  t_stat = t.test(group1$V1, group2$V1)$statistic
+# f_t_stat <- function (df_coord, gen_1 = "TS", gen_2 = "TSEEEGCG"){
+#   group1 <- subset (new_coord, genotype == gen_1)
+#   group2 <- subset (new_coord, genotype == gen_2)
+#   t_stat = t.test(group1$V1, group2$V1)$statistic
+# 
+#   return <- c(t_stat, gen_1, gen_2, paste (gen_1, gen_2, sep="_"))
+# }
 
-  return <- c(t_stat, gen_1, gen_2, paste (gen_1, gen_2, sep="_"))
+# New function taking into account the acquisition days in the comparison
+f_t_stat <- function (df_coord, gen_1 = "TS", gen_2 = "TSEEEGCG", acq_day=5){
+  group1 <- subset (new_coord, genotype == gen_1 & day==acq_day)
+  group2 <- subset (new_coord, genotype == gen_2 & day==acq_day)
+  t_stat = t.test(group1$V1, group2$V1)$statistic  
+  return (t_stat)
 }
 
 id_group <- subset(ma2, grepl("PRE", ma2$day))
 
 id_group <- id_group [,c(1,2)]
 
-print (paste("ddddddddd", seed))
+# print (paste("ddddddddd", seed))
 set.seed (seed)
 
 p_genetreat <- sample(id_group$gentreat)
@@ -223,6 +231,7 @@ for (j in 1:length(tgt)){
   }
 }
 
+# All comparison are performed for day 5
 t_s_ts_tseeegcg <- f_t_stat (new_coord, "TS", "TSEEEGCG")
 
 t_s_ts_tsee <- f_t_stat (new_coord, "TS", "TSEE")
