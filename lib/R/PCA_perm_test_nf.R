@@ -92,7 +92,7 @@ ma2=spss.get(path2files)
 # }
 
 # New function taking into account the acquisition days in the comparison
-f_t_stat <- function (df_coord, gen_1 = "TS", gen_2 = "TSEEEGCG", acq_day=1){
+f_t_stat <- function (df_coord, gen_1 = "TS", gen_2 = "TSEEEGCG", acq_day=5){
   group1 <- subset (new_coord, genotype == gen_1 & day==acq_day)
   group2 <- subset (new_coord, genotype == gen_2 & day==acq_day)
   t_stat = t.test(group1$V1, group2$V1)$statistic  
