@@ -92,7 +92,7 @@ ma2=spss.get(path2files)
 # }
 
 # New function taking into account the acquisition days in the comparison
-f_t_stat <- function (df_coord, gen_1 = "TS", gen_2 = "TSEEEGCG", acq_day=5){
+f_t_stat <- function (df_coord, gen_1 = "TS", gen_2 = "TSEEEGCG", acq_day=1){
   group1 <- subset (new_coord, genotype == gen_1 & day==acq_day)
   group2 <- subset (new_coord, genotype == gen_2 & day==acq_day)
   t_stat = t.test(group1$V1, group2$V1)$statistic  
@@ -278,12 +278,16 @@ t_s_wteeegcg_tsee <- f_t_stat (new_coord, "WTEEEGCG", "TSEE")
 t_s_wteeegcg_tsegcg <- f_t_stat (new_coord, "WTEEEGCG", "TSEGCG")
 t_s_wteeegcg_tseeegcg <- f_t_stat (new_coord, "WTEEEGCG", "TSEEEGCG")
 
+# result <- rbind (t_s_ts_tseeegcg, t_s_ts_tsee, t_s_ts_tsegcg, t_s_ts_wt, t_s_ts_wtee, t_s_ts_wtegcg, t_s_ts_wteeegcg, 
+#                  t_s_wt_wtee,t_s_wt_wtegcg,t_s_wt_wteeegcg ,t_s_wt_tsee,t_s_wt_tsegcg,t_s_wt_tseeegcg,t_s_wtee_wtegcg,
+#                  t_s_wtee_wteeegcg,t_s_wtee_tsee,t_s_wtee_tsegcg,t_s_wtee_tseeegcg,t_s_wtegcg_wteeegcg,t_s_wtegcg_tsee,
+#                  t_s_wtegcg_tsegcg,t_s_wtegcg_tseeegcg,t_s_wteeegcg_tsee,t_s_wteeegcg_tsegcg,t_s_wteeegcg_tseeegcg)
 
-
-result <- rbind (t_s_ts_tseeegcg, t_s_ts_tsee, t_s_ts_tsegcg, t_s_ts_wt, t_s_ts_wtee, t_s_ts_wtegcg, t_s_ts_wteeegcg, 
-                 t_s_wt_wtee,t_s_wt_wtegcg,t_s_wt_wteeegcg ,t_s_wt_tsee,t_s_wt_tsegcg,t_s_wt_tseeegcg,t_s_wtee_wtegcg,
-                 t_s_wtee_wteeegcg,t_s_wtee_tsee,t_s_wtee_tsegcg,t_s_wtee_tseeegcg,t_s_wtegcg_wteeegcg,t_s_wtegcg_tsee,
-                 t_s_wtegcg_tsegcg,t_s_wtegcg_tseeegcg,t_s_wteeegcg_tsee,t_s_wteeegcg_tsegcg,t_s_wteeegcg_tseeegcg)
+result <- rbind (t_s_ts_tseeegcg, t_s_ts_tsee, t_s_ts_tsegcg, t_s_tseeegcg_tsegcg, t_s_tseeegcg_tsee, t_s_tsee_tsegcg, 
+                 t_s_ts_wt, t_s_ts_wtee, t_s_ts_wtegcg, t_s_ts_wteeegcg, t_s_wt_wtee, t_s_wt_wtegcg, t_s_wt_wteeegcg, 
+                 t_s_wt_tsee, t_s_wt_tsegcg, t_s_wt_tseeegcg, t_s_wtee_wtegcg, t_s_wtee_wteeegcg, t_s_wtee_tsee, 
+                 t_s_wtee_tsegcg, t_s_wtee_tseeegcg, t_s_wtegcg_wteeegcg, t_s_wtegcg_tsee, t_s_wtegcg_tsegcg,
+                 t_s_wtegcg_tseeegcg, t_s_wteeegcg_tsee, t_s_wteeegcg_tsegcg, t_s_wteeegcg_tseeegcg)
 
 result <- cbind  (result, seed)
 

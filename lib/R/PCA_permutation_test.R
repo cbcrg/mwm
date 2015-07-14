@@ -16,7 +16,7 @@ ma2=spss.get("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/Ts65Dn OLD AC
 f_t_stat <- function (df_coord, gen_1 = "TS", gen_2 = "TSEEEGCG", acq_day=5){
   group1 <- subset (new_coord, genotype == gen_1 & day==acq_day)
   group2 <- subset (new_coord, genotype == gen_2 & day==acq_day)
-  t_stat = t.test(group1$V1, group2$V1)$statistic  
+  t_stat = t.test (group1$V1, group2$V1)$statistic  
   return (t_stat)
 }
 
@@ -119,9 +119,9 @@ res = PCA (jm, scale.unit=TRUE, ind.sup=c(41:455), graph=F)
 #new_coord <- cbind(res$ind.sup$coord[,1], res$ind.sup$coord[,2])
 day <- c()
 genotype <- c()
-new_coord <- as.data.frame(cbind(res$ind.sup$coord[,1],res$ind.sup$coord[,2]))
-new_coord$day <- c(1:415)
-new_coord$genotype <- c()
+new_coord_real_lab <- as.data.frame(cbind(res$ind.sup$coord[,1],res$ind.sup$coord[,2]))
+new_coord_real_lab$day <- c(1:415)
+new_coord_real_lab$genotype <- c()
 
 # myset=which(iddaytreat[,2]==tgt[1] & iddaytreat[,3]==acq[1])
 myset<-c()
@@ -133,18 +133,18 @@ for (j in 1:length(tgt)){
       
     }
     myset=which(iddaytreat[,2]==tgt[j] & iddaytreat[,3]==acq[i])
-    new_coord [myset,c("day")] <- i
-    new_coord [myset,c("genotype")] <- tgt[j]
-    new_coord [myset,c("id")] <- substr(iddaytreat[myset,1], 7, 9)    
+    new_coord_real_lab [myset,c("day")] <- i
+    new_coord_real_lab [myset,c("genotype")] <- tgt[j]
+    new_coord_real_lab [myset,c("id")] <- substr(iddaytreat[myset,1], 7, 9)    
   }
 }
 
-real_t_stat <- f_t_stat (new_coord)
+real_t_stat <- f_t_stat (new_coord_real_lab)
 
 #group1 <- subset (new_coord, genotype == "TS")
-group1 <- subset (new_coord, genotype == "TS" & day==5)
+group1 <- subset (new_coord_real_lab, genotype == "TS" & day==5)
 #group2 <- subset (new_coord, genotype == "TSEEEGCG")
-group2 <- subset (new_coord, genotype == "TSEEEGCG" & day==5)
+group2 <- subset (new_coord_real_lab, genotype == "TSEEEGCG" & day==5)
 t.test(group1$V1, group2$V1)$statistic 
 
 #################
@@ -378,14 +378,15 @@ real_t_stat
 #### 
 # Reading results from 10000 permutations 3X for all comparisons
 
-tbl_3333 <- read.table ("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/PCA_t_statistic3333.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
+# tbl_3333 <- read.table ("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/PCA_t_statistic3333.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
+tbl_3333 <- read.table ("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/PCA_t_statistic_3333.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
 head (tbl_3333)
 
 # Function to calculate significance
 # t_s_ts_tsee
 
 significance_perm <- function (tbl_perm, gr1="TS", gr2="TSEE", n_perm=10001) {
-  real_t_stat <- f_t_stat (new_coord, gr1, gr2)
+  real_t_stat <- f_t_stat (new_coord_real_lab, gr1, gr2)
   t_perm_gr1_gr2 <- subset (tbl_perm, V4 == paste(gr1, gr2, sep="_"))$V1
   t_perm_gr1_gr2 <- t_perm_gr1_gr2 [order(t_perm_gr1_gr2)]
   sign_thr <- (n_perm - length(t_perm_gr1_gr2 [t_perm_gr1_gr2 < real_t_stat])) / n_perm
@@ -409,6 +410,14 @@ significance_perm (tbl_3333, "TS", "WT")
 
 # "TS", "WT"
 significance_perm (tbl_3333, "TSEEEGCG", "TSEGCG")
+real_t_stat <- f_t_stat (new_coord_real_lab, gr1, gr2)
+f_t_stat (new_coord_real_lab, "TSEEEGCG", "TSEGCG")
+gr2<-"TSEEEGCG"
+gr1<-"TSEGCG"
+t_perm_gr1_gr2 <- subset (tbl_perm, V4 == paste(gr1, gr2, sep="_"))$V1
+t_perm_gr1_gr2 <- subset (tbl_perm, V3== "TSEGCG")
+t_perm_gr1_gr2 <- t_perm_gr1_gr2 [order(t_perm_gr1_gr2)]
+(n_perm - length(t_perm_gr1_gr2 [t_perm_gr1_gr2 < real_t_stat])) / n_perm
 
 # "TS", "WTEE"
 significance_perm (tbl_3333, "TS", "WTEE")
