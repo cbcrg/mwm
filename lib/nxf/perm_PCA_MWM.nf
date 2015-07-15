@@ -68,7 +68,7 @@ tbl_t_stat_day1
     .subscribe {
         //println "Entries are saved to file: $it"
         //println "File content is: ${it.text}"
-        it.copyTo( dump_dir.resolve ( "PCA_t_statistic_day1_${start_perm}.csv" ) )
+        it.copyTo( dump_dir.resolve ( "PCA_t_statistic_${start_perm}_day1.csv" ) )
     }
    
 /*
