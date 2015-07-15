@@ -236,16 +236,22 @@ gentreat <- unique(ma2$gentreat)
 gentreat_pairs <- t (combn (gentreat,2))
 seed<-1
 result <- c()
+result_acq1 <- c()
 
 for (row in 1:length(gentreat_pairs [,1])) {
   gr1 <- as.character(gentreat_pairs [row,1])
   gr2 <- as.character(gentreat_pairs [row,2])
   
   result_v <- c(f_t_stat (new_coord, gr1, gr2, acq_day=5), seed)
-  result <- rbind  (result, result_v)
+  result_v_1 <- c(f_t_stat (new_coord, gr1, gr2, acq_day=1), seed)
   
-  colnames(result) <- c ("t", "gr1", "gr2", "comparison", "seed")                      
+  result <- rbind  (result, result_v)
+  result_1 <- rbind  (result, result_v_1)
+  
+  colnames(result) <- c ("t", "gr1", "gr2", "comparison", "seed") 
+  colnames(result_1) <- c ("t", "gr1", "gr2", "comparison", "seed")               
 }
+
 
 # t_s_ts_tseeegcg <- f_t_stat (new_coord, "TS", "TSEEEGCG")
 # 
@@ -309,8 +315,7 @@ for (row in 1:length(gentreat_pairs [,1])) {
 # colnames(result) <- c ("t", "gr1", "gr2", "comparison", "seed")
 wd <- getwd()
 write.table(result, file = paste(wd, "/tbl_t_stat.csv", sep=""), sep="\t", row.names=FALSE, col.names=FALSE)
-
-
+write.table(result_1, file = paste(wd, "/tbl_t_stat_day1.csv", sep=""), sep="\t", row.names=FALSE, col.names=FALSE)
 
 
 

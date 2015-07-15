@@ -20,7 +20,7 @@ println "path: $MWM_tbl_path"
 MWM_file = file(MWM_tbl_path)
 
 start_perm = 1111
-step = 10000
+step = 5
 end_perm = start_perm + step
 perm = Channel.from(start_perm..end_perm)
 
@@ -42,6 +42,7 @@ process perm {
     
     output:
     set file ('tbl_t_stat.csv') into tbl_t_stat
+    set file ('tbl_t_stat_day1.csv') into tbl_t_stat_day1
     
     script:
     println "Perm is $perm"
@@ -60,6 +61,14 @@ tbl_t_stat
         //println "Entries are saved to file: $it"
         //println "File content is: ${it.text}"
         it.copyTo( dump_dir.resolve ( "PCA_t_statistic_${start_perm}.csv" ) )
+    }
+    
+tbl_t_stat_day1
+	.collectFile(name: 't_stat_1.csv', newLine: false)
+    .subscribe {
+        //println "Entries are saved to file: $it"
+        //println "File content is: ${it.text}"
+        it.copyTo( dump_dir.resolve ( "PCA_t_statistic_day1_${start_perm}.csv" ) )
     }
    
 /*
