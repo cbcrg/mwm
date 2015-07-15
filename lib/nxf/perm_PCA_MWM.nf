@@ -24,7 +24,7 @@ step = 10000
 end_perm = start_perm + step
 perm = Channel.from(start_perm..end_perm)
 
-dump_dir = file("$HOME/git/mwm_new/lib/nxf/")
+dump_dir = file("$HOME/git/mwm/lib/nxf/")
 //seed = Channel.from(111,222,333)
 
 /*
@@ -49,7 +49,7 @@ process perm {
     """
     export R_LIBS="/software/R/packages"
     
-    Rscript \$HOME/git/mwm_new/lib/R/PCA_perm_test_nf.R --path2files=\$(readlink ${MWM_file}) --seed=${perm}    
+    Rscript \$HOME/git/mwm/lib/R/PCA_perm_test_nf.R --path2files=\$(readlink ${MWM_file}) --seed=${perm}    
     """ 
 }
 
