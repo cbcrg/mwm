@@ -231,67 +231,82 @@ for (j in 1:length(tgt)){
   }
 }
 
-# All comparison are performed for day 5
-t_s_ts_tseeegcg <- f_t_stat (new_coord, "TS", "TSEEEGCG")
+# Get all possible combinations of genontype treatment pairwise comparisons 
+gentreat <- unique(ma2$gentreat)
+gentreat_pairs <- t (combn (gentreat,2))
+seed<-1
+result <- c()
 
-t_s_ts_tsee <- f_t_stat (new_coord, "TS", "TSEE")
-
-t_s_ts_tsegcg <- f_t_stat (new_coord, "TS", "TSEGCG")
-
-t_s_tseeegcg_tsegcg <- f_t_stat (new_coord, "TSEEEGCG", "TSEGCG")
-
-t_s_tseeegcg_tsee <- f_t_stat (new_coord, "TSEEEGCG", "TSEE")
-
-t_s_tsee_tsegcg <- f_t_stat (new_coord, "TSEE", "TSEGCG")
+for (row in 1:length(gentreat_pairs [,1])) {
+  gr1 <- as.character(gentreat_pairs [row,1])
+  gr2 <- as.character(gentreat_pairs [row,2])
+  
+  result_v <- c(f_t_stat (new_coord, gr1, gr2, acq_day=5), seed)
+  result <- rbind  (result, result_v)
+  
+  colnames(result) <- c ("t", "gr1", "gr2", "comparison", "seed")                      
+}
 
 # t_s_ts_tseeegcg <- f_t_stat (new_coord, "TS", "TSEEEGCG")
-#1
-t_s_ts_wt <- f_t_stat (new_coord, "TS", "WT")
-#3
-t_s_ts_wtee <- f_t_stat (new_coord, "TS", "WTEE")
-#8
-t_s_ts_wtegcg <- f_t_stat (new_coord, "TS", "WTEGCG")
-t_s_ts_wteeegcg <- f_t_stat (new_coord, "TS", "WTEEEGCG")
-#2
-t_s_wt_wtee <- f_t_stat (new_coord, "WT", "WTEE")
-#7
-t_s_wt_wtegcg <- f_t_stat (new_coord, "WT", "WTEGCG")
-t_s_wt_wteeegcg <- f_t_stat (new_coord, "WT", "WTEEEGCG")
-#4
-t_s_wt_tsee <- f_t_stat (new_coord, "WT", "TSEGCG")
-#11
-t_s_wt_tsegcg <- f_t_stat (new_coord, "WT", "TSEE")
-t_s_wt_tseeegcg <- f_t_stat (new_coord, "WT", "TSEEEGCG")
-#9
-t_s_wtee_wtegcg <- f_t_stat (new_coord, "WTEE", "WTEGCG")
-t_s_wtee_wteeegcg <- f_t_stat (new_coord, "WTEE", "WTEEEGCG")
-#6
-t_s_wtee_tsee <- f_t_stat (new_coord, "WTEE", "TSEE")
-t_s_wtee_tsegcg <- f_t_stat (new_coord, "WTEE", "TSEGCG")
-t_s_wtee_tseeegcg <- f_t_stat (new_coord, "WTEE", "TSEEEGCG")
-t_s_wtegcg_wteeegcg <- f_t_stat (new_coord, "WTEGCG", "WTEEEGCG")
-#10
-t_s_wtegcg_tsee <- f_t_stat (new_coord, "WTEGCG", "TSEE")
-t_s_wtegcg_tsegcg <- f_t_stat (new_coord, "WTEE", "TSEGCG")
-t_s_wtegcg_tseeegcg <- f_t_stat (new_coord, "WTEGCG", "TSEEEGCG")
-t_s_wteeegcg_tsee <- f_t_stat (new_coord, "WTEEEGCG", "TSEE")
-t_s_wteeegcg_tsegcg <- f_t_stat (new_coord, "WTEEEGCG", "TSEGCG")
-t_s_wteeegcg_tseeegcg <- f_t_stat (new_coord, "WTEEEGCG", "TSEEEGCG")
-
-# result <- rbind (t_s_ts_tseeegcg, t_s_ts_tsee, t_s_ts_tsegcg, t_s_ts_wt, t_s_ts_wtee, t_s_ts_wtegcg, t_s_ts_wteeegcg, 
-#                  t_s_wt_wtee,t_s_wt_wtegcg,t_s_wt_wteeegcg ,t_s_wt_tsee,t_s_wt_tsegcg,t_s_wt_tseeegcg,t_s_wtee_wtegcg,
-#                  t_s_wtee_wteeegcg,t_s_wtee_tsee,t_s_wtee_tsegcg,t_s_wtee_tseeegcg,t_s_wtegcg_wteeegcg,t_s_wtegcg_tsee,
-#                  t_s_wtegcg_tsegcg,t_s_wtegcg_tseeegcg,t_s_wteeegcg_tsee,t_s_wteeegcg_tsegcg,t_s_wteeegcg_tseeegcg)
-
-result <- rbind (t_s_ts_tseeegcg, t_s_ts_tsee, t_s_ts_tsegcg, t_s_tseeegcg_tsegcg, t_s_tseeegcg_tsee, t_s_tsee_tsegcg, 
-                 t_s_ts_wt, t_s_ts_wtee, t_s_ts_wtegcg, t_s_ts_wteeegcg, t_s_wt_wtee, t_s_wt_wtegcg, t_s_wt_wteeegcg, 
-                 t_s_wt_tsee, t_s_wt_tsegcg, t_s_wt_tseeegcg, t_s_wtee_wtegcg, t_s_wtee_wteeegcg, t_s_wtee_tsee, 
-                 t_s_wtee_tsegcg, t_s_wtee_tseeegcg, t_s_wtegcg_wteeegcg, t_s_wtegcg_tsee, t_s_wtegcg_tsegcg,
-                 t_s_wtegcg_tseeegcg, t_s_wteeegcg_tsee, t_s_wteeegcg_tsegcg, t_s_wteeegcg_tseeegcg)
-
-result <- cbind  (result, seed)
-
-colnames(result) <- c ("t", "gr1", "gr2", "comparison", "seed")
+# 
+# t_s_ts_tsee <- f_t_stat (new_coord, "TS", "TSEE")
+# 
+# t_s_ts_tsegcg <- f_t_stat (new_coord, "TS", "TSEGCG")
+# 
+# t_s_tseeegcg_tsegcg <- f_t_stat (new_coord, "TSEEEGCG", "TSEGCG")
+# 
+# t_s_tseeegcg_tsee <- f_t_stat (new_coord, "TSEEEGCG", "TSEE")
+# 
+# t_s_tsee_tsegcg <- f_t_stat (new_coord, "TSEE", "TSEGCG")
+# 
+# # t_s_ts_tseeegcg <- f_t_stat (new_coord, "TS", "TSEEEGCG")
+# #1
+# t_s_ts_wt <- f_t_stat (new_coord, "TS", "WT")
+# #3
+# t_s_ts_wtee <- f_t_stat (new_coord, "TS", "WTEE")
+# #8
+# t_s_ts_wtegcg <- f_t_stat (new_coord, "TS", "WTEGCG")
+# t_s_ts_wteeegcg <- f_t_stat (new_coord, "TS", "WTEEEGCG")
+# #2
+# t_s_wt_wtee <- f_t_stat (new_coord, "WT", "WTEE")
+# #7
+# t_s_wt_wtegcg <- f_t_stat (new_coord, "WT", "WTEGCG")
+# t_s_wt_wteeegcg <- f_t_stat (new_coord, "WT", "WTEEEGCG")
+# #4
+# t_s_wt_tsee <- f_t_stat (new_coord, "WT", "TSEGCG")
+# #11
+# t_s_wt_tsegcg <- f_t_stat (new_coord, "WT", "TSEE")
+# t_s_wt_tseeegcg <- f_t_stat (new_coord, "WT", "TSEEEGCG")
+# #9
+# t_s_wtee_wtegcg <- f_t_stat (new_coord, "WTEE", "WTEGCG")
+# t_s_wtee_wteeegcg <- f_t_stat (new_coord, "WTEE", "WTEEEGCG")
+# #6
+# t_s_wtee_tsee <- f_t_stat (new_coord, "WTEE", "TSEE")
+# t_s_wtee_tsegcg <- f_t_stat (new_coord, "WTEE", "TSEGCG")
+# t_s_wtee_tseeegcg <- f_t_stat (new_coord, "WTEE", "TSEEEGCG")
+# t_s_wtegcg_wteeegcg <- f_t_stat (new_coord, "WTEGCG", "WTEEEGCG")
+# #10
+# t_s_wtegcg_tsee <- f_t_stat (new_coord, "WTEGCG", "TSEE")
+# t_s_wtegcg_tsegcg <- f_t_stat (new_coord, "WTEE", "TSEGCG")
+# t_s_wtegcg_tseeegcg <- f_t_stat (new_coord, "WTEGCG", "TSEEEGCG")
+# t_s_wteeegcg_tsee <- f_t_stat (new_coord, "WTEEEGCG", "TSEE")
+# t_s_wteeegcg_tsegcg <- f_t_stat (new_coord, "WTEEEGCG", "TSEGCG")
+# t_s_wteeegcg_tseeegcg <- f_t_stat (new_coord, "WTEEEGCG", "TSEEEGCG")
+# 
+# # result <- rbind (t_s_ts_tseeegcg, t_s_ts_tsee, t_s_ts_tsegcg, t_s_ts_wt, t_s_ts_wtee, t_s_ts_wtegcg, t_s_ts_wteeegcg, 
+# #                  t_s_wt_wtee,t_s_wt_wtegcg,t_s_wt_wteeegcg ,t_s_wt_tsee,t_s_wt_tsegcg,t_s_wt_tseeegcg,t_s_wtee_wtegcg,
+# #                  t_s_wtee_wteeegcg,t_s_wtee_tsee,t_s_wtee_tsegcg,t_s_wtee_tseeegcg,t_s_wtegcg_wteeegcg,t_s_wtegcg_tsee,
+# #                  t_s_wtegcg_tsegcg,t_s_wtegcg_tseeegcg,t_s_wteeegcg_tsee,t_s_wteeegcg_tsegcg,t_s_wteeegcg_tseeegcg)
+# 
+# result <- rbind (t_s_ts_tseeegcg, t_s_ts_tsee, t_s_ts_tsegcg, t_s_tseeegcg_tsegcg, t_s_tseeegcg_tsee, t_s_tsee_tsegcg, 
+#                  t_s_ts_wt, t_s_ts_wtee, t_s_ts_wtegcg, t_s_ts_wteeegcg, t_s_wt_wtee, t_s_wt_wtegcg, t_s_wt_wteeegcg, 
+#                  t_s_wt_tsee, t_s_wt_tsegcg, t_s_wt_tseeegcg, t_s_wtee_wtegcg, t_s_wtee_wteeegcg, t_s_wtee_tsee, 
+#                  t_s_wtee_tsegcg, t_s_wtee_tseeegcg, t_s_wtegcg_wteeegcg, t_s_wtegcg_tsee, t_s_wtegcg_tsegcg,
+#                  t_s_wtegcg_tseeegcg, t_s_wteeegcg_tsee, t_s_wteeegcg_tsegcg, t_s_wteeegcg_tseeegcg)
+# 
+# result <- cbind  (result, seed)
+# 
+# colnames(result) <- c ("t", "gr1", "gr2", "comparison", "seed")
 wd <- getwd()
 write.table(result, file = paste(wd, "/tbl_t_stat.csv", sep=""), sep="\t", row.names=FALSE, col.names=FALSE)
 
