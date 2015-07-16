@@ -232,7 +232,7 @@ for (j in 1:length(tgt)){
 }
 
 # Get all possible combinations of genontype treatment pairwise comparisons 
-gentreat <- unique(ma2$gentreat)
+gentreat <- sort(unique(ma2$gentreat))
 gentreat_pairs <- t (combn (gentreat,2))
 
 result <- c()
