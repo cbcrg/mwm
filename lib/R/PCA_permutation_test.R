@@ -9,6 +9,7 @@
 
 library(FactoMineR)
 library(Hmisc)
+home <- Sys.getenv("HOME")
 
 ma2=spss.get("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/Ts65Dn OLD ACQ1_ACQ5_SUBCONJ.sav")
 
@@ -377,11 +378,95 @@ t.values_333 [950]
 real_t_stat
 (perm - length(t.values [t.values < real_t_stat])) / perm
 
-#### 
+###################################
 # Reading results from 10000 permutations 3X for all comparisons
-
-# tbl_3333 <- read.table ("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/PCA_t_statistic_3333.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
 tbl_1111 <- read.table ("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/PCA_t_statistic_1111.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
+tbl_2222 <- read.table ("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/PCA_t_statistic_2222.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
+tbl_3333 <- read.table ("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/PCA_t_statistic_3333.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
+
+###
+# Functions for significance calculation
+
+significance_perm_tbl <- function (tbl_perm, gr1="TS", gr2="TSEEEGCG", n_perm=10001, a_day=5)  {
+  real_t_stat <- f_t_stat_only (new_coord_real_lab, gen_1 = gr1, gen_2 = gr2, acq_day=a_day)
+  t_perm_gr1_gr2 <- subset (tbl_perm, V4 == paste(gr1, gr2, sep="_"))$V1
+  t_perm_gr1_gr2 <- t_perm_gr1_gr2 [order(t_perm_gr1_gr2)]
+  sign_thr <- (length (t_perm_gr1_gr2) - length(t_perm_gr1_gr2 [t_perm_gr1_gr2 <= real_t_stat])) / length (t_perm_gr1_gr2)
+  if (sign_thr >= 0.95) { sign_thr <- 1 - sign_thr }
+  
+  print (sign_thr)
+  return (sign_thr)
+}
+
+significance_perm_tbl_emp_adjusted <- function (tbl_perm, gr1="TS", gr2="TSEEEGCG", n_perm=10001, a_day=5)  {
+  real_t_stat <- f_t_stat_only (new_coord_real_lab, gen_1 = gr1, gen_2 = gr2, acq_day=a_day)
+  t_perm_gr1_gr2 <- subset (tbl_perm, V4 == paste(gr1, gr2, sep="_"))$V1
+  t_perm_gr1_gr2 <- t_perm_gr1_gr2 [order(t_perm_gr1_gr2)]
+  sign_thr <- (length (t_perm_gr1_gr2) - length(t_perm_gr1_gr2 [t_perm_gr1_gr2 <= real_t_stat])) / length (t_perm_gr1_gr2)
+  
+  sign_thr_adj <- 0
+  
+  if (sign_thr >= 0.95) { 
+    sign_thr_adj <- (length (t_perm_gr1_gr2) - length(t_perm_gr1_gr2 [t_perm_gr1_gr2 >= real_t_stat]) + 1) / (length (t_perm_gr1_gr2) + 1) 
+    print (paste("tail mod",sign_thr_adj))
+  }
+  else {
+    sign_thr_adj <- (length (t_perm_gr1_gr2) - length(t_perm_gr1_gr2 [t_perm_gr1_gr2 <= real_t_stat]) + 1) / (length (t_perm_gr1_gr2) + 1)
+    print (paste("tail",sign_thr_adj))
+  }
+  
+#   print (sign_thr)
+  return (sign_thr_adj)
+}
+
+significance_perm_tbl_emp_adjusted (tbl_1111, a_day = 5)
+
+sign_threshold <- function (tbl_perm, day=5){
+  df.t_stats <- c()
+  
+  # In this case I can not set the order
+  gentreat <- unique(c(unique(tbl_perm$V2), unique(tbl_perm$V3)))
+  #I have to set the order as well in the r nextflow script
+  gentreat_order <- c("WT", "TS","WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG")
+  
+  gentreat_pairs <- t (combn (gentreat_order, 2))
+  
+  for (row in 1:length(gentreat_pairs [,1])) {
+    gr1 <- as.character(gentreat_pairs [row,1])
+    gr2 <- as.character(gentreat_pairs [row,2])
+    
+    sign_thr <- significance_perm_tbl (tbl_perm, gr1, gr2, a_day=day)
+    adj_sign_thr <- significance_perm_tbl_emp_adjusted (tbl_perm, gr1, gr2, a_day=day)
+
+    v <- c (gr1, gr2, paste (gr1, gr2, sep="_vs_"), sign_thr, adj_sign_thr)
+    
+    df.t_stats <- rbind (df.t_stats, v)
+    colnames (df.t_stats) <- c ("gr1", "gr2", "comp", "sign_thresh", "adj_sign_thr")
+  } 
+  
+  return (df.t_stats)
+}
+
+mtx.sign_threshold.day5 <- sign_threshold (tbl_1111, day=5)
+df.sign_threshold.day5 <- as.data.frame(mtx.sign_threshold.day5, row.names=F, stringsAsFactors = F)
+df.sign_threshold.day5$sign_thresh <- as.numeric (df.sign_threshold.day5$sign_thresh)
+# df.sign_threshold.day5$sign_thresh <- as.(df.sign_threshold.day5$sign_thresh)
+df.sign_threshold.day5 <- df.sign_threshold.day5 [order(df.sign_threshold.day5$gr2),]
+df.sign_threshold.day5 <- df.sign_threshold.day5 [order(df.sign_threshold.day5$comp),]
+
+# Ordering for bonferroni holm correction
+df.sign_threshold.day5.order <- df.sign_threshold.day5 [order(df.sign_threshold.day5$sign_thresh),]
+row.names(df.sign_threshold.day5.order ) <- 1:nrow(df.sign_threshold.day5.order )
+df.sign_threshold.day5.order
+df.sign_threshold.day5.order$sign_threshBonfHolm <- df.sign_threshold.day5.order$sign_thresh * (length (df.sign_threshold.day5.order$sign_thresh) - as.numeric(row.names(df.sign_threshold.day5.order)) + 1)
+
+
+
+
+
+
+
+
 # tbl_2222_day1 <- read.table ("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/PCA_t_statistic_2222_day1.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
 tbl_2222 <- read.table ("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/PCA_t_statistic_2222.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
 head (tbl_2222)
@@ -393,7 +478,9 @@ tail (tbl_2222)
 tbl_1111_day1 <- read.table ("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/PCA_t_statistic_1111_day1.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
 
 mtx.sign_threshold.day1 <- sign_threshold (tbl_1111_day1, day=1)
-
+as.numeric(mtx.sign_threshold.day1 [,4])
+as.numeric(mtx.sign_threshold.day1 [,4])/28
+0.05/28
 tbl_perm <- tbl_1111_day1
 head (tbl_1111_day1)
 head (tbl_1111)
@@ -447,51 +534,14 @@ significance_perm <- function (tbl_perm, gr1="TS", gr2="TSEEEGCG", n_perm=10001,
 # colnames(result_1) <- c ("t", "gr1", "gr2", "comparison", "seed")  
 tbl_1111
 
-significance_perm_tbl <- function (tbl_perm, gr1="TS", gr2="TSEEEGCG", n_perm=10001, a_day=5)  {
-  real_t_stat <- f_t_stat_only (new_coord_real_lab, gen_1 = gr1, gen_2 = gr2, acq_day=a_day)
-  t_perm_gr1_gr2 <- subset (tbl_perm, V4 == paste(gr1, gr2, sep="_"))$V1
-  t_perm_gr1_gr2 <- t_perm_gr1_gr2 [order(t_perm_gr1_gr2)]
-  sign_thr <- (length (t_perm_gr1_gr2) - length(t_perm_gr1_gr2 [t_perm_gr1_gr2 < real_t_stat])) / length (t_perm_gr1_gr2)
-  if (sign_thr >= 0.95) {sign_thr <- 1 - sign_thr}
-  
-  print (sign_thr)
-  return (sign_thr)
-}
+# TS vs TSEEEGCG
+(28-13+1) * 0.00899910
 
-sign_threshold <- function (tbl_perm, day=5){
-  df.t_stats <- c()
-  
-  # In this case I can not set the order
-  gentreat <- unique(c(unique(tbl_perm$V2), unique(tbl_perm$V3)))
-  #I have to set the order as well in the r nextflow script
-  gentreat_order <- c("WT", "TS","WTEE", "TSEE", "WTEGCG", "TSEGCG", "TSEEEGCG", "TSEEEGCG")
-  
-  gentreat_pairs <- t (combn (gentreat_order, 2))
-  
-  for (row in 1:length(gentreat_pairs [,1])) {
-    gr1 <- as.character(gentreat_pairs [row,1])
-    gr2 <- as.character(gentreat_pairs [row,2])
-    
-    sign_thr <- significance_perm_tbl (tbl_perm, gr1, gr2, a_day=day)
-    
-    v <- c (gr1, gr2, paste (gr1, gr2, sep="_vs_"), sign_thr)
-    
-    df.t_stats <- rbind (df.t_stats, v)
-    colnames (df.t_stats) <- c ("gr1", "gr2", "comp", "sign_thresh")
-  } 
-  
-  return (df.t_stats)
-}
-n<-9.99900009999166/100000
+28*0.00899
 
-mtx.sign_threshold.day5 <- sign_threshold (tbl_1111, day=5)
-df.sign_threshold.day5 <- as.data.frame(mtx.sign_threshold.day5, row.names=F, stringsAsFactors = F)
-df.sign_threshold.day5$sign_thresh <- as.numeric (df.sign_threshold.day5$sign_thresh)
-# df.sign_threshold.day5$sign_thresh <- as.(df.sign_threshold.day5$sign_thresh)
-df.sign_threshold.day5 <- df.sign_threshold.day5 [order(df.sign_threshold.day5$gr2),]
-df.sign_threshold.day5 <- df.sign_threshold.day5 [order(df.sign_threshold.day5$comp),]
+0.05/28
 
-write.table(df.sign_threshold.day5, file = paste(home, "/20150515_PCA_old_frotiersPaper/tbl", "/tbl_sign_thresh_perm_5.csv", sep=""), 
+write.table(df.sign_threshold.day5.order, file = paste(home, "/20150515_PCA_old_frotiersPaper/tbl", "/tbl_sign_thresh_perm_5.csv", sep=""), 
             sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
 
 # Get all possible combinations of genontype treatment pairwise comparisons 
