@@ -419,7 +419,7 @@ significance_perm_tbl_emp_adjusted <- function (tbl_perm, gr1="TS", gr2="TSEEEGC
   return (sign_thr_adj)
 }
 
-significance_perm_tbl_emp_adjusted (tbl_1111, a_day = 5)
+# significance_perm_tbl_emp_adjusted (tbl_1111, a_day = 5)
 
 sign_threshold <- function (tbl_perm, day=5){
   df.t_stats <- c()
@@ -444,16 +444,30 @@ sign_threshold <- function (tbl_perm, day=5){
     colnames (df.t_stats) <- c ("gr1", "gr2", "comp", "sign_thresh", "adj_sign_thr")
   } 
   
+  df.t_stats <- as.data.frame (df.t_stats, row.names=F, stringsAsFactors = F)
+  df.t_stats$sign_thresh <- as.numeric (df.t_stats$sign_thresh)
+  df.t_stats$adj_sign_thr <- as.numeric (df.t_stats$adj_sign_thr)
+  df.t_stats <- df.t_stats [order(df.t_stats$sign_thresh),]
+  row.names(df.t_stats) <- 1:nrow(df.t_stats)
   return (df.t_stats)
 }
 
-mtx.sign_threshold.day5 <- sign_threshold (tbl_1111, day=5)
-df.sign_threshold.day5 <- as.data.frame(mtx.sign_threshold.day5, row.names=F, stringsAsFactors = F)
-df.sign_threshold.day5$sign_thresh <- as.numeric (df.sign_threshold.day5$sign_thresh)
-# df.sign_threshold.day5$sign_thresh <- as.(df.sign_threshold.day5$sign_thresh)
-df.sign_threshold.day5 <- df.sign_threshold.day5 [order(df.sign_threshold.day5$gr2),]
-df.sign_threshold.day5 <- df.sign_threshold.day5 [order(df.sign_threshold.day5$comp),]
+df.sign_threshold.day5 <- sign_threshold (tbl_1111, day=5)
+df.sign_threshold.day1 <- sign_threshold (tbl_1111, day=1)
 
+write.table(df.sign_threshold.day5, file = paste(home, "/20150515_PCA_old_frotiersPaper/tbl", "/tbl_sign_thresh_perm_5.csv", sep=""), 
+            sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
+
+write.table(df.sign_threshold.day1, file = paste(home, "/20150515_PCA_old_frotiersPaper/tbl", "/tbl_sign_thresh_perm_1.csv", sep=""), 
+            sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
+
+# How to order make a data frame and order it by significance
+# df.sign_threshold.day5 <- as.data.frame(mtx.sign_threshold.day5, row.names=F, stringsAsFactors = F)
+# df.sign_threshold.day5$sign_thresh <- as.numeric (df.sign_threshold.day5$sign_thresh)
+# # df.sign_threshold.day5$sign_thresh <- as.(df.sign_threshold.day5$sign_thresh)
+# df.sign_threshold.day5 <- df.sign_threshold.day5 [order(df.sign_threshold.day5$gr2),]
+# df.sign_threshold.day5 <- df.sign_threshold.day5 [order(df.sign_threshold.day5$comp),]
+# 
 # Ordering for bonferroni holm correction
 df.sign_threshold.day5.order <- df.sign_threshold.day5 [order(df.sign_threshold.day5$sign_thresh),]
 row.names(df.sign_threshold.day5.order ) <- 1:nrow(df.sign_threshold.day5.order )
