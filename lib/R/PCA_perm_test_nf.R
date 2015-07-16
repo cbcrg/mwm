@@ -236,7 +236,7 @@ gentreat <- unique(ma2$gentreat)
 gentreat_pairs <- t (combn (gentreat,2))
 
 result <- c()
-result_acq1 <- c()
+result_1 <- c()
 
 for (row in 1:length(gentreat_pairs [,1])) {
   gr1 <- as.character(gentreat_pairs [row,1])
@@ -246,7 +246,7 @@ for (row in 1:length(gentreat_pairs [,1])) {
   result_v_1 <- c(f_t_stat (new_coord, gr1, gr2, acq_day=1), seed)
   
   result <- rbind  (result, result_v)
-  result_1 <- rbind  (result, result_v_1)
+  result_1 <- rbind  (result_1, result_v_1)
   
   colnames(result) <- c ("t", "gr1", "gr2", "comparison", "seed") 
   colnames(result_1) <- c ("t", "gr1", "gr2", "comparison", "seed")               
