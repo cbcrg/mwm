@@ -102,19 +102,28 @@ bp_rem_latency_TS + geom_point (position = position_jitter(width = 0.2), colour=
 
 # boxplot gallagher index
 bp_gallagher <- ggplot(rem_data_all_var , aes (genotype, GALLINDEX.REM, fill = genotype)) + 
-  geom_boxplot(show_guide=FALSE) +
-  scale_fill_manual(name = "genotype", values = c("red", "green", "blue", "lightblue", "magenta", "orange", "yellow", "black")) +
-  labs(title = "Removal gallagher index\n") + xlab ("\ngentreat") + ylab("gallagher\n") +
-  theme (legend.title=element_blank())
+  geom_boxplot (outlier.size=NA, show_guide=FALSE) +
+  scale_fill_manual(name = "genotype", values = c("red", "darkgreen", "blue", "lightblue", "magenta", "orange", "yellow", "black")) +
+  labs(title = "Removal gallagher index\n") + xlab ("\ngentreat") + ylab("Gallagher index (cm)\n") +
+  theme (legend.title=element_blank()) +
+  geom_segment(aes(x = 7.63, y = median(rem_data_all_var [rem_data_all_var$genotype == "TSEEEGCG","GALLINDEX.REM"]), 
+               xend = 8.37, yend = median(rem_data_all_var [rem_data_all_var$genotype == "TSEEEGCG","GALLINDEX.REM"])), 
+               colour="white", size =0.8)
 
-bp_gallagher 
+bp_gallagher_points <- bp_gallagher + geom_point (position = position_jitter(width = 0.2), colour="red", show_guide=FALSE)
+bp_gallagher_points 
+
+
+#PLOT_paper
+ggsave (bp_gallagher_points, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "rem_gallagher_all_gr.jpg", sep=""), 
+        width=14, height=7, dpi=900)
 
 bp_rem_gallagher_TS <- ggplot(rem_data_all_var_TS , aes (genotype, GALLINDEX.REM, fill = genotype)) + 
   geom_boxplot(show_guide=FALSE) +
 #   geom_text (aes (label=ID), vjust=-0.5, hjust=1, size=4, show_guide = T)
   geom_text (aes (label=ID))+
   scale_fill_manual(name = "genotype", values = c("green", "lightblue", "orange", "black")) +
-  labs(title = "Removal gallagher\n") + xlab ("\ngentreat") + ylab("gallagher\n") +
+  labs(title = "Removal gallagher index\n") + xlab ("\ngentreat") + ylab("Gallagher index (cm)\n") +
   theme (legend.title=element_blank())
 
 bp_rem_gallagher_TS + geom_point (position = position_jitter(width = 0.2), colour="red")
