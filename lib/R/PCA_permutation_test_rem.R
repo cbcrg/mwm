@@ -70,6 +70,14 @@ print (argsL)
 
 # ma2=spss.get(path2files)
 
+# Function t statistic calculation
+f_t_stat_only <- function (df_coord, gen_1 = "TS", gen_2 = "TSEEEGCG", acq_day=1){
+  group1 <- subset (new_coord_real_lab, genotype == gen_1 & day==acq_day)
+  group2 <- subset (new_coord_real_lab, genotype == gen_2 & day==acq_day)
+  t_stat = t.test (group1$V1, group2$V1)$statistic  
+  return (t_stat)
+}
+
 ############################
 # Reading data from removal
 # It is trickiest because data is splitted in 2 data sets
@@ -95,19 +103,27 @@ rem_data_all_var <- merge(rem_data, ma3_filt_rem_data, all=TRUE)
 # Guys starting with 1400277xx are missing in the second table, thus when merging they appear as NA, I delete them
 rem_data_all_var <- head (rem_data_all_var, -5)
 
-head (rem_data_all_var)
-tail (rem_data_all_var)
+# head (rem_data_all_var)
+# tail (rem_data_all_var)
+#########################
+# I select for the pca the same variables than in the acquisition data of Ionas
+#########################
+
+selected_var_rem <- rem_data_all_var [,c(1:8,10,12,14,15,17,18)] 
+head (selected_var_rem)
+
 ############################
+# Median calculation
+tbl_stat_median <-with (selected_var_rem, aggregate (cbind (NUMBER.ENTRIES, PERM.TIME, LATENCY.TARGET, GALLINDEX.REM, SPEED.REM, PERC.NE.REM, PERC.PERI.REM, WISHAW.REM), list (GENTREAT), FUN=function (x) median=median(x)))                                                            
+genotype_tt <- as.factor(tbl_stat_median$Group.1)
+genotype_tt_ionas <- as.factor(c("WT","TS","WTEE","TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"))
+tbl_stat_median <- tbl_stat_median [,-1]
+row.names (tbl_stat_median) <- genotype_tt_ionas
 
 
 
-# Function t statistic calculation
-f_t_stat_only <- function (df_coord, gen_1 = "TS", gen_2 = "TSEEEGCG", acq_day=1){
-  group1 <- subset (new_coord_real_lab, genotype == gen_1 & day==acq_day)
-  group2 <- subset (new_coord_real_lab, genotype == gen_2 & day==acq_day)
-  t_stat = t.test (group1$V1, group2$V1)$statistic  
-  return (t_stat)
-}
+
+
 
 # head(ma2)
 
