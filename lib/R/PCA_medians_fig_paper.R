@@ -94,12 +94,12 @@ pca2plot$gentreat <- factor(pca2plot$gentreat , levels=c("WT", "TS", "WTEE", "TS
                             labels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"))
 
 pca_medians_acq <- ggplot(pca2plot, aes(x=PC1, y=PC2, colour=gentreat )) + 
-                          geom_path (size = 1,show_guide = T) + 
-#                           geom_path (size = 1,show_guide = F) + 
+#                           geom_path (size = 1,show_guide = T) + 
+                          geom_path (size = 1,show_guide = F) + 
                           scale_color_manual(values=c("red", "darkgreen", "blue", "lightblue", 
                                                       "magenta", "orange", "gray", "black")) +
-                          geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show_guide = T)+
-#                           geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show_guide = F)+
+#                           geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show_guide = T)+
+                          geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show_guide = F)+
                           theme(legend.key=element_rect(fill=NA)) +
                           labs(title = "PCA of group medians\n", x = "\nPC1 (80% of variance)", y="PC2 (12% of variance)\n") +
 #                           guides(colour = guide_legend(override.aes = list(size = 10)))+
@@ -107,9 +107,14 @@ pca_medians_acq <- ggplot(pca2plot, aes(x=PC1, y=PC2, colour=gentreat )) +
                           theme(legend.key=element_rect(fill=NA))
 
 #PLOT_paper
-pca_medians_acq 
-ggsave (pca_medians_acq, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "PCA_medians_legend.jpg", sep=""), dpi=900)
-# ggsave (pca_medians_acq, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "PCA_medians_NO_legend.jpg", sep=""), width = 10, height = 10, dpi=900)
+pca_medians_acq
+# keeping aspect ratio
+pca_medians_acq_aspect_ratio <- pca_medians_acq + coord_fixed() + 
+                                scale_x_continuous (limits=c(-4.5, 4.5), breaks=-4:4) + 
+                                scale_y_continuous (limits=c(-2.7, 2.7), breaks=-2:2)
+
+# ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "PCA_medians_legend.jpg", sep=""), width = 10, height = 6, dpi=900)
+ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "PCA_medians_NO_legend.jpg", sep=""), width = 9, height = 6, dpi=900)
 
 # Plot for presentation
 # setwd("/Users/jespinosa/Dropbox (Personal)/presentations_2015/20150630_GM_Cedric/figures")
@@ -126,8 +131,8 @@ pca_medians_acq <- ggplot(pca2plot, aes(x=PC1, y=PC2, colour=gentreat )) +
 
 #PLOT_presentation
 pca_medians_acq 
-# ggsave (pca_medians_acq, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_medians_legend.jpg", sep=""), dpi=900)
-# ggsave (pca_medians_acq, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_medians_NO_legend.jpg", sep=""), width = 10, height = 10, dpi=900)
+# ggsave (pca_medians_acq, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "PCA_medians_legend.jpg", sep=""), dpi=900)
+# ggsave (pca_medians_acq, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "PCA_medians_NO_legend.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 
 
@@ -228,8 +233,15 @@ p_circle_plot <- ggplot(circle_plot) +
                 #        geom_polygon(aes(x, y), data = df, inherit.aes = F, Fill=NA)
 #                         scale_x_continuous(breaks=1:10)  
                        geom_polygon (data = df.circle, aes(x, y), alpha=1, colour="black", fill=NA, size=1)
+base_size <- 12
+dailyInt_theme <- theme_update (axis.title.x = element_text (size=base_size * 2, face="bold"),
+                                axis.title.y = element_text (size=base_size * 2, angle = 90, face="bold"),
+                                plot.title = element_text (size=base_size * 2, face="bold"))
+  
 p_circle_plot
 # ggsave (p_circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
+ggsave (p_circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
+
 
 
 ############
@@ -254,6 +266,9 @@ bars_plot
 #PLOT_paper
 # ggsave (bars_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "bar_contribution.jpg", sep=""), dpi=900, height=5, width=10)
 
+ggsave (bars_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA", "bar_contribution.jpg", sep=""), dpi=900)
+
+
 df.bars_PC2 <- cbind (as.numeric(sort(res$var$coord[,2]^2/sum(res$var$coord[,2]^2)*100,decreasing=TRUE)), names(res$var$coord[,2])[order(res$var$coord[,2]^2,decreasing=TRUE)])
 df.bars_PC2[2,2] <- "whishaw"
 df.bars_to_plot_PC2 <- as.data.frame(df.bars_PC2)
@@ -275,7 +290,8 @@ bars_plot_PC2 <- ggplot (data=df.bars_to_plot_PC2, aes(x=index, y=value)) +
 bars_plot_PC2
 
 #PLOT_paper
-# ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "bar_contribution_PC2.jpg", sep=""), dpi=900, height=5, width=10)
+#ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "bar_contribution_PC2.jpg", sep=""), dpi=900, height=5, width=10)
+ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "bar_contribution_PC2.jpg", sep=""), dpi=900)
 
 names(-res.pca$ind$coord[,1])
 
