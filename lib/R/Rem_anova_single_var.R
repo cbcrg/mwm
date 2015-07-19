@@ -125,18 +125,26 @@ outlier <- rem_data_all_var [which (rem_data_all_var$ID == "130054742"),]
 bp_gallagher_points + geom_text(data=outlier , aes (label=ID))
 
 #Removing the individual from the analysis to make the boxplot
+l <- ggplot() + geom_point(data=df.anova.ts.a1 , aes (x=group, y=value, colour = group), shape=15, size=5) +
+     scale_colour_manual (values=c("darkgreen", "lightblue", "orange", "black"))
+l <- l + guides(color=guide_legend(title=NULL)) 
+l <- l + theme(legend.key = element_blank())
+l
 rem_data_all_var_noOutlier <- rem_data_all_var [-which (rem_data_all_var$ID == "130054742"),]
 bp_gallagher_noOut <- ggplot(rem_data_all_var_noOutlier , aes (genotype, GALLINDEX.REM, fill = genotype)) + 
-  geom_boxplot (outlier.size=NA, show_guide=FALSE) +
+  geom_boxplot (outlier.size=NA, show_guide=T) +
   scale_fill_manual(name = "genotype", values = c("red", "darkgreen", "blue", "lightblue", "magenta", "orange", "yellow", "black")) +
   labs(title = "Removal gallagher index\n") + xlab ("\ngentreat") + ylab("Gallagher index (cm)\n") +
   theme (legend.title=element_blank()) +
+  guides(color=guide_legend(title=NULL)) +
+  theme(legend.key = element_blank())+
   geom_segment(aes(x = 7.63, y = median(rem_data_all_var [rem_data_all_var$genotype == "TSEEEGCG","GALLINDEX.REM"]), 
                    xend = 8.37, yend = median(rem_data_all_var [rem_data_all_var$genotype == "TSEEEGCG","GALLINDEX.REM"])), 
                colour="white", size =0.8) + 
               geom_point (position = position_jitter(width = 0.2), colour="red", show_guide=FALSE)
 
 bp_gallagher_noOut <- bp_gallagher_noOut + geom_point(data=outlier , aes (label=ID), show_guide=FALSE, shape = 2)
+bp_gallagher_noOut
 
 #PLOT_paper
 ggsave (bp_gallagher_noOut, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "rem_gallagher_all_gr_outlier.jpg", sep=""), 
