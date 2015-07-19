@@ -125,14 +125,9 @@ outlier <- rem_data_all_var [which (rem_data_all_var$ID == "130054742"),]
 bp_gallagher_points + geom_text(data=outlier , aes (label=ID))
 
 #Removing the individual from the analysis to make the boxplot
-l <- ggplot() + geom_point(data=df.anova.ts.a1 , aes (x=group, y=value, colour = group), shape=15, size=5) +
-     scale_colour_manual (values=c("darkgreen", "lightblue", "orange", "black"))
-l <- l + guides(color=guide_legend(title=NULL)) 
-l <- l + theme(legend.key = element_blank())
-l
 rem_data_all_var_noOutlier <- rem_data_all_var [-which (rem_data_all_var$ID == "130054742"),]
-bp_gallagher_noOut <- ggplot(rem_data_all_var_noOutlier , aes (genotype, GALLINDEX.REM, fill = genotype)) + 
-  geom_boxplot (outlier.size=NA, show_guide=T) +
+bp_gallagher_noOut <- ggplot(rem_data_all_var_noOutlier, aes (genotype, GALLINDEX.REM, fill = genotype)) + 
+  geom_boxplot (outlier.size=NA, show_guide=F) +
   scale_fill_manual(name = "genotype", values = c("red", "darkgreen", "blue", "lightblue", "magenta", "orange", "yellow", "black")) +
   labs(title = "Removal gallagher index\n") + xlab ("\ngentreat") + ylab("Gallagher index (cm)\n") +
   theme (legend.title=element_blank()) +
@@ -148,6 +143,17 @@ bp_gallagher_noOut
 
 #PLOT_paper
 ggsave (bp_gallagher_noOut, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "rem_gallagher_all_gr_outlier.jpg", sep=""), 
+        width=14, height=7, dpi=900)
+
+# Legend with colours for all group of animals
+l <- ggplot() + geom_point(data=rem_data_all_var_noOutlier, aes (x=genotype, y=GALLINDEX.REM, colour = genotype), shape=15, size=5) +
+                scale_colour_manual (values=c("red", "darkgreen", "blue", "lightblue", "magenta", "orange", "yellow", "black"))
+l <- l + guides(color=guide_legend(title="gentreat")) 
+l <- l + theme(legend.key = element_blank())
+l
+
+#PLOT_paper
+ggsave (l, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "allAnimals_legend.jpg", sep=""), 
         width=14, height=7, dpi=900)
 
 # Only trisomic group
