@@ -227,7 +227,7 @@ boxPlots <- ggplot(df.anova.ts.a5 , aes (group, value, fill = group)) +
 #             guides(color=guide_legend('Model',override.aes=list(shape=c(1,1,6,6))))
   
   scale_fill_manual(name = "Group", values=c("darkgreen", "lightblue", "orange", "black")) +
-  labs(title = "Day 5 PC1\n") + xlab ("\ngentreat") + ylab("PC1\n") +
+  labs(title = "Session 5 PC1\n") + xlab ("\ngentreat") + ylab("PC1\n") +
   theme (legend.title=element_blank())+ 
   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-5.5, 9.5)) +
   geom_segment(aes(x = 3.63, y = median(df.anova.ts.a5[df.anova.ts.a5$group == "TSEEEGCG","value"]), 
@@ -269,7 +269,7 @@ boxPlots <- ggplot(df.anova.ts.a1 , aes (group, value, fill = group)) +
   
   scale_fill_manual(name = "Group", values=c("darkgreen", "lightblue", "orange", "black")) +
 #   scale_colour_manual (name="Group",values = c(rep("gray",4))) +
-  labs(title = "Day 1 PC1\n") + xlab ("\ngentreat") + ylab("PC1\n") +
+  labs(title = "Session 1 PC1\n") + xlab ("\ngentreat") + ylab("PC1\n") +
   theme (legend.title=element_blank())+ 
   # Same axis limits in day 1 and day 5
 #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
