@@ -36,6 +36,10 @@ ma3 <- head(ma3,-5)
 ma3_filt_rem_data <- ma3[ , grepl( "REM" , names( ma3 ) ) ]
 ma3_filt_rem_data$ID <- ma3 [ , grepl( "ID" , names( ma3 ) ) ]
 
+genotype_ind <- selected_var_rem$GENTREAT
+genotype_ind<- gsub("H20", "", genotype_ind)
+genotype_ind <- gsub("NE", "", genotype_ind)
+
 # tail (rem_data)
 # tail (ma3_filt_rem_data)
 
@@ -48,8 +52,16 @@ rem_data_all_var <- merge(rem_data, ma3_filt_rem_data, all=TRUE)
 # Guys starting with 1400277xx are missing in the second table, thus when merging they appear as NA, I delete them
 rem_data_all_var <- head (rem_data_all_var, -5)
 
+# It is better to unify labels with acquistion scripts here. 
+# Here we found TSNEH20 while in acq we found TS
+rem_data_all_var$GENTREAT
+genotype_ind<- gsub("H20", "", rem_data_all_var$GENTREAT)
+genotype_ind <- gsub("NE", "", genotype_ind)
+rem_data_all_var$GENTREAT <- genotype_ind
+
 # head (rem_data_all_var)
 # tail (rem_data_all_var)
+
 #########################
 # I select for the pca the same variables than in the acquisition data of Ionas
 #########################
@@ -60,8 +72,8 @@ head (selected_var_rem)
 M.ind = rem_data_all_var[,c(7,8,10,12,14,15,17,18)]
 
 genotype_ind <- selected_var_rem$GENTREAT
-genotype_ind<- gsub("H20", "", genotype_ind)
-genotype_ind <- gsub("NE", "", genotype_ind)
+# genotype_ind<- gsub("H20", "", genotype_ind)
+# genotype_ind <- gsub("NE", "", genotype_ind)
 
 
 ############################
@@ -89,3 +101,43 @@ pca_coord_rem_real$day <- "rem"
 # pca_coord_rem_real 
 
 f_t_stat_only (pca_coord_rem_real, gen_1 = "TS", gen_2 = "TSEEEGCG", acq_day="rem")
+
+### ADDING SAMPLING OF THE LABELS
+perm <- 5
+set.seed(333)
+
+# for (p in 1:perm) {
+
+  #In removal it is much easier, I don't have to control for different sessions to set always the same animal id 
+  #with the same group along the sessions 
+  head (selected_var_rem )
+  
+  p_selected_var_rem <- selected_var_rem
+  p_selected_var_rem$GENTREAT  <- sample (p_selected_var_rem$GENTREAT)
+  
+
+
+###################
+############################
+# Median calculation
+tbl_stat_median <-with (selected_var_rem, aggregate (cbind (NUMBER.ENTRIES, PERM.TIME, LATENCY.TARGET, GALLINDEX.REM, SPEED.REM, PERC.NE.REM, PERC.PERI.REM, WISHAW.REM), list (GENTREAT), FUN=function (x) median=median(x)))                                                            
+genotype_tt <- as.factor(tbl_stat_median$Group.1)
+genotype_tt_ionas <- as.factor(c("WT","TS","WTEE","TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"))
+tbl_stat_median <- tbl_stat_median [,-1]
+row.names (tbl_stat_median) <- genotype_tt_ionas
+M.med <- tbl_stat_median
+
+jm=rbind(M.med,M.ind)
+
+# res = PCA (jm, scale.unit=TRUE, ind.sup=c(41:455), graph=F) 
+res = PCA (jm, scale.unit=TRUE, ind.sup=c(9:91), graph=F) 
+
+pca_coord_rem_real <- as.data.frame(cbind(res$ind.sup$coord[,1],res$ind.sup$coord[,2]))
+# pca_coord_rem_real$day <- c(1:415)
+pca_coord_rem_real$day <- c(1:83)
+pca_coord_rem_real$genotype <- genotype_ind
+
+# I fake a session column in order not to change the function f_t_stat_only
+pca_coord_rem_real$day <- "rem"
+
+
