@@ -88,10 +88,6 @@ ma3 <- head(ma3,-5)
 ma3_filt_rem_data <- ma3[ , grepl( "REM" , names( ma3 ) ) ]
 ma3_filt_rem_data$ID <- ma3 [ , grepl( "ID" , names( ma3 ) ) ]
 
-genotype_ind <- selected_var_rem$GENTREAT
-genotype_ind<- gsub("H20", "", genotype_ind)
-genotype_ind <- gsub("NE", "", genotype_ind)
-
 # tail (rem_data)
 # tail (ma3_filt_rem_data)
 
@@ -117,8 +113,8 @@ rem_data_all_var$GENTREAT <- factor(rem_data_all_var$GENTREAT , levels=c("WT","T
 
 # New function taking into account the acquisition days in the comparison
 f_t_stat <- function (df_coord, gen_1 = "TS", gen_2 = "TSEEEGCG", acq_day=5){
-  group1 <- subset (new_coord, genotype == gen_1 & day==acq_day)
-  group2 <- subset (new_coord, genotype == gen_2 & day==acq_day)
+  group1 <- subset (df_coord, genotype == gen_1 & day==acq_day)
+  group2 <- subset (df_coord, genotype == gen_2 & day==acq_day)
   t_stat = t.test(group1$V1, group2$V1)$statistic  
   return <- c(t_stat, gen_1, gen_2, paste (gen_1, gen_2, sep="_"))
 }
@@ -149,7 +145,6 @@ p.res = PCA (p.jm, scale.unit=TRUE, ind.sup=c(9:91), graph=F)
 p.pca_coord_rem <- as.data.frame (cbind (p.res$ind.sup$coord[,1], p.res$ind.sup$coord[,2]))
 p.pca_coord_rem$day <- c(1:83)
 p.pca_coord_rem$genotype <- p.genotype_ind
-pca_coord_rem
 
 # I fake a session column in order not to change the function f_t_stat_only
 p.pca_coord_rem$day <- "rem"
