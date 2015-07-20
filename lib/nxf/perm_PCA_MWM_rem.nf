@@ -33,7 +33,7 @@ process perm {
     val perm from perm
     
     output:
-    set file ('tbl_t_stat.csv') into tbl_t_stat
+    set file ('tbl_t_stat_REM.csv') into tbl_t_stat
     
     script:
     println "Perm is $perm"
