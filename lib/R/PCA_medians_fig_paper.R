@@ -114,7 +114,7 @@ pca_medians_acq_aspect_ratio <- pca_medians_acq + coord_fixed() +
                                 scale_y_continuous (limits=c(-2.7, 2.7), breaks=-2:2)
 
 # ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "PCA_medians_legend.jpg", sep=""), width = 10, height = 6, dpi=900)
-ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "PCA_medians_NO_legend.jpg", sep=""), width = 9, height = 6, dpi=900)
+# ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "PCA_medians_NO_legend.jpg", sep=""), width = 9, height = 6, dpi=900)
 
 # Plot for presentation
 # setwd("/Users/jespinosa/Dropbox (Personal)/presentations_2015/20150630_GM_Cedric/figures")
@@ -233,14 +233,14 @@ p_circle_plot <- ggplot(circle_plot) +
                 #        geom_polygon(aes(x, y), data = df, inherit.aes = F, Fill=NA)
 #                         scale_x_continuous(breaks=1:10)  
                        geom_polygon (data = df.circle, aes(x, y), alpha=1, colour="black", fill=NA, size=1)
-base_size <- 12
-dailyInt_theme <- theme_update (axis.title.x = element_text (size=base_size * 2, face="bold"),
-                                axis.title.y = element_text (size=base_size * 2, angle = 90, face="bold"),
-                                plot.title = element_text (size=base_size * 2, face="bold"))
+# base_size <- 12
+# dailyInt_theme <- theme_update (axis.title.x = element_text (size=base_size * 2, face="bold"),
+#                                 axis.title.y = element_text (size=base_size * 2, angle = 90, face="bold"),
+#                                 plot.title = element_text (size=base_size * 2, face="bold"))
   
 p_circle_plot
 # ggsave (p_circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
-ggsave (p_circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
+# ggsave (p_circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 
 
@@ -258,15 +258,16 @@ df.bars_to_plot$index <- factor(df.bars_to_plot$index , levels=c("gallindex", "l
 
 
 bars_plot <- ggplot (data=df.bars_to_plot, aes(x=index, y=value)) + 
+                    ylim (c(0, 71)) +
                     geom_bar (stat="identity", fill="gray", width=0.8) + 
                     labs (title = "Variable contribution to PC1\n", x = "", y="Contribution in %\n") +
-                     theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1) )
+                    theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1) )
 bars_plot
 
 #PLOT_paper
 # ggsave (bars_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "bar_contribution.jpg", sep=""), dpi=900, height=5, width=10)
 
-ggsave (bars_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA", "bar_contribution.jpg", sep=""), dpi=900)
+# ggsave (bars_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "bar_contribution.jpg", sep=""), dpi=900)
 
 
 df.bars_PC2 <- cbind (as.numeric(sort(res$var$coord[,2]^2/sum(res$var$coord[,2]^2)*100,decreasing=TRUE)), names(res$var$coord[,2])[order(res$var$coord[,2]^2,decreasing=TRUE)])
@@ -290,9 +291,9 @@ bars_plot_PC2 <- ggplot (data=df.bars_to_plot_PC2, aes(x=index, y=value)) +
 bars_plot_PC2
 
 #PLOT_paper
-#ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "bar_contribution_PC2.jpg", sep=""), dpi=900, height=5, width=10)
-ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "bar_contribution_PC2.jpg", sep=""), dpi=900)
-
+# ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "bar_contribution_PC2.jpg", sep=""), dpi=900, height=5, width=10)
+# ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "bar_contribution_PC2.jpg", sep=""), dpi=900)
+ 
 names(-res.pca$ind$coord[,1])
 
 #############################
@@ -349,7 +350,7 @@ pca_plot_individuals <- ggplot (data=new_coord, aes (V1, V2)) +
 pca_plot_individuals
 
 #PLOT_paper
-ggsave (pca_plot_individuals, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig_1_PCA_sup/", "PCA_individuals.jpg", sep=""), height = 10, width = 10, dpi=900)
+# ggsave (pca_plot_individuals, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig_1_PCA_sup/", "PCA_individuals.jpg", sep=""), height = 10, width = 10, dpi=900)
 
 ####
 # Adding cloud to the individuals plot
@@ -493,7 +494,7 @@ p_cloud_ts_acq1 <- ggplot(PC1_TS_acq1, aes(PC1, PC2, color=genotype_tt)) +
   scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
   coord_cartesian(xlim=c(-7, 9),
                   ylim=c(-10, 10)) +
-  labs(title = "PCA coordinates density, trisomic group, day 1\n", x = "\nPC1", y="PC2\n")
+  labs(title = "PCA coordinates density, trisomic groups, session 1\n", x = "\nPC1", y="PC2\n")
 
 p_cloud_ts_acq1 <- p_cloud_ts_acq1 + facet_wrap(~genotype_tt, ncol = 2)  + geom_vline(xintercept = 0, colour="gray") + geom_hline(yintercept = 0, colour="gray")
 p_cloud_ts_acq1
@@ -518,7 +519,7 @@ p_cloud_ts_acq5 <- ggplot(PC1_TS_acq5, aes(PC1, PC2, color=genotype_tt)) +
   scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
   coord_cartesian(xlim=c(-6, 8.5),
                   ylim=c(-9, 6)) +
-  labs(title = "PCA coordinates density, trisomic group, day 5\n", x = "\nPC1", y="PC2\n")
+  labs(title = "PCA coordinates density, trisomic groups, session 5\n", x = "\nPC1", y="PC2\n")
 
 p_cloud_ts_acq1 + scale_alpha_continuous(range=c(0.3,0.5))
 # p_cloud_ts_acq5 + scale_alpha_continuous(range=c(0.3,0.5))
@@ -526,7 +527,7 @@ p_cloud_ts_acq5 <- p_cloud_ts_acq5 + facet_wrap(~genotype_tt, ncol = 2)  + geom_
 p_cloud_ts_acq5
 
 # Plot for paper
-setwd("/Users/jespinosa/20150515_PCA_old_frotiersPaper/figures/fig2_PCA")
+setwd("/Users/jespinosa/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/")
 
 #PLOT_paper
 ggsave (p_cloud_ts_acq1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "PCA_acq1_ts_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
