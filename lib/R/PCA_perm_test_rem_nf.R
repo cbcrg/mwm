@@ -122,6 +122,10 @@ f_t_stat <- function (df_coord, gen_1 = "TS", gen_2 = "TSEEEGCG", acq_day=5){
 set.seed (seed)
 
 p_rem_data_all_var <- rem_data_all_var
+
+# Randomizing group labels
+p_rem_data_all_var$GENTREAT <- sample (p_rem_data_all_var$GENTREAT)
+
 p_selected_var_rem <- p_rem_data_all_var [,c(1:8,10,12,14,15,17,18)] 
 # head (p_selected_var_rem)
 # head(selected_var_rem)
