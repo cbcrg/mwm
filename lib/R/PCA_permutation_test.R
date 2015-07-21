@@ -398,6 +398,8 @@ significance_perm_tbl <- function (tbl_perm, gr1="TS", gr2="TSEEEGCG", n_perm=10
   return (sign_thr)
 }
 
+# Calculation of what I though it whas the empirical adjusted p value
+# It is not correct
 significance_perm_tbl_emp_adjusted <- function (tbl_perm, gr1="TS", gr2="TSEEEGCG", n_perm=10001, a_day=5)  {
   real_t_stat <- f_t_stat_only (new_coord_real_lab, gen_1 = gr1, gen_2 = gr2, acq_day=a_day)
   t_perm_gr1_gr2 <- subset (tbl_perm, V4 == paste(gr1, gr2, sep="_"))$V1
@@ -421,6 +423,8 @@ significance_perm_tbl_emp_adjusted <- function (tbl_perm, gr1="TS", gr2="TSEEEGC
 
 # significance_perm_tbl_emp_adjusted (tbl_1111, a_day = 5)
 
+# Calling the significance calculation function for each 
+# pairwise comparison and generating a table
 sign_threshold <- function (tbl_perm, day=5){
   df.t_stats <- c()
   
