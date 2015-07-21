@@ -70,17 +70,29 @@ rem_gallIndex.aov <- aov (GALLINDEX.REM ~ genotype  + Error(ID), data = rem_data
 summary(rem_gallIndex.aov)
 
 pairwise.t.test (rem_data_all_var$GALLINDEX.REM, rem_data_all_var$genotype, , p.adj="hochberg", paired=F)
+pairwise.t.test (rem_data_all_var$GALLINDEX.REM, rem_data_all_var$genotype, , p.adj="BH", paired=F)
+
+rem_data_all_var$genotype
 
 # Anova gall index without outlier
 rem_data_all_varNoOutlier <- rem_data_all_var [-which (rem_data_all_var$ID == "130054742"),]
 pairwise.t.test (rem_data_all_varNoOutlier$GALLINDEX.REM, rem_data_all_varNoOutlier$genotype, , p.adj="hochberg", paired=F)
+pairwise.t.test (rem_data_all_varNoOutlier$GALLINDEX.REM, rem_data_all_varNoOutlier$genotype, , p.adj="BH", paired=F)
 
+######
+# Like juanra
 # Test like juanra without removing the outlier
 lm_rem <- lm (GALLINDEX.REM ~ genotype, data = rem_data_all_var)
 l2_rem <- glht(lm_rem, linfct = mcp (genotype = "Tukey"))
 summary(l2_rem, test = adjusted(type = "BH"))
-        
-# Like juanra
+
+# For the sake of unifying the factor name with juanra I add gentreat and perform the test
+rem_data_all_var$gentreat <- rem_data_all_var$genotype 
+lm_rem <- lm (GALLINDEX.REM ~ gentreat, data = rem_data_all_var)
+l2_rem <- glht(lm_rem, linfct = mcp (gentreat = "Tukey"))
+summary(l2_rem, test = adjusted (type = "BH"))
+
+#without the outlier
 library(multcomp)
 lm_rem_NOoutlier <- lm (GALLINDEX.REM ~ genotype, data = rem_data_all_varNoOutlier)
 l2 <- glht(lm_rem_NOoutlier, linfct = mcp (genotype = "Tukey"))
