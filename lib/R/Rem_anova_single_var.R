@@ -68,7 +68,18 @@ TukeyHSD(rem_latency.aov)
 # Anova gall index
 rem_gallIndex.aov <- aov (GALLINDEX.REM ~ genotype  + Error(ID), data = rem_data_all_var)
 summary(rem_gallIndex.aov)
+
 pairwise.t.test (rem_data_all_var$GALLINDEX.REM, rem_data_all_var$genotype, , p.adj="hochberg", paired=F)
+
+# Anova gall index without outlier
+rem_data_all_varNoOutlier <- rem_data_all_var [-which (rem_data_all_var$ID == "130054742"),]
+pairwise.t.test (rem_data_all_varNoOutlier$GALLINDEX.REM, rem_data_all_varNoOutlier$genotype, , p.adj="hochberg", paired=F)
+
+# Like juanra
+library(multcomp)
+lm_rem_NOoutlier <- lm (GALLINDEX.REM ~ genotype, data = rem_data_all_varNoOutlier, )
+l2 <- glht(lm_rem_NOoutlier, linfct = mcp (genotype = "Tukey"))
+summary(l2, test = adjusted(type = "BH")
 
 # boxplot number entries
 bp_nEntries <- ggplot(rem_data_all_var , aes (genotype, NUMBER.ENTRIES, fill = genotype)) + 
