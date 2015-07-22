@@ -236,7 +236,7 @@ boxPlots <- ggplot(df.anova.ts.a5 , aes (group, value, fill = group)) +
 boxPlots 
 
 #PLOT_paper
-# ggsave (boxPlots, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "boxPlot_ts_a5.jpg", sep=""), dpi=900)
+ggsave (boxPlots, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "boxPlot_ts_a5.jpg", sep=""), dpi=900)
 
 ###########################################
 # Comparison of only day 5 and TS
@@ -276,10 +276,10 @@ boxPlots <- ggplot(df.anova.ts.a1 , aes (group, value, fill = group)) +
   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-5.5, 9.5)) +
   geom_segment(aes(x = 3.63, y = median(df.anova.ts.a1[df.anova.ts.a1$group == "TSEEEGCG","value"]), xend = 4.37, yend = median(df.anova.ts.a1[df.anova.ts.a1$group == "TSEEEGCG","value"])), colour="white")
                                  
-boxPlots 
+boxPlots
 
 #PLOT_paper
-# ggsave (boxPlots, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "boxPlot_ts_a1.jpg", sep=""), dpi=900)
+ggsave (boxPlots, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "boxPlot_ts_a1.jpg", sep=""), dpi=900)
 
 # Plotting a legend with squares
 l <- ggplot() + geom_point(data=df.anova.ts.a1 , aes (x=group, y=value, colour = group), shape=15, size=5) +
