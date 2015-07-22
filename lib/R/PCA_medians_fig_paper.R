@@ -113,8 +113,10 @@ pca_medians_acq_aspect_ratio <- pca_medians_acq + coord_fixed() +
                                 scale_x_continuous (limits=c(-4.5, 4.5), breaks=-4:4) + 
                                 scale_y_continuous (limits=c(-2.7, 2.7), breaks=-2:2)
 
-# ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "PCA_medians_legend.jpg", sep=""), width = 10, height = 6, dpi=900)
-# ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "PCA_medians_NO_legend.jpg", sep=""), width = 9, height = 6, dpi=900)
+# ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", 
+#           "PCA_medians_legend.jpg", sep=""), width = 10, height = 6, dpi=900)
+# ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", 
+#           "PCA_medians_NO_legend.jpg", sep=""), width = 9, height = 6, dpi=900)
 
 # Plot for presentation
 # setwd("/Users/jespinosa/Dropbox (Personal)/presentations_2015/20150630_GM_Cedric/figures")
@@ -350,7 +352,8 @@ pca_plot_individuals <- ggplot (data=new_coord, aes (V1, V2)) +
 pca_plot_individuals
 
 #PLOT_paper
-# ggsave (pca_plot_individuals, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig_1_PCA_sup/", "PCA_individuals.jpg", sep=""), height = 10, width = 10, dpi=900)
+# ggsave (pca_plot_individuals, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig_1_PCA_sup/", "PCA_individuals.jpg", sep=""),
+#         height = 10, width = 10, dpi=900)
 
 ####
 # Adding cloud to the individuals plot
@@ -395,7 +398,8 @@ p_cloud_indiv_by_day_facet <- p_cloud_indiv_by_day + facet_wrap(~genotype, ncol 
 p_cloud_indiv_by_day_facet
 
 #PLOT_presentation
-# ggsave (p_cloud_indiv_by_day_facet, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_cloud_indiv_byDay.jpg", sep=""), width = 10, height = 10, dpi=900)
+# ggsave (p_cloud_indiv_by_day_facet, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "PCA_cloud_indiv_byDay.jpg", sep=""), 
+#         width = 10, height = 10, dpi=900)
 
 
 ##############
@@ -530,8 +534,8 @@ p_cloud_ts_acq5
 setwd("/Users/jespinosa/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/")
 
 #PLOT_paper
-ggsave (p_cloud_ts_acq1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "PCA_acq1_ts_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
-ggsave (p_cloud_ts_acq5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "PCA_acq5_ts_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
+# ggsave (p_cloud_ts_acq1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "PCA_acq1_ts_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
+# ggsave (p_cloud_ts_acq5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "PCA_acq5_ts_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 ## Only comparison between TS and TSEEEGCG day 1 vs day 5
 # Day 1
