@@ -132,7 +132,7 @@ bp_rem_latency_TS + geom_point (position = position_jitter(width = 0.2), colour=
 bp_gallagher <- ggplot(rem_data_all_var , aes (genotype, GALLINDEX.REM, fill = genotype)) + 
   geom_boxplot (outlier.size=NA, show_guide=FALSE) +
   scale_fill_manual(name = "genotype", values = c("red", "darkgreen", "blue", "lightblue", "magenta", "orange", "yellow", "black")) +
-  labs(title = "Removal gallagher index\n") + xlab ("\ngentreat") + ylab("Gallagher index (cm)\n") +
+  labs(title = "Removal gallagher index\n") + xlab ("\nGroups") + ylab("Gallagher index (cm)\n") +
   theme (legend.title=element_blank()) +
   geom_segment(aes(x = 7.63, y = median(rem_data_all_var [rem_data_all_var$genotype == "TSEEEGCG","GALLINDEX.REM"]), 
                xend = 8.37, yend = median(rem_data_all_var [rem_data_all_var$genotype == "TSEEEGCG","GALLINDEX.REM"])), 
@@ -140,9 +140,10 @@ bp_gallagher <- ggplot(rem_data_all_var , aes (genotype, GALLINDEX.REM, fill = g
 
 bp_gallagher_points <- bp_gallagher + geom_point (position = position_jitter(width = 0.2), colour="red", show_guide=FALSE)
 
+bp_gallagher_points
 #PLOT_paper
-ggsave (bp_gallagher_points, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "rem_gallagher_all_gr.jpg", sep=""), 
-        width=14, height=7, dpi=900)
+# ggsave (bp_gallagher_points, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig3_rem_singleVar/", "rem_gallagher_all_gr.jpg", sep=""), 
+         width=14, height=7, dpi=900)
 
 ### Gallagher index without mouse = "130054742" that is considered an outlier according to JR analysis
 # Adding mice ID
@@ -170,8 +171,8 @@ bp_gallagher_noOut <- bp_gallagher_noOut + geom_point(data=outlier , aes (label=
 bp_gallagher_noOut
 
 #PLOT_paper
-ggsave (bp_gallagher_noOut, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "rem_gallagher_all_gr_outlier.jpg", sep=""), 
-        width=14, height=7, dpi=900)
+# ggsave (bp_gallagher_noOut, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "rem_gallagher_all_gr_outlier.jpg", sep=""), 
+#         width=14, height=7, dpi=900)
 
 # Legend with colours for all group of animals
 l <- ggplot() + geom_point(data=rem_data_all_var_noOutlier, aes (x=genotype, y=GALLINDEX.REM, colour = genotype), shape=15, size=5) +
@@ -181,8 +182,8 @@ l <- l + theme(legend.key = element_blank())
 l
 
 #PLOT_paper
-ggsave (l, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "allAnimals_legend.jpg", sep=""), 
-        width=14, height=7, dpi=900)
+# ggsave (l, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "allAnimals_legend.jpg", sep=""), 
+#         width=14, height=7, dpi=900)
 
 # Only trisomic group
 bp_rem_gallagher_TS <- ggplot(rem_data_all_var_TS , aes (genotype, GALLINDEX.REM, fill = genotype)) + 
