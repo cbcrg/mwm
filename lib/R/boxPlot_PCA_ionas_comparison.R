@@ -206,7 +206,7 @@ ts_a5.aov <- aov(value ~ group  + Error(id), data = df.anova.ts.a5)
 summary(ts_a5.aov)
 
 pairwise.t.test (df.anova.ts.a5$value, df.anova.ts.a5$group, p.adj="bonferroni")
-pairwise.t.test (df.anova.ts.a5$value, df.anova.ts.a5$group,p.adj="hochberg")
+pairwise.t.test (df.anova.ts.a5$value, df.anova.ts.a5$group, p.adj="hochberg")
 
 
 uniqueInitials <- c("red", "lightblue","lightgreen", "darkgreen")
@@ -289,10 +289,77 @@ l <- l + theme(legend.key = element_blank())
 l
 # ggsave (l, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "boxPlot_Legend_TS.jpg", sep=""), dpi=900)
 
+################
+# Boxplots of wt
+################
+
+df.anova.wt <- subset(df.anova, grepl("WT", df.anova$group))
+df.anova.wt.a5 <- subset(df.anova.wt, grepl("A5", df.anova.ts$variable))
+df.anova.wt.a1 <- subset(df.anova.wt, grepl("A1", df.anova.ts$variable))
+
+boxPlots_wt_a1 <- ggplot(df.anova.wt.a1 , aes (group, value, fill = group)) + 
+  #                      geom_boxplot() +
+  geom_boxplot(show_guide=FALSE) +
+  #             guides(color=guide_legend('Model',override.aes=list(shape=c(1,1,6,6))))
+  
+  scale_fill_manual(name = "Group", values = c("red", "blue", "magenta",  "yellow")) + 
+#                     values=c("darkgreen", "lightblue", "orange", "black")) +
+  #   scale_colour_manual (name="Group",values = c(rep("gray",4))) +
+  labs(title = "Session 1 PC1\n") + xlab ("\ngentreat") + ylab("PC1\n") +
+  theme (legend.title=element_blank())+ 
+  # Same axis limits in day 1 and day 5
+  #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
+  scale_y_continuous(breaks=c(-6,-4,-2,0,2,4,6,8), limits=c(-6.5, 9.5))
+#   geom_segment(aes(x = 3.63, y = median(df.anova.wt.a1[df.anova.wt.a1$group == "TSEEEGCG","value"]), xend = 4.37, yend = median(df.anova.wt.a1[df.anova.wt.a1$group == "WTEEEGCG","value"])), colour="white")
+
+boxPlots_wt_a1
+
+boxPlots_wt_a5 <- ggplot(df.anova.wt.a5 , aes (group, value, fill = group)) + 
+  #                      geom_boxplot() +
+  geom_boxplot(show_guide=FALSE) +
+  #             guides(color=guide_legend('Model',override.aes=list(shape=c(1,1,6,6))))
+  
+  scale_fill_manual(name = "Group", values = c("red", "blue", "magenta",  "yellow")) + 
+  #                     values=c("darkgreen", "lightblue", "orange", "black")) +
+  #   scale_colour_manual (name="Group",values = c(rep("gray",4))) +
+  labs(title = "Session 5 PC1\n") + xlab ("\ngentreat") + ylab("PC1\n") +
+  theme (legend.title=element_blank())+ 
+  # Same axis limits in day 1 and day 5
+  #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
+  scale_y_continuous(breaks=c(-6,-4,-2,0,2,4,6,8), limits=c(-6.5, 9.5))
+#   geom_segment(aes(x = 3.63, y = median(df.anova.wt.a1[df.anova.wt.a1$group == "TSEEEGCG","value"]), xend = 4.37, yend = median(df.anova.wt.a1[df.anova.wt.a1$group == "WTEEEGCG","value"])), colour="white")
+
+boxPlots_wt_a5
+
+#PLOT_paper
+
+ggsave (boxPlots_wt_a1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "boxPlot_wt_a1.jpg", sep=""), dpi=900)
+ggsave (boxPlots_wt_a5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "boxPlot_wt_a5.jpg", sep=""), dpi=900)
+
+# Plotting a legend with squares
+l <- ggplot() + geom_point(data=df.anova.wt.a1 , aes (x=group, y=value, colour = group), shape=15, size=5) +
+  scale_colour_manual (values=c("red", "blue", "magenta",  "yellow"))
+l <- l + guides(color=guide_legend(title=NULL)) 
+l <- l + theme(legend.key = element_blank())
+l
+# ggsave (l, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "boxPlot_Legend_WT.jpg", sep=""), dpi=900)
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+##################################
 
 
 
