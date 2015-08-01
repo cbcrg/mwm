@@ -313,7 +313,7 @@ p_circle_plot <- ggplot(circle_plot) +
   #                         scale_x_continuous(breaks=1:10)  
   geom_polygon (data = df.circle, aes(x, y), alpha=1, colour="black", fill=NA, size=1)
 p_circle_plot
-#ggsave (p_circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "circle_plot_rem.jpg", sep=""), width = 10, height = 10, dpi=900)
+# ggsave (p_circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "circle_plot_rem.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 # ANOVA
 # TS all treatments
@@ -339,7 +339,7 @@ boxPlots_rem <- ggplot(new_coord_rem_TS , aes (genotype, V1, fill = genotype)) +
 boxPlots_rem 
 
 #PLOT_paper
-ggsave (boxPlots_rem, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig_2_PCA_sup/", "boxPlot_rem.jpg", sep=""), dpi=900)
+# ggsave (boxPlots_rem, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig_2_PCA_sup/", "boxPlot_rem.jpg", sep=""), dpi=900)
 # TS vs TSEEEGCG 
 new_coord_rem_TS_TSEEEGCG <- subset(new_coord_rem_TS, genotype == "TS" | genotype == "TSEEEGCG")
 new_coord_rem_TS_TSEEEGCG$id <- c(1:length(new_coord_rem_TS_TSEEEGCG$V1))
