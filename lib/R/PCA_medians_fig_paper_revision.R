@@ -309,11 +309,11 @@ df.bars_to_plot_PC2$index <- as.factor (df.bars_to_plot_PC2$V2)
 df.bars_to_plot_PC2$value <- as.numeric(sort(res$var$coord[,2]^2/sum(res$var$coord[,2]^2)*100,decreasing=TRUE))
 
 df.bars_to_plot_PC2$index
-df.bars_to_plot_PC2$index <- factor(df.bars_to_plot$index , levels=c("speed", "latency", "whishaw", "percentperi", "distance", "gallindex", "percentne"), 
+df.bars_to_plot_PC2$index <- factor(df.bars_to_plot_PC2$index , levels=c("speed", "latency", "whishaw", "percentperi", "distance", "gallindex", "percentne"), 
                                     labels=c("speed", "latency", "whishaw", "percentperi", "distance", "gallindex", "percentne"))
 
 
-df.bars_to_plot_PC2$value <- rev(df.bars_to_plot_PC2$value)
+# df.bars_to_plot_PC2$value <- rev(df.bars_to_plot_PC2$value)
 bars_plot_PC2 <- ggplot (data=df.bars_to_plot_PC2, aes(x=index, y=value)) + 
   geom_bar (stat="identity", fill="gray", width=0.8) + 
   labs (title = "Variable contribution to PC2\n", x = "", y="Contribution in %\n") +
@@ -322,7 +322,7 @@ bars_plot_PC2
 
 #PLOT_paper
 # ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "bar_contribution_PC2.jpg", sep=""), dpi=900, height=5, width=10)
-# ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "bar_contribution_PC2.jpg", sep=""), dpi=900)
+ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "bar_contribution_PC2.jpg", sep=""), dpi=900)
 
 names(-res.pca$ind$coord[,1])
 
