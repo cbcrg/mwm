@@ -22,11 +22,295 @@ library(calibrate)
 
 load (paste (home, "/20150515_PCA_old_frotiersPaper/data/", "ma2.RData", sep=""))
 
+####
+# My own way
+# Data is in ma2
+head (ma2)
+ma2_TSDoubleTT <-ma2[ma2$gentreat =="TSEEEGCG" ,]
+
+ma2_TSDoubleTT$factorID <- as.factor(ma2_TSDoubleTT$ID) 
+pca_latencies_doubleTT <- ggplot(ma2_TSDoubleTT, aes(x=day, y=latency, colour=factorID, group=factorID)) + 
+  #                           geom_path (size = 1,show_guide = T) + 
+  geom_path (size = 1,show_guide = T)  
+
+pca_latencies_doubleTT  
+
+
+6660
+6663
+
+ma2 <-ma2[ma2$ID !="150006658" & ma2$ID != "150006663",]
+
+59
+60
+61
+
+ma2 <-ma2[ma2$ID !="150006659" & ma2$ID != "150006660" & ma2$ID != "150006661",]
+ma2 <-ma2[ma2$ID !="150006659" & ma2$ID != "150006660" & ma2$ID,]
+
+n_animals <- length(ma2[,1])
+rownames(ma2) <- c(1:n_animals)
+variables_list <- colnames(ma2) [4:10] 
+
+tbl_median <- with (ma2, aggregate (cbind (distance, gallindex, latency, speed, percentne, whishaw, percentperi), 
+                                    list (gentreat=gentreat, day=day), FUN=median))
+
+rownames (tbl_median) <- paste (tbl_median[,1], gsub ("Day ", "", tbl_median[,2]), sep="")
+
+tbl_ind <- ma2
+tbl_med_ind <- rbind (tbl_median, tbl_ind[,-1])
+n_median <- length(tbl_median[,1])
+
+res = PCA(tbl_med_ind[,(3:9)], scale.unit=TRUE, ind.sup=c(41:length(tbl_med_ind[,1]))) 
+
+# res$var$coord[,1],res$var$coord[,2]
+summary_resPCA<- summary(res)
+
+# Variance of PC1 and PC2
+var_PC1 <- round (res$eig [1,2])
+var_PC2 <- round (res$eig [2,2])
+  
+# Coordinates are store here
+# res$ind$coord --- rownames(res$ind$coord)
+pca2plot <- as.data.frame (res$ind$coord[1:n_median,])
+pca2plot$gen_day <- row.names(pca2plot)
+pca2plot$days <-  as.factor(as.numeric (gsub(".*([0-9]+)$", "\\1", pca2plot$gen_day)))
+pca2plot$gentreat <-  as.factor(gsub("([A-Z]+).*$", "\\1", pca2plot$gen_day))
+
+pca2plot$gentreat <- factor(pca2plot$gentreat , levels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"), 
+                            labels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"))
+
+pca_medians_acq <- ggplot(pca2plot, aes(x=-Dim.1, y=-Dim.2, colour=gentreat )) + 
+  #                           geom_path (size = 1,show_guide = T) + 
+  geom_path (size = 1,show_guide = F) + 
+  scale_color_manual(values=c("red", "darkgreen", "blue", "lightblue", 
+                              "magenta", "orange", "gray", "black")) +
+  #                           geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show_guide = T)+
+  geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show_guide = F)+
+  theme(legend.key=element_rect(fill=NA)) +
+  labs(title = "PCA of group medians\n", x = paste("\nPC1 (", var_PC1, "% of variance)", sep=""), 
+       y=paste("PC2 (", var_PC2, "% of variance)\n", sep = "")) +
+  #                           guides(colour = guide_legend(override.aes = list(size = 10)))+
+  guides(colour = guide_legend(override.aes = list(size = 1)))+
+  theme(legend.key=element_rect(fill=NA))
+
+#PLOT_paper
+pca_medians_acq
+
+# keeping aspect ratio
+pca_medians_acq_aspect_ratio <- pca_medians_acq + coord_fixed() + 
+  scale_x_continuous (limits=c(-4, 4), breaks=-4:4) + 
+  scale_y_continuous (limits=c(-3, 3), breaks=-3:3)
+
+pca_medians_acq_aspect_ratio
+# ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", 
+#           "PCA_medians_legend.jpg", sep=""), width = 10, height = 6, dpi=900)
+ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", 
+           "PCA_medians_NO_legend.jpg", sep=""), width = 9, height = 6, dpi=900)
+
+### Circle Plot
+circle_plot <- as.data.frame (res$var$coord)
+labels_v <- row.names(res$var$coord)
+
+neg_labels <- labels_v [c(1,2,3,7)]
+neg_positions <- circle_plot [c(1,2,3,7), c(1,2)]
+
+# change positions for labels
+neg_positions [2,2] <- neg_positions [2,2] - 0.03 
+neg_positions [3,2] <- neg_positions [3,2] + 0
+neg_positions [4,2] <- neg_positions [4,2] + 0.02
+
+pos_labels <- labels_v [c(4,5,6)]
+pos_positions <- circle_plot [c(4,5,6), c(1,2)]
+
+angle <- seq(-pi, pi, length = 50)
+df.circle <- data.frame(x = sin(angle), y = cos(angle))
+
+#aes(x=PC1, y=PC2, colour=gentreat )) 
+p_circle_plot <- ggplot(circle_plot) + 
+  geom_segment (data=circle_plot, aes(x=0, y=0, xend=-Dim.1, yend=-Dim.2), arrow=arrow(length=unit(0.2,"cm")), alpha=1, size=1, color="red") +
+  xlim (c(-1.2, 1.2)) + ylim (c(-1.2, 1.2)) +
+  geom_text (data=neg_positions, aes (x=-Dim.1, y=-Dim.2, label=neg_labels, hjust=1.2), show_guide = FALSE, size=5) + 
+  geom_text (data=pos_positions, aes (x=-Dim.1, y=-Dim.2, label=pos_labels, hjust=-0.3), show_guide = FALSE, size=5) +
+  geom_vline (xintercept = 0, linetype="dotted") +
+  geom_hline (yintercept=0, linetype="dotted") +
+  labs (title = "PCA of the variables\n", x = paste("\nPC1 (", var_PC1, "% of variance)", sep=""), 
+        y=paste("PC2 (", var_PC2, "% of variance)\n", sep = "")) +
+  #        geom_polygon(aes(x, y), data = df, inherit.aes = F, Fill=NA)
+  #                         scale_x_continuous(breaks=1:10)  
+  geom_polygon (data = df.circle, aes(x, y), alpha=1, colour="black", fill=NA, size=1)
+# base_size <- 12
+# dailyInt_theme <- theme_update (axis.title.x = element_text (size=base_size * 2, face="bold"),
+#                                 axis.title.y = element_text (size=base_size * 2, angle = 90, face="bold"),
+#                                 plot.title = element_text (size=base_size * 2, face="bold"))
+
+p_circle_plot
+
+# ggsave (p_circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
+ggsave (p_circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
+
+############
+## BARPLOT
+df.bars <- cbind (as.numeric(sort(res$var$coord[,1]^2/sum(res$var$coord[,1]^2)*100,decreasing=TRUE)), names(res$var$coord[,1])[order(res$var$coord[,1]^2,decreasing=TRUE)])
+df.bars_to_plot <- as.data.frame(df.bars)
+df.bars_to_plot$index <- as.factor (df.bars_to_plot$V2)
+class (df.bars_to_plot$V1)
+df.bars_to_plot$value <- as.numeric(sort(res$var$coord[,1]^2/sum(res$var$coord[,1]^2)*100,decreasing=TRUE))
+df.bars_to_plot$index <- factor(df.bars_to_plot$index, levels = df.bars_to_plot$index[order(df.bars_to_plot$value, decreasing=TRUE)])
+
+bars_plot <- ggplot (data=df.bars_to_plot, aes(x=index, y=value)) + 
+  ylim (c(0, 71)) +
+  geom_bar (stat="identity", fill="gray", width=0.8) + 
+  labs (title = "Variable contribution to PC1\n", x = "", y="Contribution in %\n") +
+  theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1) )
+bars_plot
+
+#PLOT_paper
+# ggsave (bars_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "bar_contribution.jpg", sep=""), dpi=900, height=5, width=10)
+
+# ggsave (bars_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "bar_contribution.jpg", sep=""), dpi=900)
+
+
+df.bars_PC2 <- cbind (as.numeric(sort(res$var$coord[,2]^2/sum(res$var$coord[,2]^2)*100,decreasing=TRUE)), names(res$var$coord[,2])[order(res$var$coord[,2]^2,decreasing=TRUE)])
+df.bars_to_plot_PC2 <- as.data.frame(df.bars_PC2)
+df.bars_to_plot_PC2$index <- as.factor (df.bars_to_plot_PC2$V2)
+# class (df.bars_to_plot_PC2$V1)
+# df.bars_to_plot_PC2$value <- as.numeric(sort(res$var$coord[,2]^2/sum(res$var$coord[,2]^2)*100,decreasing=TRUE))
+df.bars_to_plot_PC2$value <- as.numeric(sort(res$var$coord[,2]^2/sum(res$var$coord[,2]^2)*100,decreasing=TRUE))
+
+df.bars_to_plot_PC2$index
+df.bars_to_plot_PC2$index <- factor(df.bars_to_plot_PC2$index, levels = df.bars_to_plot_PC2$index[order(df.bars_to_plot_PC2$value, decreasing=TRUE)])
+
+# df.bars_to_plot_PC2$value <- rev(df.bars_to_plot_PC2$value)
+bars_plot_PC2 <- ggplot (data=df.bars_to_plot_PC2, aes(x=index, y=value)) + 
+  geom_bar (stat="identity", fill="gray", width=0.8) + 
+  labs (title = "Variable contribution to PC2\n", x = "", y="Contribution in %\n") +
+  theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1) )
+bars_plot_PC2
+
+#PLOT_paper
+# ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "bar_contribution_PC2.jpg", sep=""), dpi=900, height=5, width=10)
+# Final version
+# ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "bar_contribution_PC2.jpg", sep=""), dpi=900)
+
+###################################
+# Plot of supplementary individuals
+day <- c()
+genotype <- c()
+new_coord <- as.data.frame(cbind(-res$ind.sup$coord[,1],-res$ind.sup$coord[,2]))
+
+# the info of the genotype and the tt was in this table
+#tbl_ind
+new_coord$day <- gsub ("Day ", "", tbl_ind$day)
+new_coord$genotype <- tbl_ind$gentreat
+
+new_coord$genotype <- factor(new_coord$genotype , levels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"), 
+                             labels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"))
+
+pca_plot_individuals <- ggplot (data=new_coord, aes (V1, V2)) + 
+  geom_text (aes(label=day, colour = genotype), size=5, show_guide = FALSE) +
+  scale_color_manual(values=c("red", "darkgreen", "blue", "lightblue", 
+                              "magenta", "orange", "gray", "black")) +
+  xlim (c(-6, 6.5)) + ylim (c(-8, 6.5)) +
+  geom_path (data=pca2plot, aes(x=-Dim.1, y=-Dim.2, colour=gentreat),size = 1,show_guide = FALSE) +
+  labs(title = "Individual as supplementary points\n", x = paste("\nPC1 (", var_PC1, "% of variance)", sep=""), 
+       y=paste("PC2 (", var_PC2, "% of variance)\n", sep = ""))  +
+  coord_fixed()
+
+pca_plot_individuals
+
+#PLOT_paper
+# ggsave (pca_plot_individuals, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig_1_PCA_sup/", "PCA_individuals.jpg", sep=""),
+#         height = 10, width = 10, dpi=900)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+res$ind$dist
+summary (res)
+# PLOT
+pca2plot <- as.data.frame(ResMMALL$x)
+row.names(pca2plot)
+pca2plot$gen_day <- row.names(pca2plot)
+
+pca2plot$days <-  as.factor(as.numeric (gsub(".*([0-9]+)$", "\\1", pca2plot$gen_day)))
+pca2plot$gentreat <-  as.factor(gsub("([A-Z]+).*$", "\\1", pca2plot$gen_day))
+pca2plot$PC1
+
+pca2plot$gentreat <- factor(pca2plot$gentreat , levels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"), 
+                            labels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"))
+
+pca_medians_acq <- ggplot(pca2plot, aes(x=PC1, y=PC2, colour=gentreat )) + 
+  #                           geom_path (size = 1,show_guide = T) + 
+  geom_path (size = 1,show_guide = F) + 
+  scale_color_manual(values=c("red", "darkgreen", "blue", "lightblue", 
+                              "magenta", "orange", "gray", "black")) +
+  #                           geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show_guide = T)+
+  geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show_guide = F)+
+  theme(legend.key=element_rect(fill=NA)) +
+  labs(title = "PCA of group medians\n", x = "\nPC1 (80% of variance)", y="PC2 (12% of variance)\n") +
+  #                           guides(colour = guide_legend(override.aes = list(size = 10)))+
+  guides(colour = guide_legend(override.aes = list(size = 1)))+
+  theme(legend.key=element_rect(fill=NA))
+
+#PLOT_paper
+pca_medians_acq
+
+
+
+
+
+
+
+
+
+
+
+ResMMALL <- prcomp(tbl_median[,c(3:9)],scale=TRUE)
+summary(ResMMALL)
+res_MMALL_PCAfunction = PCA(tbl_median[,c(3:9)], scale.unit=TRUE) 
+summary (res_MMALL_PCAfunction)
+
+pca_2<- PCA(M.med,scale.unit = TRUE)
+pca_3<- prcomp (M.med, scale=TRUE)
+summary(pca_2)
+summary(pca_3)
+
+
+tbl_median[,c(3:9)]
+# tbl_stat_mean <-with (tbl_stat, aggregate (cbind (V9), list (group=group, index=index), FUN=function (x) c (mean=mean(x), std.error=std.error(x))))
+# # tbl_stat_mean
+# 
+# tbl_stat_mean$mean <- tbl_stat_mean$V9 [,1]
+# tbl_stat_mean$std.error <- tbl_stat_mean$V9 [,2]
+
+
+
 ######################################
 old_ma2=spss.get("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/Ts65Dn OLD ACQ1_ACQ5_SUBCONJ.sav")
 old_ma2
-head(old_ma2)
-# head(old_ma2)
+tail(old_ma2)
+
+tail(ma2)
 # M=as.matrix(ma2[ma2$day=="Day 5",c(4,5,7,8,9,10,11,12)])
 # M=as.matrix(ma2[ma2$day=="Day 5",c(6,7,8,9,10)])
 # head(ma2)
@@ -36,7 +320,7 @@ head(old_ma2)
 ######################################
 # head (old_ma2)
 # length(ma2[,1])
-rownames(ma2) <- c(1:455)
+# rownames(ma2) <- c(1:455)
 # class(ma2)
 # ma2$ID
 head(ma2)
@@ -102,7 +386,15 @@ head(M)
 colnames(MMALL)=c("dist","gallindex","latency","speed","percentne","wishaw","percentperi")
 rownames(MMALL)=c("WT1","WTEE1","WTEGCG1","WTEEEGCG1","TS1","TSEE1","TSEGCG1","TSEEEGCG1","WT2","WTEE2","WTEGCG2","WTEEEGCG2","TS2","TSEE2","TSEGCG2","TSEEEGCG2","WT3","WTEE3","WTEGCG3","WTEEEGCG3","TS3","TSEE3","TSEGCG3","TSEEEGCG3","WT4","WTEE4","WTEGCG4","WTEEEGCG4","TS4","TSEE4","TSEGCG4","TSEEEGCG4","WT5","WTEE5","WTEGCG5","WTEEEGCG5","TS5","TSEE5","TSEGCG5","TSEEEGCG5")
 ResMMALL=prcomp(MMALL,scale=TRUE)
-summary(ResMMALL)
+
+res_MMALL_PCAfunction = PCA(MMALL, scale.unit=TRUE) 
+summary_res_PCAfunction <-summary(res_MMALL_PCAfunction) 
+summary_res <- summary(ResMMALL)
+
+# Variance of PC1 and PC2
+var_PC1 <- round (summary_res$importance [2,1] * 100, 0)
+var_PC2 <- round (summary_res$importance [2,2] * 100, 0)
+
 pca2plot <- as.data.frame(ResMMALL$x)
 row.names(pca2plot)
 pca2plot$gen_day <- row.names(pca2plot)
@@ -123,7 +415,8 @@ pca_medians_acq <- ggplot(pca2plot, aes(x=PC1, y=-PC2, colour=gentreat )) +
   #                           geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show_guide = T)+
   geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show_guide = F)+
   theme(legend.key=element_rect(fill=NA)) +
-  labs(title = "PCA of group medians\n", x = "\nPC1 (72% of variance)", y="PC2 (14% of variance)\n") +
+  labs(title = "PCA of group medians\n", x = paste("\nPC1 (", var_PC1, "% of variance)", sep=""), 
+       y=paste("PC2 (", var_PC2, "% of variance)\n", sep = "")) +
   #                           guides(colour = guide_legend(override.aes = list(size = 10)))+
   guides(colour = guide_legend(override.aes = list(size = 1)))+
   theme(legend.key=element_rect(fill=NA))
@@ -137,8 +430,9 @@ pca_medians_acq_aspect_ratio <- pca_medians_acq + coord_fixed() +
 
 # ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", 
 #            "PCA_medians_legend.jpg", sep=""), width = 10, height = 6, dpi=900)
-ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", 
-           "PCA_medians_NO_legend.jpg", sep=""), width = 9, height = 6, dpi=900)
+# Currently used
+# ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", 
+#            "PCA_medians_NO_legend.jpg", sep=""), width = 9, height = 6, dpi=900)
 
 # Plot for presentation
 # setwd("/Users/jespinosa/Dropbox (Personal)/presentations_2015/20150630_GM_Cedric/figures")
@@ -148,7 +442,8 @@ pca_medians_acq <- ggplot(pca2plot, aes(x=PC1, y=-PC2, colour=gentreat )) +
                               "magenta", "orange", "gray", "black")) +
   geom_text (aes (label=days), vjust=-0.5, hjust=1, size=5, show_guide = T)+
   theme(legend.key=element_rect(fill=NA)) +
-  labs(title = "PCA of group medians\n", x = "\nPC1 (72% of variance)", y="PC2 (14% of variance)\n") +
+  labs(title = "PCA of group medians\n", x = paste("\nPC1 (", var_PC1, "% of variance)", sep=""), 
+       y=paste("PC2 (", var_PC2, "% of variance)\n", sep = "")) +
   #                           guides(colour = guide_legend(override.aes = list(size = 10)))+
   guides(colour = guide_legend(override.aes = list(size = 2)))+
   theme(legend.key=element_rect(fill=NA))
@@ -160,7 +455,7 @@ pca_medians_acq
 
 
 
-
+####SON 40 + 455
 
 
 
@@ -186,7 +481,9 @@ apply(smWT[11:20,],2,median)%*%ResMMALL$rotation[,1]==ResMMALL$x[9,1]
 
 ############################################################################################################
 
-#plot all data as supplementary points
+# plot all data as supplementary points
+# I build a matrix with the individuals M.ind
+# and a second matrix with the medians of group
 
 acq=c("Day 1","Day 2","Day 3","Day 4","Day 5")
 var=c(4,5,6,7,8,9,10)
@@ -197,11 +494,11 @@ head(iddaytreat)
 head(iddaytreat[,1])
 class (iddaytreat)
 # colnames(iddaytreat)
-rownames(iddaytreat)=c(1:455)
+rownames(iddaytreat)=c(1:n_animals)
 tgt=sort(unique(iddaytreat[,2]))
 
 
-
+# Medians of the group 
 M.med=matrix(0,40,7)
 rnames=c(1:40)
 for (i in 1:length(acq)){
@@ -214,12 +511,14 @@ for (i in 1:length(acq)){
 }
 colnames(M.med)=colnames(M.ind)
 rownames(M.med)=rnames
-
+M.med
 jm=rbind(M.med,M.ind)
-length(M.ind[,1])
-
+length(jm[,1])
+str(jm)
+# Deberia haber mas individuos en este caso
 library(FactoMineR)
-res = PCA(jm, scale.unit=TRUE, ind.sup=c(41:455)) 
+res = PCA(jm, scale.unit=TRUE, ind.sup=c(41:n_animals)) 
+res$eig
 plot(res,choix="var")
 cols=c("green","lightblue","black","orange","red","blue","darkgrey","magenta")
 
@@ -259,7 +558,8 @@ p_circle_plot <- ggplot(circle_plot) +
   geom_text (data=pos_positions, aes (x=-Dim.1, y=-Dim.2, label=pos_labels, hjust=-0.3), show_guide = FALSE, size=5) +
   geom_vline (xintercept = 0, linetype="dotted") +
   geom_hline (yintercept=0, linetype="dotted") +
-  labs (title = "PCA of the variables\n", x = "\nPC1 (72% of variance)", y="PC2 (14% of variance)\n") +
+  labs (title = "PCA of the variables\n", x = paste("\nPC1 (", var_PC1, "% of variance)", sep=""), 
+        y=paste("PC2 (", var_PC2, "% of variance)\n", sep = "")) +
   #        geom_polygon(aes(x, y), data = df, inherit.aes = F, Fill=NA)
   #                         scale_x_continuous(breaks=1:10)  
   geom_polygon (data = df.circle, aes(x, y), alpha=1, colour="black", fill=NA, size=1)
@@ -270,7 +570,8 @@ p_circle_plot <- ggplot(circle_plot) +
 
 p_circle_plot
 # ggsave (p_circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
-ggsave (p_circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
+# final figure
+# ggsave (p_circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 
 
@@ -282,10 +583,7 @@ df.bars_to_plot <- as.data.frame(df.bars)
 df.bars_to_plot$index <- as.factor (df.bars_to_plot$V2)
 class (df.bars_to_plot$V1)
 df.bars_to_plot$value <- as.numeric(sort(res$var$coord[,1]^2/sum(res$var$coord[,1]^2)*100,decreasing=TRUE))
-
-df.bars_to_plot$index <- factor(df.bars_to_plot$index , levels=c("gallindex", "distance", "percentne", "percentperi", "whishaw", "latency", "speed"), 
-                                labels=c("gallindex", "distance", "percentne", "percentperi", "whishaw", "latency", "speed"))
-
+df.bars_to_plot$index <- factor(df.bars_to_plot$index, levels = df.bars_to_plot$index[order(df.bars_to_plot$value, decreasing=TRUE)])
 
 bars_plot <- ggplot (data=df.bars_to_plot, aes(x=index, y=value)) + 
   ylim (c(0, 71)) +
@@ -297,7 +595,7 @@ bars_plot
 #PLOT_paper
 # ggsave (bars_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "bar_contribution.jpg", sep=""), dpi=900, height=5, width=10)
 
-ggsave (bars_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "bar_contribution.jpg", sep=""), dpi=900)
+#ggsave (bars_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "bar_contribution.jpg", sep=""), dpi=900)
 
 
 df.bars_PC2 <- cbind (as.numeric(sort(res$var$coord[,2]^2/sum(res$var$coord[,2]^2)*100,decreasing=TRUE)), names(res$var$coord[,2])[order(res$var$coord[,2]^2,decreasing=TRUE)])
@@ -309,9 +607,7 @@ df.bars_to_plot_PC2$index <- as.factor (df.bars_to_plot_PC2$V2)
 df.bars_to_plot_PC2$value <- as.numeric(sort(res$var$coord[,2]^2/sum(res$var$coord[,2]^2)*100,decreasing=TRUE))
 
 df.bars_to_plot_PC2$index
-df.bars_to_plot_PC2$index <- factor(df.bars_to_plot_PC2$index , levels=c("speed", "latency", "whishaw", "percentperi", "distance", "gallindex", "percentne"), 
-                                    labels=c("speed", "latency", "whishaw", "percentperi", "distance", "gallindex", "percentne"))
-
+df.bars_to_plot_PC2$index <- factor(df.bars_to_plot_PC2$index, levels = df.bars_to_plot_PC2$index[order(df.bars_to_plot_PC2$value, decreasing=TRUE)])
 
 # df.bars_to_plot_PC2$value <- rev(df.bars_to_plot_PC2$value)
 bars_plot_PC2 <- ggplot (data=df.bars_to_plot_PC2, aes(x=index, y=value)) + 
@@ -322,7 +618,8 @@ bars_plot_PC2
 
 #PLOT_paper
 # ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "bar_contribution_PC2.jpg", sep=""), dpi=900, height=5, width=10)
-ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "bar_contribution_PC2.jpg", sep=""), dpi=900)
+# Final version
+# ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "bar_contribution_PC2.jpg", sep=""), dpi=900)
 
 names(-res.pca$ind$coord[,1])
 
@@ -341,6 +638,7 @@ plot(-res$ind.sup$coord[,1],-res$ind.sup$coord[,2],type="n",main="Individual var
 day <- c()
 genotype <- c()
 new_coord <- as.data.frame( cbind(-res$ind.sup$coord[,1],-res$ind.sup$coord[,2]))
+# 455
 new_coord$day <- c(1:415)
 new_coord$genotype <- c()
 
