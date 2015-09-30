@@ -11,6 +11,7 @@
 library(Hmisc)
 library(calibrate)
 library(multcomp)
+library(ggplot2)
 
 ##Getting HOME directory
 home <- Sys.getenv("HOME") 
@@ -267,3 +268,42 @@ pairwise.t.test(rem_data_all_var_TS$GALLINDEX.REM, rem_data_all_var_TS$genotype,
 # df.anova$interaction <- paste(df.anova$group, df.anova$time, sep="_")
 pairwise.t.test(new_coord_rem$V1, new_coord_rem$genotype, , p.adj="hochberg", paired=F)
 
+### 
+# Revision comments reviewers
+###########
+### Adding time expent in the target quadrant
+
+# boxplot percentage of time in the target quadrant
+bp_t_target_quadrant <- ggplot(rem_data_all_var , aes (genotype, PERC.NE.REM, fill = genotype)) + 
+  geom_boxplot (outlier.size=NA, show_guide=FALSE) +
+  scale_fill_manual(name = "genotype", values = c("red", "darkgreen", "blue", "lightblue", "magenta", "orange", "yellow", "black")) +
+  labs(title = "Removal time in target quadrant\n") + xlab ("\nGroups") + ylab("Gallagher index (cm)\n") +
+  theme (legend.title=element_blank()) +
+  #   scale_y_continuous (breaks=1:10) +
+  scale_y_continuous(limits=c(0, 90), breaks = c(0,20,40,60,80)) +
+  
+  geom_segment(aes(x = 7.63, y = median(rem_data_all_var [rem_data_all_var$genotype == "TSEEEGCG","GALLINDEX.REM"]), 
+                   xend = 8.37, yend = median(rem_data_all_var [rem_data_all_var$genotype == "TSEEEGCG","GALLINDEX.REM"])), 
+               colour="white", size =0.8)
+
+bp_t_target_quadrant_points <- bp_t_target_quadrant + geom_point (position = position_jitter(width = 0.2), colour="red", show_guide=FALSE)
+
+bp_t_target_quadrant_points
+
+######
+# Statistical analysis Like juanra
+# Test like juanra without removing the outlier
+lm_rem <- lm (PERC.NE.REM ~ genotype, data = rem_data_all_var)
+l2_rem <- glht(lm_rem, linfct = mcp (genotype = "Tukey"))
+summary(l2_rem, test = adjusted(type = "BH"))
+
+# For the sake of unifying the factor name with juanra I add gentreat and perform the test
+rem_data_all_var$gentreat <- rem_data_all_var$genotype 
+lm_rem <- lm (GALLINDEX.REM ~ gentreat, data = rem_data_all_var)
+l2_rem <- glht(lm_rem, linfct = mcp (gentreat = "Tukey"))
+summary(l2_rem, test = adjusted (type = "BH"))
+
+
+lm_rem <- lm (PERC.NE.REM ~ genotype, data = rem_data_all_var)
+l2_rem <- glht(lm_rem, linfct = mcp (genotype = "Tukey"))
+summary(l2_rem, test = adjusted(type = "BH"))
