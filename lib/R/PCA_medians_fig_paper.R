@@ -20,7 +20,8 @@ library(Hmisc)
 #install.packages("calibrate")
 library(calibrate)
 ma2=spss.get("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/Ts65Dn OLD ACQ1_ACQ5_SUBCONJ.sav")
-
+head(ma2)
+class (ma2)
 M=as.matrix(ma2[ma2$day=="Day 5",c(4,5,7,8,9,10,11,12)])
 treat=as.matrix(ma2[ma2$day=="Day 5",2])
 M4=as.matrix(ma2[ma2$day=="Day 4",c(4,5,7,8,9,10,11,12)])
@@ -87,7 +88,7 @@ row.names(pca2plot)
 pca2plot$gen_day <- row.names(pca2plot)
 
 pca2plot$days <-  as.factor(as.numeric (gsub(".*([0-9]+)$", "\\1", pca2plot$gen_day)))
-pca2plot$gentreat <-  as.factor(gsub("([A-Z]+).*$", "\\1", pca2plot$gen_day))
+pca2plot$gentreat <- as.factor(gsub("([A-Z]+).*$", "\\1", pca2plot$gen_day))
 pca2plot$PC1
 
 pca2plot$gentreat <- factor(pca2plot$gentreat , levels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"), 
