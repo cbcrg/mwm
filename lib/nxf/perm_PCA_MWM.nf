@@ -41,7 +41,7 @@ process perm {
     file MWM_file
     
     output:
-    set file ('tbl_t_stat.csv') into tbl_t_stat
+    set file ('tbl_t_stat_5.csv') into tbl_t_stat
     set file ('tbl_t_stat_day1.csv') into tbl_t_stat_day1
     
     script:
@@ -56,11 +56,11 @@ process perm {
 
 
 tbl_t_stat
-    .collectFile(name: 't_stat.csv', newLine: false)
+    .collectFile(name: 't_stat_5.csv', newLine: false)
     .subscribe {
         //println "Entries are saved to file: $it"
         //println "File content is: ${it.text}"
-        it.copyTo( dump_dir.resolve ( "PCA_t_statistic_${start_perm}.csv" ) )
+        it.copyTo( dump_dir.resolve ( "PCA_t_statistic_${start_perm}_day5.csv" ) )
     }
     
 tbl_t_stat_day1
