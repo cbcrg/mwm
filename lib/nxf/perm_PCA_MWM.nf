@@ -41,7 +41,7 @@ process perm {
     file MWM_file
     
     output:
-    set file ('tbl_t_stat_5.csv') into tbl_t_stat
+    set file ('tbl_t_stat_day5.csv') into tbl_t_stat
     set file ('tbl_t_stat_day1.csv') into tbl_t_stat_day1
     
     script:
