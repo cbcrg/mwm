@@ -7,6 +7,7 @@
 
 library("ggplot2")
 library("Hmisc")
+library("FactoMineR") #PCA
 
 ##Getting HOME directory
 home <- Sys.getenv("HOME")
@@ -192,8 +193,6 @@ rownames(M.med)=rnames
 
 jm=rbind(M.med,M.ind)
 
-
-library(FactoMineR)
 res = PCA(jm, scale.unit=TRUE, ind.sup=c(41:455)) 
 plot(res,choix="var")
 cols=c("green","lightblue","black","orange","red","blue","darkgrey","magenta")
