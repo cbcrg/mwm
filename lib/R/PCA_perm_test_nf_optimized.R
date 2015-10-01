@@ -196,7 +196,7 @@ for (row in 1:length(gentreat_pairs [,1])) {
 }
 
 wd <- getwd()
-write.table(result, file = paste(wd, "/tbl_t_stat.csv", sep=""), sep="\t", row.names=FALSE, col.names=FALSE)
+write.table(result, file = paste(wd, "/tbl_t_stat_day5.csv", sep=""), sep="\t", row.names=FALSE, col.names=FALSE)
 write.table(result_1, file = paste(wd, "/tbl_t_stat_day1.csv", sep=""), sep="\t", row.names=FALSE, col.names=FALSE)
 
 
