@@ -7,7 +7,8 @@
 
 library("ggplot2")
 library("Hmisc")
-
+library("FactoMineR") #PCA
+ 
 ##Getting HOME directory
 home <- Sys.getenv("HOME")
 
@@ -16,37 +17,27 @@ home <- Sys.getenv("HOME")
 # Loading functions:
 source (paste (home, "/git/mwm/lib/R/plot_param_public.R", sep=""))
 
-library(Hmisc)
 #install.packages("calibrate")
 library(calibrate)
 
-load (paste (home, "/20150515_PCA_old_frotiersPaper/data/", "ma2.RData", sep=""))
+#old version data
+# load (paste (home, "/20150515_PCA_old_frotiersPaper/data/", "ma2.RData", sep=""))
+# data with only 3 new individuals
+load (paste (home, "/20150515_PCA_old_frotiersPaper/data/", "ma2_3sup_TSEGCG.RData", sep=""))
 
 ####
 # My own way
 # Data is in ma2
 head (ma2)
-ma2_TSDoubleTT <-ma2[ma2$gentreat =="TSEEEGCG" ,]
-
-ma2_TSDoubleTT$factorID <- as.factor(ma2_TSDoubleTT$ID) 
-pca_latencies_doubleTT <- ggplot(ma2_TSDoubleTT, aes(x=day, y=latency, colour=factorID, group=factorID)) + 
-  #                           geom_path (size = 1,show_guide = T) + 
-  geom_path (size = 1,show_guide = T)  
-
-pca_latencies_doubleTT  
-
-
-6660
-6663
-
-ma2 <-ma2[ma2$ID !="150006658" & ma2$ID != "150006663",]
-
-59
-60
-61
-
-ma2 <-ma2[ma2$ID !="150006659" & ma2$ID != "150006660" & ma2$ID != "150006661",]
-ma2 <-ma2[ma2$ID !="150006659" & ma2$ID != "150006660" & ma2$ID,]
+# ma2_TSDoubleTT <-ma2[ma2$gentreat =="TSEEEGCG" ,]
+# 
+# ma2_TSDoubleTT$factorID <- as.factor(ma2_TSDoubleTT$ID) 
+# 
+# pca_latencies_doubleTT <- ggplot(ma2_TSDoubleTT, aes(x=day, y=latency, colour=factorID, group=factorID)) + 
+#   #                           geom_path (size = 1,show_guide = T) + 
+#   geom_path (size = 1,show_guide = T)  
+# 
+# pca_latencies_doubleTT  
 
 n_animals <- length(ma2[,1])
 rownames(ma2) <- c(1:n_animals)
@@ -105,8 +96,8 @@ pca_medians_acq_aspect_ratio <- pca_medians_acq + coord_fixed() +
 pca_medians_acq_aspect_ratio
 # ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", 
 #           "PCA_medians_legend.jpg", sep=""), width = 10, height = 6, dpi=900)
-ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", 
-           "PCA_medians_NO_legend.jpg", sep=""), width = 9, height = 6, dpi=900)
+# ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", 
+#            "PCA_medians_NO_legend.jpg", sep=""), width = 9, height = 6, dpi=900)
 
 ### Circle Plot
 circle_plot <- as.data.frame (res$var$coord)
@@ -116,9 +107,9 @@ neg_labels <- labels_v [c(1,2,3,7)]
 neg_positions <- circle_plot [c(1,2,3,7), c(1,2)]
 
 # change positions for labels
-neg_positions [2,2] <- neg_positions [2,2] - 0.03 
-neg_positions [3,2] <- neg_positions [3,2] + 0
-neg_positions [4,2] <- neg_positions [4,2] + 0.02
+# neg_positions [2,2] <- neg_positions [2,2] - 0.03 
+# neg_positions [3,2] <- neg_positions [3,2] + 0
+neg_positions [4,2] <- neg_positions [4,2] - 0.02
 
 pos_labels <- labels_v [c(4,5,6)]
 pos_positions <- circle_plot [c(4,5,6), c(1,2)]
@@ -147,7 +138,7 @@ p_circle_plot <- ggplot(circle_plot) +
 p_circle_plot
 
 # ggsave (p_circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
-ggsave (p_circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
+# ggsave (p_circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 ############
 ## BARPLOT
