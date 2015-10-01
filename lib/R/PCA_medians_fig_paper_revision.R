@@ -28,7 +28,7 @@ load (paste (home, "/20150515_PCA_old_frotiersPaper/data/", "ma2_3sup_TSEGCG.RDa
 ####
 # My own way
 # Data is in ma2
-head (ma2)
+
 # ma2_TSDoubleTT <-ma2[ma2$gentreat =="TSEEEGCG" ,]
 # 
 # ma2_TSDoubleTT$factorID <- as.factor(ma2_TSDoubleTT$ID) 
@@ -39,8 +39,14 @@ head (ma2)
 # 
 # pca_latencies_doubleTT  
 
+head (ma2)
 n_animals <- length(ma2[,1])
 rownames(ma2) <- c(1:n_animals)
+colnames(ma2)[1] <- "id"
+
+# Saving for permutation test
+write.table(ma2, "/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/ts65_old_3sup_tsegcg_rev.csv", sep="\t")
+
 variables_list <- colnames(ma2) [4:10] 
 
 tbl_median <- with (ma2, aggregate (cbind (distance, gallindex, latency, speed, percentne, whishaw, percentperi), 

@@ -10,8 +10,8 @@
 */
 
 
-params.MWM_tbl = "20150515_PCA_old_frotiersPaper/data/Ts65Dn_OLD_ACQ1_ACQ5_SUBCONJ.sav"
-
+//params.MWM_tbl = "20150515_PCA_old_frotiersPaper/data/Ts65Dn_OLD_ACQ1_ACQ5_SUBCONJ.sav"
+params.MWM_tbl = "20150515_PCA_old_frotiersPaper/data/ts65_old_3sup_tsegcg_rev.csv"
 MWM_tbl_path = "$HOME/${params.MWM_tbl}"
 
 println "path: $MWM_tbl_path"
@@ -20,7 +20,7 @@ println "path: $MWM_tbl_path"
 MWM_file = file(MWM_tbl_path)
 
 start_perm = 1111
-step = 10000
+step = 10
 end_perm = start_perm + step
 perm = Channel.from(start_perm..end_perm)
 
