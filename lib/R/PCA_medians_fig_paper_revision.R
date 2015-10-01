@@ -184,6 +184,26 @@ bars_plot_PC2
 # Final version
 # ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "bar_contribution_PC2.jpg", sep=""), dpi=900)
 
+
+#PC3
+df.bars_PC3 <- cbind (as.numeric(sort(res$var$coord[,3]^2/sum(res$var$coord[,3]^2)*100,decreasing=TRUE)), names(res$var$coord[,3])[order(res$var$coord[,3]^2,decreasing=TRUE)])
+df.bars_to_plot_PC3 <- as.data.frame(df.bars_PC3)
+df.bars_to_plot_PC3$index <- as.factor (df.bars_to_plot_PC3$V2)
+# class (df.bars_to_plot_PC3$V1)
+# df.bars_to_plot_PC2$value <- as.numeric(sort(res$var$coord[,3]^2/sum(res$var$coord[,3]^2)*100,decreasing=TRUE))
+df.bars_to_plot_PC3$value <- as.numeric(sort(res$var$coord[,3]^2/sum(res$var$coord[,3]^2)*100,decreasing=TRUE))
+
+df.bars_to_plot_PC3$index
+df.bars_to_plot_PC3$index <- factor(df.bars_to_plot_PC3$index, levels = df.bars_to_plot_PC3$index[order(df.bars_to_plot_PC3$value, decreasing=TRUE)])
+
+# df.bars_to_plot_PC2$value <- rev(df.bars_to_plot_PC2$value)
+bars_plot_PC3 <- ggplot (data=df.bars_to_plot_PC3, aes(x=index, y=value)) + 
+  geom_bar (stat="identity", fill="gray", width=0.8) + 
+  labs (title = "Variable contribution to PC3\n", x = "", y="Contribution in %\n") +
+  theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1) )
+bars_plot_PC3
+
+
 ###################################
 # Plot of supplementary individuals
 day <- c()
