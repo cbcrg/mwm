@@ -235,6 +235,131 @@ pca_plot_individuals
 #         height = 10, width = 10, dpi=900)
 
 
+##############
+# Adding the plot of PCA cloud for day A1 and day A5 only for trisomics
+new_coord
+# indiv <- rownames(pca_indiv_2plot)
+# new_coord_indiv <- rbind(indiv, new_coord)
+PC1_TS  <- subset(new_coord, grepl("TS", genotype))
+# PC1_TS_acq1 <- subset(PC1_TS, day=="1", c("V1", "V2", "day","genotype", "id"))
+PC1_TS_acq1 <- subset(PC1_TS, day=="1", c("V1", "V2", "day","genotype"))
+
+
+colnames (PC1_TS_acq1) <- c("PC1","PC2", "day", "genotype_tt")
+# Link to the explanation of how to perform density plots with ggplot2
+# http://stackoverflow.com/questions/19791181/density-shadow-around-the-data-with-ggplot2-r
+# Quick facts
+# n controls the smoothness of the density polygon.
+# h is the bandwidth of the density estimation.
+# bins controls the number of density levels.
+# alpha transparency allows to make the cloud more or less transparent depending on the level
+# level, Computed density, is the amount you have to increase to change from one level to the next
+
+p_cloud_ts_acq1 <- ggplot(PC1_TS_acq1, aes(PC1, PC2, color=genotype_tt)) + 
+  stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
+                 #                  geom="polygon", color=NA, n=100, h=4, bins=6, show_guide = FALSE) +
+                 geom="polygon", color=NA, h=5, n=100, bins=6, show_guide = FALSE) +
+  #   scale_alpha(range = c(0.00, 1)) +
+  #   scale_size(range = c(0, 0.01), guide = "none")  
+  #   geom_smooth(se=F, method='lm', show_guide = FALSE) + 
+  geom_point(show_guide = FALSE) + 
+  scale_color_manual(name='genotype_tt', 
+                     values=c("darkgreen", "lightblue", "darkorange", "black"), 
+                     labels = c("TS", "TSEE", "TSEGCG", "TSEEEGCG")) + 
+  scale_fill_manual( name='gentreat', 
+                     values=c("darkgreen", "lightblue", "orange", "black"),
+                     labels = c("TS", "TSEE", "TSEGCG", "TSEEEGCG")) + 
+  #   geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
+  scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
+  scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
+  #   coord_cartesian(xlim=c(-7, 9),
+  #                   ylim=c(-10, 10)) +
+  coord_cartesian(xlim=c(-8, 9),
+                  ylim=c(-9.5, 8)) +
+  labs(title = "PCA coordinates density, trisomic groups, session 1\n", x = "\nPC1", y="PC2\n")
+
+p_cloud_ts_acq1 <- p_cloud_ts_acq1 + facet_wrap(~genotype_tt, ncol = 2)  + geom_vline(xintercept = 0, colour="gray") + geom_hline(yintercept = 0, colour="gray")
+p_cloud_ts_acq1
+
+PC1_TS_acq5 <- subset(PC1_TS, day=="5", c("V1", "V2", "day","genotype"))
+
+colnames (PC1_TS_acq5) <- c("PC1","PC2", "day", "genotype_tt") 
+p_cloud_ts_acq5 <- ggplot(PC1_TS_acq5, aes(PC1, PC2, color=genotype_tt)) + 
+  stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
+                 geom="polygon", color=NA, n=100, h=5, bins=6, show_guide = FALSE) + 
+  #   geom_smooth(se=F, method='lm', show_guide = FALSE) + 
+  geom_point(show_guide = FALSE) + 
+  scale_color_manual(name='genotype_tt', 
+                     values = c("darkgreen", "lightblue", "darkorange", "black"), 
+                     labels = c("TS", "TSEE", "TSEGCG", "TSEEEGCG")) + 
+  scale_fill_manual( name='gentreat', 
+                     values = c("darkgreen", "lightblue","orange", "black"),
+                     labels = c("TS", "TSEE", "TSEGCG", "TSEEEGCG")) + 
+  #   geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
+  scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
+  scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
+  #   coord_cartesian(xlim=c(-6, 8.5),
+  #                   ylim=c(-9, 6)) +
+  coord_cartesian(xlim=c(-8, 9),
+                  ylim=c(-9.5, 8)) +
+  labs(title = "PCA coordinates density, trisomic groups, session 5\n", x = "\nPC1", y="PC2\n")
+
+# p_cloud_ts_acq1 + scale_alpha_continuous(range=c(0.3,0.5))
+# p_cloud_ts_acq5 + scale_alpha_continuous(range=c(0.3,0.5))
+p_cloud_ts_acq5 <- p_cloud_ts_acq5 + facet_wrap(~genotype_tt, ncol = 2)  + geom_vline(xintercept = 0, colour="gray") + geom_hline(yintercept = 0, colour="gray")
+p_cloud_ts_acq5
+
+#PLOT_paper
+#
+setwd("/Users/jespinosa/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/")
+
+# ggsave (p_cloud_ts_acq1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "PCA_acq1_ts_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
+# ggsave (p_cloud_ts_acq5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "PCA_acq5_ts_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
+
+#### BOXPLOTS of PC1
+new_coord
+
+new_coord_TS.a1 <- subset(new_coord, grepl("TS", new_coord$genotype) & day==1)
+new_coord_TS.a5 <- subset(new_coord, grepl("TS", new_coord$genotype) & day==5)
+
+boxPlots.TS.a1 <- ggplot(new_coord_TS.a1 , aes (genotype, V1, fill = genotype)) + 
+  geom_boxplot(show_guide=FALSE) +
+  scale_fill_manual(name = "Genotype", values=c("darkgreen", "lightblue", "orange", "black")) +
+  labs(title = "Session 1 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
+  theme (legend.title=element_blank())+ 
+  # Same axis limits in day 1 and day 5
+  #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
+  scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-5.5, 9.5)) +
+  geom_segment(aes(x = 3.63, y = median(new_coord_TS.a1[new_coord_TS.a1$genotype == "TSEEEGCG","V1"]), xend = 4.37, yend = median(new_coord_TS.a1[new_coord_TS.a1$genotype == "TSEEEGCG","V1"])), colour="white")
+
+boxPlots.TS.a1
+
+boxPlots.TS.a5 <- ggplot(new_coord_TS.a5 , aes (genotype, V1, fill = genotype)) + 
+  geom_boxplot(show_guide=FALSE) +
+  scale_fill_manual(name = "Genotype", values=c("darkgreen", "lightblue", "orange", "black")) +
+  labs(title = "Session 1 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
+  theme (legend.title=element_blank())+ 
+  # Same axis limits in day 1 and day 5
+  #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
+  scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-5.5, 9.5)) +
+  geom_segment(aes(x = 3.63, y = median(new_coord_TS.a5[new_coord_TS.a5$genotype == "TSEEEGCG","V1"]), xend = 4.37, yend = median(new_coord_TS.a5[new_coord_TS.a5$genotype == "TSEEEGCG","V1"])), colour="white")
+
+boxPlots.TS.a5
+
+#PLOT_paper
+ggsave (boxPlots.TS.a1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "boxPlot_ts_a1.jpg", sep=""), dpi=900)
+ggsave (boxPlots.TS.a5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "boxPlot_ts_a5.jpg", sep=""), dpi=900)
+
+
+
+
+
+
+
+###
+
+
+
 
 
 
