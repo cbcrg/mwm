@@ -43,11 +43,11 @@ head (ma2)
 n_animals <- length(ma2[,1])
 rownames(ma2) <- c(1:n_animals)
 colnames(ma2)[1] <- "id"
-
+n_col <- dim (ma2)[2]
 # Saving for permutation test
 write.table(ma2, "/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/ts65_old_3sup_tsegcg_rev.csv", sep="\t")
 
-variables_list <- colnames(ma2) [4:10] 
+variables_list <- colnames(ma2) [4:n_col] 
 
 tbl_median <- with (ma2, aggregate (cbind (distance, gallindex, latency, speed, percentne, whishaw, percentperi), 
                                     list (gentreat=gentreat, day=day), FUN=median))
@@ -281,7 +281,7 @@ p_cloud_ts_acq1 <- ggplot(PC1_TS_acq1, aes(PC1, PC2, color=genotype_tt)) +
   #   coord_cartesian(xlim=c(-7, 9),
   #                   ylim=c(-10, 10)) +
   coord_cartesian(xlim=c(-8, 9),
-                  ylim=c(-9.5, 8)) +
+                  ylim=c(-10.5, 8)) +
   labs(title = "PCA coordinates density, trisomic groups, session 1\n", x = "\nPC1", y="PC2\n")
 
 p_cloud_ts_acq1 <- p_cloud_ts_acq1 + facet_wrap(~genotype_tt, ncol = 2)  + geom_vline(xintercept = 0, colour="gray") + geom_hline(yintercept = 0, colour="gray")
@@ -307,7 +307,7 @@ p_cloud_ts_acq5 <- ggplot(PC1_TS_acq5, aes(PC1, PC2, color=genotype_tt)) +
   #   coord_cartesian(xlim=c(-6, 8.5),
   #                   ylim=c(-9, 6)) +
   coord_cartesian(xlim=c(-8, 9),
-                  ylim=c(-9.5, 8)) +
+                  ylim=c(-10.5, 8)) +
   labs(title = "PCA coordinates density, trisomic groups, session 5\n", x = "\nPC1", y="PC2\n")
 
 # p_cloud_ts_acq1 + scale_alpha_continuous(range=c(0.3,0.5))
@@ -353,8 +353,9 @@ boxPlots.TS.a5 <- ggplot(new_coord_TS.a5 , aes (genotype, V1, fill = genotype)) 
 boxPlots.TS.a5
 
 #PLOT_paper
-ggsave (boxPlots.TS.a1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "boxPlot_ts_a1.jpg", sep=""), dpi=900)
-ggsave (boxPlots.TS.a5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "boxPlot_ts_a5.jpg", sep=""), dpi=900)
+# ggsave (boxPlots.TS.a1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "boxPlot_ts_a1.jpg", sep=""), dpi=900)
+# ggsave (boxPlots.TS.a5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "boxPlot_ts_a5.jpg", sep=""), dpi=900)
+
 
 
 
