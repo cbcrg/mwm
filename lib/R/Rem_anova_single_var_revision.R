@@ -83,291 +83,55 @@ ggsave (bp_gallagher_points, file=paste(home, "/20150515_PCA_old_frotiersPaper/f
          width=14, height=7, dpi=900)
 
 
+###################################
+# Time spent in the target quadrant
+###################################
+### ANOVA
+rem_perc_NE.aov <- aov (PERCENT.NE.REM ~ genotype  + Error(ID), data = rem_data_all_var)
+summary(rem_perc_NE.aov)
 
-
-
-
-
-
-
-
-
-
-
-
-
--# All variables in rem_data are not present in ma3_filt_rem_data
-# We need to add them: NUMBER.ENTRIES, PERM.TIME, PERCENT.PERM.TIME, LATENCY.TARGET
-# We keep IDs to perform the joining
-rem_data_var = rem_data [ , c(1,7:10)]
-rem_data_all_var <- merge(rem_data, ma3_filt_rem_data, all=TRUE)
-
-# Guys starting with 1400277xx are missing in the second table, thus when merging they appear as NA, I delete them
-rem_data_all_var <- head (rem_data_all_var, -5)
-
-head (rem_data_all_var)
-rem_data_all_var$GENTREAT
-rem_data_all_var$genotype <- gsub("H20", "", rem_data_all_var$GENTREAT)
-rem_data_all_var$genotype <- gsub("NE", "", rem_data_all_var$genotype)
-rem_data_all_var$genotype <- factor(rem_data_all_var$genotype , levels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"), 
-                                 labels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"))
-
-########
-# ANOVAs
-########
-
-# ANOVA with all groups
-# data.frame -> rem_data_all_var
-
-rem_nEntries.aov <- aov (NUMBER.ENTRIES ~ genotype  + Error(ID), data = rem_data_all_var)
-summary(rem_nEntries.aov)
-pairwise.t.test (rem_data_all_var$NUMBER.ENTRIES, rem_data_all_var$genotype, , p.adj="hochberg", paired=F)
-
-rem_latency.aov <- aov (LATENCY.TARGET ~ genotype  + Error(ID), data = rem_data_all_var)
-rem_latency.aov <- aov (LATENCY.TARGET ~ genotype,data = rem_data_all_var)
-summary (rem_latency.aov) 
-rem_nEntries.aov
-# Post-hoc
-pairwise.t.test (rem_data_all_var$LATENCY.TARGET, rem_data_all_var$genotype, , p.adj="hochberg", paired=F)
-TukeyHSD(rem_latency.aov)
-
-# Anova gall index
-rem_gallIndex.aov <- aov (GALLINDEX.REM ~ genotype  + Error(ID), data = rem_data_all_var)
-summary(rem_gallIndex.aov)
-
-pairwise.t.test (rem_data_all_var$GALLINDEX.REM, rem_data_all_var$genotype, , p.adj="hochberg", paired=F)
-pairwise.t.test (rem_data_all_var$GALLINDEX.REM, rem_data_all_var$genotype, , p.adj="BH", paired=F)
-
-rem_data_all_var$genotype
-
-# Anova gall index without outlier
-rem_data_all_varNoOutlier <- rem_data_all_var [-which (rem_data_all_var$ID == "130054742"),]
-pairwise.t.test (rem_data_all_varNoOutlier$GALLINDEX.REM, rem_data_all_varNoOutlier$genotype, , p.adj="hochberg", paired=F)
-pairwise.t.test (rem_data_all_varNoOutlier$GALLINDEX.REM, rem_data_all_varNoOutlier$genotype, , p.adj="BH", paired=F)
+# Si elimino los tres ultimos animales a??adidos vuelvo a tener el resultado anterior 
+# rem_data_all_var <- head(rem_data_all_var,-3)
 
 ######
 # Like juanra
 # Test like juanra without removing the outlier
-lm_rem <- lm (GALLINDEX.REM ~ genotype, data = rem_data_all_var)
+lm_rem <- lm (PERCENT.NE.REM ~ genotype, data = rem_data_all_var)
 l2_rem <- glht(lm_rem, linfct = mcp (genotype = "Tukey"))
 summary(l2_rem, test = adjusted(type = "BH"))
 
-# For the sake of unifying the factor name with juanra I add gentreat and perform the test
-rem_data_all_var$gentreat <- rem_data_all_var$genotype 
-lm_rem <- lm (GALLINDEX.REM ~ gentreat, data = rem_data_all_var)
-l2_rem <- glht(lm_rem, linfct = mcp (gentreat = "Tukey"))
-summary(l2_rem, test = adjusted (type = "BH"))
-
-#without the outlier
-library(multcomp)
-lm_rem_NOoutlier <- lm (GALLINDEX.REM ~ genotype, data = rem_data_all_varNoOutlier)
-l2 <- glht(lm_rem_NOoutlier, linfct = mcp (genotype = "Tukey"))
-summary(l2, test = adjusted(type = "BH"))
-
-# boxplot number entries
-bp_nEntries <- ggplot(rem_data_all_var , aes (genotype, NUMBER.ENTRIES, fill = genotype)) + 
-  geom_boxplot(show_guide=FALSE) +
-  scale_fill_manual(name = "genotype", values = c("red", "green", "blue", "lightblue", "magenta", "orange", "yellow", "black")) +
-  labs(title = "Removal number of entries\n") + xlab ("\ngentreat") + ylab("nEntries\n") +
-  theme (legend.title=element_blank())
-
-bp_nEntries + geom_point (position = position_jitter(width = 0.2), colour="red")
-
-# boxplot latency
-bp_latency <- ggplot(rem_data_all_var , aes (genotype, LATENCY.TARGET, fill = genotype)) + 
-  geom_boxplot() +
-  scale_fill_manual(name = "genotype", values = c("red", "green", "blue", "lightblue", "magenta", "orange", "yellow", "black")) +
-  labs(title = "Removal latency first entry\n") + xlab ("\ngentreat") + ylab("nEntries\n") +
-  theme (legend.title=element_blank())
-
-bp_latency + geom_point (colour="red")
-bp_latency + geom_point (position = position_jitter(width = 0.2), colour="red")
-
-rem_data_all_var$NUMBER.ENTRIES
-rem_data_all_var_TS <- subset(rem_data_all_var, genotype == "TS" | genotype == "TSEEEGCG" | genotype == "TSEE" | genotype == "TSEGCG")
-
-bp_rem_latency_TS <- ggplot(rem_data_all_var_TS , aes (genotype, LATENCY.TARGET, fill = genotype)) + 
-  geom_boxplot(show_guide=FALSE) +
-  scale_fill_manual(name = "genotype", values = c("green", "lightblue", "orange", "black")) +
-  labs(title = "Removal latency first entry\n") + xlab ("\ngentreat") + ylab("latency\n") +
-  theme (legend.title=element_blank())
-
-bp_rem_latency_TS + geom_point (position = position_jitter(width = 0.2), colour="red")
-
-# boxplot gallagher index
-bp_gallagher <- ggplot(rem_data_all_var , aes (genotype, GALLINDEX.REM, fill = genotype)) + 
+### Boxplot
+bp_perc_NE <- ggplot(rem_data_all_var , aes (genotype, PERCENT.NE.REM, fill = genotype)) + 
   geom_boxplot (outlier.size=NA, show_guide=FALSE) +
   scale_fill_manual(name = "genotype", values = c("red", "darkgreen", "blue", "lightblue", "magenta", "orange", "yellow", "black")) +
-  labs(title = "Removal gallagher index\n") + xlab ("\nGroups") + ylab("Gallagher index (cm)\n") +
-  theme (legend.title=element_blank()) +
-#   scale_y_continuous (breaks=1:10) +
-  scale_y_continuous(limits=c(18, 110), breaks = c(20,40,60,80,100)) +
-                       
-  geom_segment(aes(x = 7.63, y = median(rem_data_all_var [rem_data_all_var$genotype == "TSEEEGCG","GALLINDEX.REM"]), 
-               xend = 8.37, yend = median(rem_data_all_var [rem_data_all_var$genotype == "TSEEEGCG","GALLINDEX.REM"])), 
-               colour="white", size =0.8)
-
-bp_gallagher_points <- bp_gallagher + geom_point (position = position_jitter(width = 0.2), colour="red", show_guide=FALSE)
-
-bp_gallagher_points
-
-#PLOT_paper
-# ggsave (bp_gallagher_points, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig3_rem_singleVar/", "rem_gallagher_all_gr.jpg", sep=""), 
-#          width=14, height=7, dpi=900)
-
-### Gallagher index without mouse = "130054742" that is considered an outlier according to JR analysis
-# Adding mice ID
-geom_text (data=neg_positions, aes (x=-Dim.1, y=-Dim.2, label=neg_labels, hjust=1.2), show_guide = FALSE, size=5) + 
-outlier <- rem_data_all_var [which (rem_data_all_var$ID == "130054742"),]
-
-# Plot showing the outlier
-bp_gallagher_points + geom_text(data=outlier , aes (label=ID))
-
-#Removing the individual from the analysis to make the boxplot
-#Not used anymore
-# rem_data_all_var_noOutlier <- rem_data_all_var [-which (rem_data_all_var$ID == "130054742"),]
-# bp_gallagher_noOut <- ggplot(rem_data_all_var_noOutlier, aes (genotype, GALLINDEX.REM, fill = genotype)) + 
-#   geom_boxplot (outlier.size=NA, show_guide=F) +
-#   scale_fill_manual(name = "genotype", values = c("red", "darkgreen", "blue", "lightblue", "magenta", "orange", "yellow", "black")) +
-#   labs(title = "Removal gallagher index\n") + xlab ("\ngentreat") + ylab("Gallagher index (cm)\n") +
-#   theme (legend.title=element_blank()) +
-#   guides(color=guide_legend(title=NULL)) +
-#   theme(legend.key = element_blank())+
-#   geom_segment(aes(x = 7.63, y = median(rem_data_all_var [rem_data_all_var$genotype == "TSEEEGCG","GALLINDEX.REM"]), 
-#                    xend = 8.37, yend = median(rem_data_all_var [rem_data_all_var$genotype == "TSEEEGCG","GALLINDEX.REM"])), 
-#                colour="white", size =0.8) + 
-#               geom_point (position = position_jitter(width = 0.2), colour="red", show_guide=FALSE)
-# 
-# bp_gallagher_noOut <- bp_gallagher_noOut + geom_point(data=outlier , aes (label=ID), show_guide=FALSE, shape = 2)
-# bp_gallagher_noOut
-
-#PLOT_paper
-# ggsave (bp_gallagher_noOut, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "rem_gallagher_all_gr_outlier.jpg", sep=""), 
-#         width=14, height=7, dpi=900)
-
-# Legend with colours for all group of animals
-l <- ggplot() + geom_point(data=rem_data_all_var_noOutlier, aes (x=genotype, y=GALLINDEX.REM, colour = genotype), shape=15, size=5) +
-                scale_colour_manual (values=c("red", "darkgreen", "blue", "lightblue", "magenta", "orange", "yellow", "black"))
-l <- l + guides(color=guide_legend(title="gentreat")) 
-l <- l + theme(legend.key = element_blank())
-l
-
-#PLOT_paper
-# ggsave (l, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "allAnimals_legend.jpg", sep=""), 
-#         width=14, height=7, dpi=900)
-
-# Only trisomic group
-bp_rem_gallagher_TS <- ggplot(rem_data_all_var_TS , aes (genotype, GALLINDEX.REM, fill = genotype)) + 
-  geom_boxplot(show_guide=FALSE) +
-#   geom_text (aes (label=ID), vjust=-0.5, hjust=1, size=4, show_guide = T)
-  geom_text (aes (label=ID))+
-  scale_fill_manual(name = "genotype", values = c("green", "lightblue", "orange", "black")) +
-  labs(title = "Removal gallagher index\n") + xlab ("\ngentreat") + ylab("Gallagher index (cm)\n") +
-  theme (legend.title=element_blank())
-
-bp_rem_gallagher_TS + geom_point (position = position_jitter(width = 0.2), colour="red")
-
-
-
-
-
-
-
-#### 
-# Anova with only TS group
-rem_data_all_var_TS <- subset(rem_data_all_var, grepl("TS", rem_data_all_var$genotype))
-rem_TS_nEntries.aov <- aov(NUMBER.ENTRIES ~ genotype  + Error(ID), data = rem_data_all_var_TS)
-summary(rem_TS_nEntries.aov)
-
-bp_ts_rem_nEntries <- ggplot(rem_data_all_var_TS , aes (genotype, NUMBER.ENTRIES, fill = genotype)) + 
-  geom_boxplot() +
-  scale_fill_manual(name = "genotype", values = c("green","lightblue","orange",  "black")) +
-  labs(title = "Removal number of entries target\n") + xlab ("\ngentreat") + ylab("latency\n") +
-  theme (legend.title=element_blank())
-
-bp_ts_rem_nEntries + geom_point (colour="red")
-bp_ts_rem_nEntries + geom_point (position = position_jitter(width = 0.2), colour="red")
-
-rem_TS_latency.aov <- aov(LATENCY.TARGET ~ genotype  + Error(ID), data = rem_data_all_var_TS)
-summary(rem_TS_latency.aov)
-
-# Post-hoc
-pairwise.t.test (rem_data_all_var_TS$LATENCY.TARGET, rem_data_all_var_TS$genotype, , p.adj="hochberg", paired=F)
-
-bp_ts_rem_latency <- ggplot(rem_data_all_var_TS , aes (genotype, LATENCY.TARGET, fill = genotype)) + 
-  geom_boxplot() +
-  scale_fill_manual(name = "genotype", values =c("green","lightblue","orange",  "black")) +
-  labs(title = "Removal latency first entry\n") + xlab ("\ngentreat") + ylab("latency\n") +
-  theme (legend.title=element_blank())
-
-bp_ts_rem_latency + geom_point (colour="red")
-bp_ts_rem_latency + geom_point (position = position_jitter(width = 0.2), colour="red")
-
-
-#### 
-# Anova with only TS group
-rem_data_all_var_TS <- subset(rem_data_all_var, grepl("TS", rem_data_all_var$genotype))
-rem_TS_nEntries.aov <- aov(NUMBER.ENTRIES ~ genotype  + Error(ID), data = rem_data_all_var_TS)
-summary(rem_TS_nEntries.aov)
-
-###########
-### Gallagher Index
-head(rem_data_all_var_TS)
-
-rem_TS_gallIndex.aov <- aov(GALLINDEX.REM ~ genotype  + Error(ID), data = rem_data_all_var_TS)
-summary(rem_TS_gallIndex.aov)
-
-# boxplot gallagher
-bp_ts_rem_gallIndex <- ggplot(rem_data_all_var_TS, aes (genotype, GALLINDEX.REM, fill = genotype)) + 
-  geom_boxplot() +
-  scale_fill_manual(name = "genotype", values =c("green","lightblue","orange",  "black")) +
-  labs(title = "Removal latency first entry\n") + xlab ("\ngentreat") + ylab("latency\n") +
-  theme (legend.title=element_blank())
-
-bp_ts_rem_gallIndex
-
-pairwise.t.test(rem_data_all_var_TS$GALLINDEX.REM, rem_data_all_var_TS$genotype, , p.adj="hochberg", paired=F)
-
-# Post-hoc
-# df.anova$interaction <- paste(df.anova$group, df.anova$time, sep="_")
-pairwise.t.test(new_coord_rem$V1, new_coord_rem$genotype, , p.adj="hochberg", paired=F)
-
-### 
-# Revision comments reviewers
-###########
-### Adding time expent in the target quadrant
-
-# boxplot percentage of time in the target quadrant
-bp_t_target_quadrant <- ggplot(rem_data_all_var , aes (genotype, PERC.NE.REM, fill = genotype)) + 
-  geom_boxplot (outlier.size=NA, show_guide=FALSE) +
-  scale_fill_manual(name = "genotype", values = c("red", "darkgreen", "blue", "lightblue", "magenta", "orange", "yellow", "black")) +
-  labs(title = "Removal time in target quadrant\n") + xlab ("\nGroups") + ylab("Gallagher index (cm)\n") +
+  labs(title = "Removal percentage of time in target quadrant\n") + xlab ("\nGroups") + ylab("% target quadrant\n") +
   theme (legend.title=element_blank()) +
   #   scale_y_continuous (breaks=1:10) +
-  scale_y_continuous(limits=c(0, 90), breaks = c(0,20,40,60,80)) +
+  scale_y_continuous(limits=c(0, 80), breaks = c(0,20,40,60,80)) +
   
-  geom_segment(aes(x = 7.63, y = median(rem_data_all_var [rem_data_all_var$genotype == "TSEEEGCG","GALLINDEX.REM"]), 
-                   xend = 8.37, yend = median(rem_data_all_var [rem_data_all_var$genotype == "TSEEEGCG","GALLINDEX.REM"])), 
+  geom_segment(aes(x = 7.63, y = median(rem_data_all_var [rem_data_all_var$genotype == "TSEEEGCG","PERCENT.NE.REM"]), 
+                   xend = 8.37, yend = median(rem_data_all_var [rem_data_all_var$genotype == "TSEEEGCG","PERCENT.NE.REM"])), 
                colour="white", size =0.8)
 
-bp_t_target_quadrant_points <- bp_t_target_quadrant + geom_point (position = position_jitter(width = 0.2), colour="red", show_guide=FALSE)
+bp_perc_NE_points <- bp_perc_NE + geom_point (position = position_jitter(width = 0.2), colour="red", show_guide=FALSE)
 
-bp_t_target_quadrant_points
+bp_perc_NE_points
 
-######
-# Statistical analysis Like juanra
-# Test like juanra without removing the outlier
-lm_rem <- lm (PERC.NE.REM ~ genotype, data = rem_data_all_var)
-l2_rem <- glht(lm_rem, linfct = mcp (genotype = "Tukey"))
-summary(l2_rem, test = adjusted(type = "BH"))
-
-# For the sake of unifying the factor name with juanra I add gentreat and perform the test
-rem_data_all_var$gentreat <- rem_data_all_var$genotype 
-lm_rem <- lm (GALLINDEX.REM ~ gentreat, data = rem_data_all_var)
-l2_rem <- glht(lm_rem, linfct = mcp (gentreat = "Tukey"))
-summary(l2_rem, test = adjusted (type = "BH"))
+#PLOT_paper
+ggsave (bp_perc_NE_points, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig3_rem_singleVar/", "rem_perc_NE_all_gr.jpg", sep=""), 
+        width=14, height=7, dpi=900)
 
 
-lm_rem <- lm (PERC.NE.REM ~ genotype, data = rem_data_all_var)
-l2_rem <- glht(lm_rem, linfct = mcp (genotype = "Tukey"))
-summary(l2_rem, test = adjusted(type = "BH"))
+
+
+
+
+
+
+
+
+
+
+
+
+
