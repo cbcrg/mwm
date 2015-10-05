@@ -1,0 +1,185 @@
+#############################################################################
+### Jose A Espinosa. NPMMD/CB-CRG Group. Oct 2015                         ###
+#############################################################################
+### MWM young ts65dn mice                                                 ###
+### PCA analysis                                                          ### 
+#############################################################################
+
+##Getting HOME directory
+home <- Sys.getenv("HOME")
+
+jtracks_data = spss.get(paste (home, "/20151001_ts65_young_MWM/data/Jtracks parameters Young TS_SUBCONJ_REV_R_FORMAT.sav", sep=""))
+#smart_data = spss.get(paste (home, "/20151001_ts65_young_MWM/data/Jtracks parameters Young TS_SUBCONJ.sav", sep=""))
+
+# data_nxf = spss.get(paste (home, "/20150515_PCA_old_frotiersPaper/data/Ts65Dn_OLD_ACQ1_ACQ5_SUBCONJ.sav", sep=""))
+# head (data_nxf)
+# Loading functions:
+source (paste (home, "/git/mwm/lib/R/plot_param_public.R", sep=""))
+
+library("ggplot2")
+library("Hmisc")
+
+tail(jtracks_data, 50)
+# tail(smart_data)
+
+head (jtracks_data)
+# head(smart_data)
+
+# Percentage in the center is the inverse to time in the periphery, we removed it 
+jtracks_data
+
+#####################
+# Last 50 rows are empty 
+# Parecen que los datos son iguales elimino de la tabla el reversal 
+# Me quedo con la tabla jtracks que tiene la misma estructura que la que hemos utilizado en el frontiers
+jtracks_data_filt <- head(jtracks_data, -50)
+tail(jtracks_data_filt)
+dim (jtracks_data_filt)
+young_acq <- subset(jtracks_data_filt, grepl("ACQ", DAY))
+dim (young_acq)
+young_acq_7var <- subset(young_acq, select=-c(GALL.DIST, PER.CENTER))
+# I set same labels than in the other script (frontiers)
+colnames(young_acq_7var) <- c("ID", "gentreat","day", "distance", "gallindex", "latency", "speed", "percentne", "percentperi", "whishaw")
+young_acq_7var
+head(young_acq_7var)
+
+young_acq_7var$gentreat <- gsub("H20", "", young_acq_7var$gentreat)
+young_acq_7var$gentreat <- gsub("NE", "", young_acq_7var$gentreat)
+# young_acq_7var$gentreat <- factor(young_acq_7var$gentreat , levels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"), 
+#                                   labels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"))
+young_acq_7var$gentreat <- factor(young_acq_7var$gentreat , levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"), 
+                                  labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"))
+
+young_acq_7var$day <- gsub("ACQ", "", young_acq_7var$day)
+
+tbl_median <- with (young_acq_7var, aggregate (cbind (distance, gallindex, latency, speed, percentne, percentperi, whishaw), 
+                    list (gentreat=gentreat, day=day), FUN=median))
+
+rownames (tbl_median) <- paste (tbl_median[,1], gsub ("Day ", "", tbl_median[,2]), sep="")
+
+tbl_ind <- young_acq_7var
+tbl_med_ind <- rbind (tbl_median, tbl_ind[,-1])
+n_median <- length(tbl_median[,1])
+
+res = PCA(tbl_med_ind[,(3:9)], scale.unit=TRUE, ind.sup=c(41:length(tbl_med_ind[,1]))) 
+
+# res$var$coord[,1],res$var$coord[,2]
+summary_resPCA<- summary(res)
+
+# Variance of PC1 and PC2
+var_PC1 <- round (res$eig [1,2])
+var_PC2 <- round (res$eig [2,2])
+
+# Coordinates are store here
+# res$ind$coord --- rownames(res$ind$coord)
+pca2plot <- as.data.frame (res$ind$coord[1:n_median,])
+pca2plot$gen_day <- row.names(pca2plot)
+pca2plot$days <-  as.factor(as.numeric (gsub(".*([0-9]+)$", "\\1", pca2plot$gen_day)))
+pca2plot$gentreat <-  as.factor(gsub("([A-Z]+).*$", "\\1", pca2plot$gen_day))
+
+# pca2plot$gentreat <- factor(pca2plot$gentreat , levels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"), 
+#                             labels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"))
+pca2plot$gentreat <- factor(pca2plot$gentreat , levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"), 
+                                  labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"))
+
+pca_medians_acq <- ggplot(pca2plot, aes(x=-Dim.1, y=-Dim.2, colour=gentreat )) + 
+  #                           geom_path (size = 1,show_guide = T) + 
+  geom_path (size = 1,show_guide = T) + 
+  scale_color_manual(values=c("red", "darkgreen", "gray", "black")) +
+  #                           geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show_guide = T)+
+  geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show_guide = F)+
+  theme(legend.key=element_rect(fill=NA)) +
+  labs(title = "PCA of group medians\n", x = paste("\nPC1 (", var_PC1, "% of variance)", sep=""), 
+       y=paste("PC2 (", var_PC2, "% of variance)\n", sep = "")) +
+  #                           guides(colour = guide_legend(override.aes = list(size = 10)))+
+  guides(colour = guide_legend(override.aes = list(size = 1)))+
+  theme(legend.key=element_rect(fill=NA))
+
+#PLOT_paper
+pca_medians_acq
+
+# keeping aspect ratio
+pca_medians_acq_aspect_ratio <- pca_medians_acq + coord_fixed() + 
+  scale_x_continuous (limits=c(-3, 3), breaks=-3:3) + 
+  scale_y_continuous (limits=c(-2, 2), breaks=-2:2)
+
+pca_medians_acq_aspect_ratio
+ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20151001_ts65_young_MWM/figures/", 
+          "PCA_medians_legend.jpg", sep=""), width = 10, height = 6, dpi=900)
+ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20151001_ts65_young_MWM/figures/", 
+           "PCA_medians_NO_legend.jpg", sep=""), width = 9, height = 6, dpi=900)
+
+### Circle Plot
+circle_plot <- as.data.frame (res$var$coord)
+labels_v <- row.names(res$var$coord)
+
+neg_labels <- labels_v [c(1,2,3,6)]
+neg_positions <- circle_plot [c(1,2,3,6), c(1,2)]
+
+# change positions for labels
+# neg_positions [2,2] <- neg_positions [2,2] - 0.03 
+# neg_positions [3,2] <- neg_positions [3,2] + 0
+# neg_positions [4,2] <- neg_positions [4,2] - 0.02
+
+pos_labels <- labels_v [c(4,5,7)]
+pos_positions <- circle_plot [c(4,5,7), c(1,2)]
+
+angle <- seq(-pi, pi, length = 50)
+df.circle <- data.frame(x = sin(angle), y = cos(angle))
+
+p_circle_plot <- ggplot(circle_plot) + 
+  geom_segment (data=circle_plot, aes(x=0, y=0, xend=-Dim.1, yend=-Dim.2), arrow=arrow(length=unit(0.2,"cm")), alpha=1, size=1, color="red") +
+  xlim (c(-1.2, 1.2)) + ylim (c(-1.2, 1.2)) +
+  geom_text (data=neg_positions, aes (x=-Dim.1, y=-Dim.2, label=neg_labels, hjust=1.2), show_guide = FALSE, size=5) + 
+  geom_text (data=pos_positions, aes (x=-Dim.1, y=-Dim.2, label=pos_labels, hjust=-0.3), show_guide = FALSE, size=5) +
+  geom_vline (xintercept = 0, linetype="dotted") +
+  geom_hline (yintercept=0, linetype="dotted") +
+  labs (title = "PCA of the variables\n", x = paste("\nPC1 (", var_PC1, "% of variance)", sep=""), 
+        y=paste("PC2 (", var_PC2, "% of variance)\n", sep = "")) +
+  geom_polygon (data = df.circle, aes(x, y), alpha=1, colour="black", fill=NA, size=1)
+
+p_circle_plot
+
+# ggsave (p_circle_plot, file=paste(home, "/20151001_ts65_young_MWM/figures/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
+ggsave (p_circle_plot, file=paste(home, "/20151001_ts65_young_MWM/figures/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
+
+############
+## BARPLOT
+df.bars <- cbind (as.numeric(sort(res$var$coord[,1]^2/sum(res$var$coord[,1]^2)*100,decreasing=TRUE)), names(res$var$coord[,1])[order(res$var$coord[,1]^2,decreasing=TRUE)])
+df.bars_to_plot <- as.data.frame(df.bars)
+df.bars_to_plot$index <- as.factor (df.bars_to_plot$V2)
+class (df.bars_to_plot$V1)
+df.bars_to_plot$value <- as.numeric(sort(res$var$coord[,1]^2/sum(res$var$coord[,1]^2)*100,decreasing=TRUE))
+df.bars_to_plot$index <- factor(df.bars_to_plot$index, levels = df.bars_to_plot$index[order(df.bars_to_plot$value, decreasing=TRUE)])
+
+bars_plot <- ggplot (data=df.bars_to_plot, aes(x=index, y=value)) + 
+  ylim (c(0, 71)) +
+  geom_bar (stat="identity", fill="gray", width=0.8) + 
+  labs (title = "Variable contribution to PC1\n", x = "", y="Contribution in %\n") +
+  theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1) )
+bars_plot
+
+#PLOT_paper
+ggsave (bars_plot, file=paste(home, "/20151001_ts65_young_MWM/figures/", "bar_contribution.jpg", sep=""), dpi=900)
+
+df.bars_PC2 <- cbind (as.numeric(sort(res$var$coord[,2]^2/sum(res$var$coord[,2]^2)*100,decreasing=TRUE)), names(res$var$coord[,2])[order(res$var$coord[,2]^2,decreasing=TRUE)])
+df.bars_to_plot_PC2 <- as.data.frame(df.bars_PC2)
+df.bars_to_plot_PC2$index <- as.factor (df.bars_to_plot_PC2$V2)
+# class (df.bars_to_plot_PC2$V1)
+# df.bars_to_plot_PC2$value <- as.numeric(sort(res$var$coord[,2]^2/sum(res$var$coord[,2]^2)*100,decreasing=TRUE))
+df.bars_to_plot_PC2$value <- as.numeric(sort(res$var$coord[,2]^2/sum(res$var$coord[,2]^2)*100,decreasing=TRUE))
+
+df.bars_to_plot_PC2$index
+df.bars_to_plot_PC2$index <- factor(df.bars_to_plot_PC2$index, levels = df.bars_to_plot_PC2$index[order(df.bars_to_plot_PC2$value, decreasing=TRUE)])
+
+# df.bars_to_plot_PC2$value <- rev(df.bars_to_plot_PC2$value)
+bars_plot_PC2 <- ggplot (data=df.bars_to_plot_PC2, aes(x=index, y=value)) + 
+  geom_bar (stat="identity", fill="gray", width=0.8) + 
+  labs (title = "Variable contribution to PC2\n", x = "", y="Contribution in %\n") +
+  theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1) )
+bars_plot_PC2
+
+#PLOT_paper
+# Final version
+ggsave (bars_plot_PC2, file=paste(home, "/20151001_ts65_young_MWM/figures/", "bar_contribution_PC2.jpg", sep=""), dpi=900)
+
