@@ -11,7 +11,8 @@
 
 
 //params.MWM_tbl = "20150515_PCA_old_frotiersPaper/data/Ts65Dn_OLD_ACQ1_ACQ5_SUBCONJ.sav"
-params.MWM_tbl = "20150515_PCA_old_frotiersPaper/data/ts65_old_3sup_tsegcg_rev.csv"
+//params.MWM_tbl = "20150515_PCA_old_frotiersPaper/data/ts65_old_3sup_tsegcg_rev.csv"
+params.MWM_tbl = "20151001_ts65_young_MWM/data/ts65_young.csv"
 MWM_tbl_path = "$HOME/${params.MWM_tbl}"
 
 println "path: $MWM_tbl_path"
@@ -20,11 +21,13 @@ println "path: $MWM_tbl_path"
 MWM_file = file(MWM_tbl_path)
 
 start_perm = 1111
-step = 10000
+step = 10
+//step = 10000
 end_perm = start_perm + step
 perm = Channel.from(start_perm..end_perm)
 
-dump_dir = file("$HOME/git/mwm/lib/nxf/")
+//dump_dir = file("$HOME/git/mwm/lib/nxf/")
+dump_dir = file("$HOME/20151001_ts65_young_MWM/data/")
 //seed = Channel.from(111,222,333)
 
 /*
