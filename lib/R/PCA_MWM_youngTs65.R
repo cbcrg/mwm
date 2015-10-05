@@ -51,17 +51,16 @@ young_acq_7var$gentreat <- factor(young_acq_7var$gentreat , levels=c("WT", "TS",
                                   labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"))
 
 young_acq_7var$day <- gsub("ACQ", "", young_acq_7var$day)
-
 tbl_median <- with (young_acq_7var, aggregate (cbind (distance, gallindex, latency, speed, percentne, percentperi, whishaw), 
                     list (gentreat=gentreat, day=day), FUN=median))
 
 rownames (tbl_median) <- paste (tbl_median[,1], gsub ("Day ", "", tbl_median[,2]), sep="")
-
 tbl_ind <- young_acq_7var
 tbl_med_ind <- rbind (tbl_median, tbl_ind[,-1])
 n_median <- length(tbl_median[,1])
+n_median_plus1 <- n_median + 1
 
-res = PCA(tbl_med_ind[,(3:9)], scale.unit=TRUE, ind.sup=c(41:length(tbl_med_ind[,1]))) 
+res = PCA(tbl_med_ind[,(3:9)], scale.unit=TRUE, ind.sup=c(n_median_plus1:length(tbl_med_ind[,1]))) 
 
 # res$var$coord[,1],res$var$coord[,2]
 summary_resPCA<- summary(res)
@@ -105,9 +104,9 @@ pca_medians_acq_aspect_ratio <- pca_medians_acq + coord_fixed() +
 
 pca_medians_acq_aspect_ratio
 ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20151001_ts65_young_MWM/figures/", 
-          "PCA_medians_legend.jpg", sep=""), width = 10, height = 6, dpi=900)
+        "PCA_medians_legend.jpg", sep=""), width = 10, height = 6, dpi=900)
 ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20151001_ts65_young_MWM/figures/", 
-           "PCA_medians_NO_legend.jpg", sep=""), width = 9, height = 6, dpi=900)
+        "PCA_medians_NO_legend.jpg", sep=""), width = 9, height = 6, dpi=900)
 
 ### Circle Plot
 circle_plot <- as.data.frame (res$var$coord)
@@ -183,3 +182,58 @@ bars_plot_PC2
 # Final version
 ggsave (bars_plot_PC2, file=paste(home, "/20151001_ts65_young_MWM/figures/", "bar_contribution_PC2.jpg", sep=""), dpi=900)
 
+###################################
+# Plot of supplementary individuals
+day <- c()
+genotype <- c()
+new_coord <- as.data.frame(cbind(-res$ind.sup$coord[,1],-res$ind.sup$coord[,2]))
+dim(new_coord)
+
+# the info of the genotype and the tt was in this table
+new_coord$day <- gsub ("Day ", "", tbl_ind$day)
+new_coord$genotype <- tbl_ind$gentreat
+
+new_coord$genotype <- factor(new_coord$genotype , levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"), 
+                             labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"))
+
+pca_plot_individuals <- ggplot (data=new_coord, aes (V1, V2)) + 
+  geom_text (aes(label=day, colour = genotype), size=5, show_guide = FALSE) +
+  scale_color_manual(values=c("red", "darkgreen", "gray", "black")) +
+  xlim (c(-6, 6.5)) + ylim (c(-8, 6.5)) +
+  geom_path (data=pca2plot, aes(x=-Dim.1, y=-Dim.2, colour=gentreat),size = 1,show_guide = FALSE) +
+  labs(title = "Individual as supplementary points\n", x = paste("\nPC1 (", var_PC1, "% of variance)", sep=""), 
+       y=paste("PC2 (", var_PC2, "% of variance)\n", sep = ""))  +
+  coord_fixed()
+
+pca_plot_individuals
+
+#PLOT_paper
+ggsave (pca_plot_individuals, file=paste(home, "/20151001_ts65_young_MWM/figures/", "PCA_individuals.jpg", sep=""),
+        height = 10, width = 10, dpi=900)
+
+head(new_coord)
+## Individual variation as density plots
+p_cloud_indiv_by_day <- ggplot(new_coord, aes(V1, V2, color=genotype, label=day)) + 
+  stat_density2d(aes(fill=factor(genotype), alpha = ..level..), 
+                 geom="polygon", color=NA, n=100, h=4, bins=6, show_guide = FALSE) + 
+  geom_point(show_guide = FALSE) + 
+  scale_color_manual(name='genotype', 
+                     values = c("red", "green", "gray", "black"), 
+                     labels = c("WT", "TS", "WTEEEGCG", "TSEEEGCG")) + 
+  scale_fill_manual( name='gentreat', 
+                     values = c("red", "green", "gray", "black"), 
+                     labels = c("WT", "TS", "WTEEEGCG", "TSEEEGCG")) + 
+  geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
+  scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
+  scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
+  coord_cartesian(xlim=c(-7, 9),
+                  ylim=c(-10, 10)) +
+  labs(title = "Density plot of individual variation\n", x = "\nPC1", y="PC2\n") +
+  scale_alpha_continuous(range=c(0.3,0.5)) 
+# +
+#   geom_path (data=pca2plot, aes(x=Dim.1, y=Dim.2, colour=gentreat), size = 0.5, linetype = 2, show_guide = FALSE)
+
+p_cloud_indiv_by_day
+p_cloud_indiv_by_day_facet <- p_cloud_indiv_by_day + facet_wrap(~genotype, ncol = 2)
+                  
+p_cloud_indiv_by_day_facet + geom_vline(xintercept = 0, colour="gray") + geom_hline(yintercept = 0, colour="gray")
