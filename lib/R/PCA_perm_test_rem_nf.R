@@ -79,100 +79,88 @@ print (argsL)
 #   }
 # }
 
-rem_data = spss.get(paste (home, "/20150515_PCA_old_frotiersPaper/data/TS_old_removal.sav", sep=""))
-ma3 = spss.get(paste (home, "/20150515_PCA_old_frotiersPaper/data/Jtracks_parameters_except_latency.sav", sep=""))
-# tail (ma3)
-# Last 5 rows are empty 
-ma3 <- head(ma3,-5)
+path2files
+# ma3 <- read.csv("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/rev_data_f_6v.csv", sep="\t")
+ma3 <- read.csv(path2files, sep="\t")
 
-ma3_filt_rem_data <- ma3[ , grepl( "REM" , names( ma3 ) ) ]
-ma3_filt_rem_data$ID <- ma3 [ , grepl( "ID" , names( ma3 ) ) ]
-
-# tail (rem_data)
-# tail (ma3_filt_rem_data)
-
-# All variables in rem_data are not present in ma3_filt_rem_data
-# We need to add them: NUMBER.ENTRIES, PERM.TIME, PERCENT.PERM.TIME, LATENCY.TARGET
-# We keep IDs to perform the joining
-rem_data_var = rem_data [ , c(1,7:10)]
-rem_data_all_var <- merge(rem_data, ma3_filt_rem_data, all=TRUE)
-
-# Guys starting with 1400277xx are missing in the second table, thus when merging they appear as NA, I delete them
-rem_data_all_var <- head (rem_data_all_var, -5)
-
-# It is better to unify labels with acquistion scripts here. 
-# Here we found TSNEH20 while in acq we found TS
-rem_data_all_var$GENTREAT
-genotype_ind<- gsub("H20", "", rem_data_all_var$GENTREAT)
-genotype_ind <- gsub("NE", "", genotype_ind)
-rem_data_all_var$GENTREAT <- genotype_ind
 
 # Setting the order of factor for pairwise comparisons
-rem_data_all_var$GENTREAT <- factor(rem_data_all_var$GENTREAT , levels=c("WT","TS","WTEE","TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"), 
+ma3$gentreat <- factor(ma3$gentreat , levels=c("WT","TS","WTEE","TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"), 
                                labels=c(c("WT","TS","WTEE","TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG")))
 
 # New function taking into account the acquisition days in the comparison
 f_t_stat <- function (df_coord, gen_1 = "TS", gen_2 = "TSEEEGCG", acq_day=5){
-  group1 <- subset (df_coord, genotype == gen_1 & day==acq_day)
-  group2 <- subset (df_coord, genotype == gen_2 & day==acq_day)
+  group1 <- subset (new_coord, genotype == gen_1 & day==acq_day)
+  group2 <- subset (new_coord, genotype == gen_2 & day==acq_day)
   t_stat = t.test(group1$V1, group2$V1)$statistic  
   return <- c(t_stat, gen_1, gen_2, paste (gen_1, gen_2, sep="_"))
 }
 
+
+id_group <- subset(ma3, grepl("1", ma3$day))
+
+id_group <- id_group [,c(1,2)]
+
 set.seed (seed)
 
-p_rem_data_all_var <- rem_data_all_var
+p_genetreat <- sample(id_group$gentreat)
+id_group$gentreat <- p_genetreat
 
-# Randomizing group labels
-p_rem_data_all_var$GENTREAT <- sample (p_rem_data_all_var$GENTREAT)
+p_ma3 <- merge(id_group, ma3, by="id", all = TRUE)
 
-p_selected_var_rem <- p_rem_data_all_var [,c(1:8,10,12,14,15,17,18)] 
-# head (p_selected_var_rem)
-# head(selected_var_rem)
+# I eliminiate the original column with groups labels
+# p_ma2 <- p_ma2 [,c(-3)]
+# Just in case col order changes better this way
+p_ma3 <- subset(p_ma3, select=-c(gentreat.y))
 
-# Getting gentreat for PCA
-p.genotype_ind <- p_selected_var_rem$GENTREAT
+colnames(p_ma3)[2] <- "gentreat"
 
-p.M.ind = p_rem_data_all_var [,c(7,8,10,12,14,15,17,18)]  
+n_col <- dim (p_ma3)[2]
+variables_list <- colnames(p_ma3) [4:n_col] 
 
-############################
-# Median calculation
-p_tbl_stat_median <- with (p_selected_var_rem, aggregate (cbind (NUMBER.ENTRIES, PERM.TIME, LATENCY.TARGET, GALLINDEX.REM, SPEED.REM, PERC.NE.REM, PERC.PERI.REM, WISHAW.REM), list (GENTREAT), FUN=function (x) median=median(x)))                                                            
-row.names (p_tbl_stat_median) <- as.factor (p_tbl_stat_median$Group.1)  
-p_tbl_stat_median <- p_tbl_stat_median [,-1]  
-p.M.med <- p_tbl_stat_median
-#   M.med
-#   p.M.med
-p.jm = rbind (p.M.med, p.M.ind)
+tbl_median <- with (p_ma3, aggregate (mget(variables_list), list (gentreat=gentreat, day=day), FUN=median))
 
-#res = PCA (jm, scale.unit=TRUE, ind.sup=c(41:455), graph=F) 
-p.res = PCA (p.jm, scale.unit=TRUE, ind.sup=c(9:91), graph=F) 
-p.pca_coord_rem <- as.data.frame (cbind (p.res$ind.sup$coord[,1], p.res$ind.sup$coord[,2]))
-p.pca_coord_rem$day <- c(1:83)
-p.pca_coord_rem$genotype <- p.genotype_ind
+tbl_ind <- p_ma3
 
-# I fake a session column in order not to change the function f_t_stat_only
-p.pca_coord_rem$day <- "rem"
+tbl_med_ind <- rbind (tbl_median, tbl_ind[,-1])
+n_median <- length(tbl_median[,1])
+n_col_tbl_all <- length(tbl_median[1,])
+res = PCA(tbl_med_ind[,(3:n_col_tbl_all)], scale.unit=TRUE, ind.sup=c((n_median+1):length(tbl_med_ind[,1])), graph=F) 
+
+# Assigning again the labels of the groups for t statistic calculation
+#res$var$coord[,1]
+#new_coord <- cbind(res$ind.sup$coord[,1], res$ind.sup$coord[,2])
+day <- c()
+genotype <- c()
+new_coord <- as.data.frame(cbind(res$ind.sup$coord[,1],res$ind.sup$coord[,2]))
+new_coord$day <- gsub ("Day ", "", tbl_ind$day)
+new_coord$genotype <- tbl_ind$gentreat
+
+new_coord$genotype <- factor(new_coord$genotype , levels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"), 
+                             labels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"))
+
 
 # Get all possible combinations of genontype treatment pairwise comparisons 
-gentreat <- sort(unique(rem_data_all_var$GENTREAT))
+gentreat <- sort(unique(ma2$gentreat))
 gentreat_pairs <- t (combn (gentreat,2))
 
 result <- c()
-
+result_1 <- c()
 
 for (row in 1:length(gentreat_pairs [,1])) {
   gr1 <- as.character(gentreat_pairs [row,1])
   gr2 <- as.character(gentreat_pairs [row,2])
   
-  result_v <- c(f_t_stat (p.pca_coord_rem, gr1, gr2, acq_day="rem"), seed)
+  result_v <- c(f_t_stat (new_coord, gr1, gr2, acq_day=3), seed)
+  result_v_1 <- c(f_t_stat (new_coord, gr1, gr2, acq_day=1), seed)
   
   result <- rbind  (result, result_v)
+  result_1 <- rbind  (result_1, result_v_1)
   
   colnames(result) <- c ("t", "gr1", "gr2", "comparison", "seed") 
+  colnames(result_1) <- c ("t", "gr1", "gr2", "comparison", "seed")               
 }
 
 wd <- getwd()
-write.table(result, file = paste(wd, "/tbl_t_stat_REM.csv", sep=""), sep="\t", row.names=FALSE, col.names=FALSE)
-
-
+write.table(result, file = paste(wd, "/tbl_t_stat_rem3.csv", sep=""), sep="\t", row.names=FALSE, col.names=FALSE)
+write.table(result_1, file = paste(wd, "/tbl_t_stat_rem1.csv", sep=""), sep="\t", row.names=FALSE, col.names=FALSE)
