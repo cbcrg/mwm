@@ -141,7 +141,7 @@ new_coord$genotype <- factor(new_coord$genotype , levels=c("WT", "TS", "WTEE", "
 
 
 # Get all possible combinations of genontype treatment pairwise comparisons 
-gentreat <- sort(unique(ma2$gentreat))
+gentreat <- sort(unique(ma3$gentreat))
 gentreat_pairs <- t (combn (gentreat,2))
 
 result <- c()
