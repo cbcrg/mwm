@@ -50,7 +50,7 @@ process perm {
     """
     export R_LIBS="/software/R/packages"
     
-    Rscript \$HOME/git/mwm/lib/R/perm_PCA_MWM_rem.nf.R --path2files=\$(readlink ${MWM_file}) --seed=${perm}    
+    Rscript \$HOME/git/mwm/lib/R/PCA_perm_test_rem_nf.R --path2files=\$(readlink ${MWM_file}) --seed=${perm}    
     """ 
 }
 
