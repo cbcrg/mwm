@@ -68,18 +68,18 @@ print (argsL)
   }
 }
 
-# {
-#   if (is.null (argsL$path2files)) 
-#   {
-#     path2files <- "/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/Ts65Dn_OLD_ACQ1_ACQ5_SUBCONJ.sav"
-#   }
-#   else
-#   {
-#     path2files <- argsL$path2files
-#   }
-# }
+{
+  if (is.null (argsL$path2files)) 
+  {
+    stop ("[FATAL]: Path to table is mandatory")
+    #     path2files <- "/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/Ts65Dn_OLD_ACQ1_ACQ5_SUBCONJ.sav"
+  }
+  else
+  {
+    path2files <- argsL$path2files
+  }
+}
 
-path2files
 # ma3 <- read.csv("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/rev_data_f_6v.csv", sep="\t")
 ma3 <- read.csv(path2files, sep="\t")
 
