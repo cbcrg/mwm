@@ -99,7 +99,7 @@ f_t_stat <- function (df_coord, gen_1 = "TS", gen_2 = "TSEEEGCG", acq_day=5){
 
 id_group <- subset(ma3, grepl("1", ma3$day))
 
-id_group <- id_group [,c(1,2)]
+id_group <- id_group [,c(1,3)]
 
 set.seed (seed)
 
