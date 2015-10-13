@@ -131,8 +131,8 @@ tbl_1111_day3 <- read.table ("/Users/jespinosa/20150515_PCA_old_frotiersPaper/tb
 df.sign_threshold.day3 <- sign_threshold (tbl_1111_day3, day=3)
 df.sign_threshold.day1 <- sign_threshold (tbl_1111_day1, day=1)
 
-write.table(df.sign_threshold.day3, file = paste(home, "/20150515_PCA_old_frotiersPaper/tbl", "/tbl_sign_thresh_perm_3_removal.csv", sep=""), 
+write.table(df.sign_threshold.day3, file = paste(home, "/20150515_PCA_old_frotiersPaper/tbl", "/tbl_sign_thresh_perm_3_reversal.csv", sep=""), 
             sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
 
-write.table(df.sign_threshold.day1, file = paste(home, "/20150515_PCA_old_frotiersPaper/tbl", "/tbl_sign_thresh_perm_1_removal.csv", sep=""), 
+write.table(df.sign_threshold.day1, file = paste(home, "/20150515_PCA_old_frotiersPaper/tbl", "/tbl_sign_thresh_perm_1_reversal.csv", sep=""), 
             sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
