@@ -21,41 +21,53 @@ colnames(rev_data)[1] <- "id"
 rev_data <- subset(rev_data, grepl("Rev", day))
 head(rev_data,20)
 
-# I can read from both sides indistintamente because the difference between the tables is that latency is missing, but in removal
-# there is no latency
-# Table after revision
-# ma3 = spss.get(paste (home, "/20150515_PCA_old_frotiersPaper/data/Jtracks parameters_all_including_extra_3mice.sav", sep=""))
-# head (ma3)
-# ma3
-# rev_data <- ma3[ , grepl( "REV" , names( ma3 ) ) ]
-# rev_data$id <- ma3 [ , grepl( "ID" , names( ma3 ) ) ]
-# head (rev_data)
+# Latencies are in a different table
+latencies.df=spss.get(paste (home, "/20150515_PCA_old_frotiersPaper/data/TS_OLD_LATENCIES_A_MANO_ALL_3_mice.sav", sep=""))
+head(latencies.df)
+colnames(latencies.df)[1] <- "id"
+
+# I only need REVERSAL data
+LAT.REV1 <- subset(latencies.df, select=c(id, LAT.REV1))
+LAT.REV2 <- subset(latencies.df, select=c(id, LAT.REV2))
+LAT.REV3 <- subset(latencies.df, select=c(id, LAT.REV3))
+colnames(LAT.REV1)[2]<-"latency"
+colnames(LAT.REV2)[2]<-"latency"
+colnames(LAT.REV3)[2]<-"latency"
+LAT.REV1$day <- "Rev 1"
+LAT.REV2$day <- "Rev 2"
+LAT.REV3$day <- "Rev 3"
+
+latencies.rev<-rbind (LAT.REV1, LAT.REV2, LAT.REV3)
+
+# I generate a table for each reversal session with all the other variables, the simplest way to mix everything
+reversal_var_lat <- merge(rev_data, latencies.rev, by=c("id","day"), all = TRUE)
+head (reversal_var_lat)
 
 #### WARNING animal 130054726 has any value for removal regardless which table I am using
 # I delete it
-rev_data_f <- subset (rev_data, id != 130054726) 
-head (rev_data_f)
-n_animals <- length(rev_data_f[,1])
-rownames(rev_data_f) <- c(1:n_animals)
+reversal_var_lat_f <- subset (reversal_var_lat, id != 130054726) 
+head (reversal_var_lat_f)
+n_animals <- length(reversal_var_lat_f[,1])
+rownames(reversal_var_lat_f) <- c(1:n_animals)
 
 # I remove the variable percentage center because is exactly equal to 1-percentperi
-rev_data_f_6v <- subset(rev_data_f, select=-c(percenter))
+rev_data_f_6v <- subset(reversal_var_lat_f, select=-c(percenter))
 n_col <- dim (rev_data_f_6v)[2]
 
 # Setting the same name for the variables such as in the other scripts
 colnames (rev_data_f_6v) [4] <- "distance"
-colnames (rev_data_f_6v) [2] <- "gentreat"
+colnames (rev_data_f_6v) [3] <- "gentreat"
 colnames (rev_data_f_6v) [7] <- "percentsw"
 
 #Removing Rev from days colunm
 rev_data_f_6v$day <- gsub ("Rev ", "", rev_data_f_6v$day)
 head (rev_data_f_6v)
 # Saving for permutation test
-# write.table(ma2, "/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/culo_reversal.csv", sep="\t")
+# write.table(rev_data_f_6v, "/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/rev_data_f_6v.csv", sep="\t")
 
 variables_list <- colnames(rev_data_f_6v) [4:n_col] 
 
-tbl_median <- with (rev_data_f_6v, aggregate (cbind (distance, gallindex, speed, percentsw, perperi, wishaw), 
+tbl_median <- with (rev_data_f_6v, aggregate (cbind (distance, gallindex, speed, percentsw, perperi, wishaw, latency), 
                                     list (gentreat=gentreat, day=day), FUN=median))
 
 rownames (tbl_median) <- paste (tbl_median[,1], gsub ("Day ", "", tbl_median[,2]), sep="")
@@ -64,8 +76,11 @@ tbl_ind <- rev_data_f_6v
 tbl_med_ind <- rbind (tbl_median, tbl_ind[,-1])
 n_median <- length(tbl_median[,1])
 n_median_plus1 <- n_median + 1
+max_var_i <- dim(tbl_med_ind)[2]
+# velocity vs density
+# plot(sort (tbl_med_ind$speed), sort(tbl_med_ind$distance))
 
-res = PCA(tbl_med_ind[,(3:8)], scale.unit=TRUE, ind.sup=c(n_median_plus1:length(tbl_med_ind[,1]))) 
+res = PCA(tbl_med_ind[,(3:max_var_i)], scale.unit=TRUE, ind.sup=c(n_median_plus1:length(tbl_med_ind[,1]))) 
 
 # summary_resPCA<- summary(res)
 
@@ -85,7 +100,7 @@ pca2plot$gentreat <- factor(pca2plot$gentreat , levels=c("WT", "TS", "WTEE", "TS
 
 pca_medians_rev <- ggplot(pca2plot, aes(x=-Dim.1, y=-Dim.2, colour=gentreat )) + 
   #                           geom_path (size = 1,show_guide = T) + 
-  geom_path (size = 1,show_guide = T) + 
+  geom_path (size = 1,show_guide = F) + 
   scale_color_manual(values=c("red", "darkgreen", "blue", "lightblue", 
                               "magenta", "orange", "gray", "black")) +
   #                           geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show_guide = T)+
@@ -106,10 +121,10 @@ pca_medians_rev_aspect_ratio <- pca_medians_rev + coord_fixed() +
   scale_y_continuous (limits=c(-3, 3), breaks=-3:3)
 
 pca_medians_rev_aspect_ratio
-ggsave (pca_medians_rev_aspect_ratio, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/figReversal_PCA/", 
-          "PCA_medians_reversal_legend.jpg", sep=""), width = 10, height = 6, dpi=900)
-ggsave (pca_medians_rev_aspect_ratio, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/figReversal_PCA/", 
-           "PCA_medians_reversal_NO_legend.jpg", sep=""), width = 9, height = 6, dpi=900)
+# ggsave (pca_medians_rev_aspect_ratio, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/figReversal_PCA/", 
+#           "PCA_medians_reversal_legend.jpg", sep=""), width = 10, height = 6, dpi=900)
+# ggsave (pca_medians_rev_aspect_ratio, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/figReversal_PCA/", 
+#            "PCA_medians_reversal_NO_legend.jpg", sep=""), width = 9, height = 6, dpi=900)
 
 ### Circle Plot
 circle_plot <- as.data.frame (res$var$coord)
@@ -142,14 +157,14 @@ p_circle_plot <- ggplot(circle_plot) +
   #        geom_polygon(aes(x, y), data = df, inherit.aes = F, Fill=NA)
   #                         scale_x_continuous(breaks=1:10)  
   geom_polygon (data = df.circle, aes(x, y), alpha=1, colour="black", fill=NA, size=1)
-# base_size <- 12
-# dailyInt_theme <- theme_update (axis.title.x = element_text (size=base_size * 2, face="bold"),
-#                                 axis.title.y = element_text (size=base_size * 2, angle = 90, face="bold"),
-#                                 plot.title = element_text (size=base_size * 2, face="bold"))
+base_size <- 12
+dailyInt_theme <- theme_update (axis.title.x = element_text (size=base_size * 2, face="bold"),
+                                axis.title.y = element_text (size=base_size * 2, angle = 90, face="bold"),
+                                plot.title = element_text (size=base_size * 2, face="bold"))
 
 p_circle_plot
 
-ggsave (p_circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/figReversal_PCA/", "circle_plot_reversal.jpg", sep=""), width = 10, height = 10, dpi=900)
+# ggsave (p_circle_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig6_Reversal_PCA/", "circle_plot_reversal.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 ############
 ## BARPLOT
@@ -308,10 +323,10 @@ p_cloud_ts_rev3
 
 #PLOT_paper
 #
-setwd("/Users/jespinosa/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/")
+setwd("/Users/jespinosa/20150515_PCA_old_frotiersPaper/figures/fig6_Reversal_PCA/")
 
-# ggsave (p_cloud_ts_rev1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/figReversal_PCA/", "PCA_rev1_ts_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
-# ggsave (p_cloud_ts_rev3, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/figReversal_PCA/", "PCA_rev3_ts_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
+# ggsave (p_cloud_ts_rev1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig6_Reversal_PCA/", "PCA_rev1_ts_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
+# ggsave (p_cloud_ts_rev3, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig6_Reversal_PCA/", "PCA_rev3_ts_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 #### BOXPLOTS of PC1
 new_coord
@@ -326,7 +341,7 @@ boxPlots.TS.rev1 <- ggplot(new_coord_TS.rev1 , aes (genotype, V1, fill = genotyp
   theme (legend.title=element_blank())+ 
   # Same axis limits in day 1 and day 5
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
-  scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-5.5, 9.5)) +
+  scale_y_continuous(breaks=c(-6,-4,-2,0,2,4), limits=c(-6, 4.5)) +
   geom_segment(aes(x = 3.63, y = median(new_coord_TS.rev1[new_coord_TS.rev1$genotype == "TSEEEGCG","V1"]), xend = 4.37, yend = median(new_coord_TS.rev1[new_coord_TS.rev1$genotype == "TSEEEGCG","V1"])), colour="white")
 
 boxPlots.TS.rev1
@@ -338,7 +353,7 @@ boxPlots.TS.rev3 <- ggplot(new_coord_TS.rev3 , aes (genotype, V1, fill = genotyp
   theme (legend.title=element_blank())+ 
   # Same axis limits in day 1 and day 5
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
-  scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-5.5, 9.5)) +
+  scale_y_continuous(breaks=c(-6,-4,-2,0,2,4), limits=c(-6, 5)) +
   geom_segment(aes(x = 3.63, y = median(new_coord_TS.rev3[new_coord_TS.rev3$genotype == "TSEEEGCG","V1"]), xend = 4.37, yend = median(new_coord_TS.rev3[new_coord_TS.rev3$genotype == "TSEEEGCG","V1"])), colour="white")
 
 boxPlots.TS.rev3
@@ -347,13 +362,15 @@ boxPlots.TS.rev1.line <- boxPlots.TS.rev1 + geom_hline(yintercept = 0, colour="g
 boxPlots.TS.rev3.line <- boxPlots.TS.rev3 + geom_hline(yintercept = 0, colour="gray")
 
 #PLOT_paper
-ggsave (boxPlots.TS.rev1.line, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/figReversal_PCA/", "boxPlot_ts_rev1.jpg", sep=""), dpi=900)
-ggsave (boxPlots.TS.rev3.line, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/figReversal_PCA/", "boxPlot_ts_rev3.jpg", sep=""), dpi=900)
+ggsave (boxPlots.TS.rev1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/figReversal_PCA/", "boxPlot_ts_rev1.jpg", sep=""),width = 10, height = 7, dpi=900)
+ggsave (boxPlots.TS.rev3, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/figReversal_PCA/", "boxPlot_ts_rev3.jpg", sep=""),width = 10, height = 7, dpi=900)
+
+# ggsave (boxPlots.TS.rev1.line, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/figReversal_PCA/", "boxPlot_ts_rev1.jpg", sep=""), dpi=900)
+# ggsave (boxPlots.TS.rev3.line, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/figReversal_PCA/", "boxPlot_ts_rev3.jpg", sep=""), dpi=900)
 
 ### DENSITY PLOTS WT
 #################
 # Plots of the wt
-# This plots do not change after the revision because we do not add any wt animal!!! YUPPIiiii
 ##############
 new_coord_WT.rev1 <- subset(new_coord, grepl("WT", new_coord$genotype) & day==1)
 colnames (new_coord_WT.rev1) <- c("PC1","PC2", "day", "genotype_tt")
@@ -381,6 +398,8 @@ p_cloud_wt_rev1 <- ggplot(new_coord_WT.rev1, aes(PC1, PC2, color=genotype_tt)) +
 
 p_cloud_wt_rev1 <- p_cloud_wt_rev1 + facet_wrap(~genotype_tt, ncol = 2)  + geom_vline(xintercept = 0, colour="gray") + geom_hline(yintercept = 0, colour="gray")
 p_cloud_wt_rev1
+
+ggsave (p_cloud_wt_rev1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/figReversal_PCA/", "p_cloud_wt_rev1.jpg", sep=""), dpi=900)
 
 new_coord_WT.rev3 <- subset(new_coord, grepl("WT", new_coord$genotype) & day==3)
 colnames (new_coord_WT.rev3) <- c("PC1","PC2", "day", "genotype_tt")
@@ -410,8 +429,62 @@ p_cloud_wt_rev3 <- ggplot(new_coord_WT.rev3, aes(PC1, PC2, color=genotype_tt)) +
 p_cloud_wt_rev3 <- p_cloud_wt_rev3 + facet_wrap(~genotype_tt, ncol = 2)  + geom_vline(xintercept = 0, colour="gray") + geom_hline(yintercept = 0, colour="gray")
 p_cloud_wt_rev3
 
-# Plot for paper
-setwd("/Users/jespinosa/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/")
+ggsave (p_cloud_wt_rev3, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/figReversal_PCA/", "p_cloud_wt_rev3.jpg", sep=""), dpi=900)
+                                                 
+
+
+
+
+
+#### BOXPLOTS of PC1
+
+new_coord_WT.rev1 <- subset(new_coord, grepl("WT", new_coord$genotype) & day==1)
+new_coord_WT.rev3 <- subset(new_coord, grepl("WT", new_coord$genotype) & day==3)
+
+boxPlots.WT.rev1 <- ggplot(new_coord_WT.rev1 , aes (genotype, V1, fill = genotype)) + 
+  geom_boxplot(show_guide=FALSE) +
+  scale_fill_manual(name = "Genotype", values=c("red", "blue", "magenta",  "yellow")) + 
+  labs(title = "Reversal session 1 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
+  theme (legend.title=element_blank())+ 
+  # Same axis limits in day 1 and day 5
+  #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
+  scale_y_continuous(breaks=c(-6,-4,-2,0,2,4,6), limits=c(-6, 6)) +
+  geom_segment(aes(x = 3.63, y = median(new_coord_TS.rev1[new_coord_TS.rev1$genotype == "TSEEEGCG","V1"]), xend = 4.37, yend = median(new_coord_TS.rev1[new_coord_TS.rev1$genotype == "TSEEEGCG","V1"])), colour="white")
+
+boxPlots.WT.rev1
+
+boxPlots.WT.rev3 <- ggplot(new_coord_WT.rev3 , aes (genotype, V1, fill = genotype)) + 
+  geom_boxplot(show_guide=FALSE) +
+  scale_fill_manual(name = "Genotype", values=c("red", "blue", "magenta",  "yellow")) +
+  labs(title = "Reversal session 3 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
+  theme (legend.title=element_blank())+ 
+  # Same axis limits in day 1 and day 5
+  #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
+  scale_y_continuous(breaks=c(-6,-4,-2,0,2,4,6), limits=c(-6, 6)) 
+# +
+#   geom_segment(aes(x = 3.63, y = median(new_coord_WT.rev3[new_coord_TS.rev3$genotype == "TSEEEGCG","V1"]), xend = 4.37, yend = median(new_coord_TS.rev3[new_coord_TS.rev3$genotype == "TSEEEGCG","V1"])), colour="white")
+
+boxPlots.WT.rev3
+
+# boxPlots.WT.rev1.line <- boxPlots.TS.rev1 + geom_hline(yintercept = 0, colour="gray")
+# boxPlots.WT.rev3.line <- boxPlots.TS.rev3 + geom_hline(yintercept = 0, colour="gray")
+
+#PLOT_paper
+# ggsave (boxPlots.WT.rev1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/figReversal_PCA/", "boxPlot_wt_rev1.jpg", sep=""),width = 10, height = 7, dpi=900)
+# ggsave (boxPlots.WT.rev3, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/figReversal_PCA/", "boxPlot_wt_rev3.jpg", sep=""),width = 10, height = 7, dpi=900)
+
+# ggsave (boxPlots.TS.rev1.line, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/figReversal_PCA/", "boxPlot_ts_rev1.jpg", sep=""), dpi=900)
+# ggsave (boxPlots.TS.rev3.line, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/figReversal_PCA/", "boxPlot_ts_rev3.jpg", sep=""), dpi=900)
+
+
+
+
+
+
+
+
+
+
 
 
 
