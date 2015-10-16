@@ -161,7 +161,7 @@ df.bars_to_plot$value <- as.numeric(sort(res$var$coord[,1]^2/sum(res$var$coord[,
 df.bars_to_plot$index <- factor(df.bars_to_plot$index, levels = df.bars_to_plot$index[order(df.bars_to_plot$value, decreasing=TRUE)])
 
 bars_plot <- ggplot (data=df.bars_to_plot, aes(x=index, y=value)) + 
-  ylim (c(0, 71)) +
+  ylim (c(0, 83)) +
   geom_bar (stat="identity", fill="gray", width=0.8) + 
   labs (title = "Variable contribution to PC1\n", x = "", y="Contribution in %\n") +
   theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1) )
@@ -170,7 +170,11 @@ bars_plot
 #PLOT_paper
 # ggsave (bars_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/", "bar_contribution.jpg", sep=""), dpi=900, height=5, width=10)
 
-#ggsave (bars_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "bar_contribution.jpg", sep=""), dpi=900)
+# ggsave (bars_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig4_PCA/", "bar_contribution.jpg", sep=""), dpi=900)
+
+# SfN poster
+ggsave (bars_plot, file=paste(home, "/Dropbox (Personal)/2015_SfN/figures/", "bar_contribution.jpg", sep=""), dpi=900)
+
 
 
 df.bars_PC2 <- cbind (as.numeric(sort(res$var$coord[,2]^2/sum(res$var$coord[,2]^2)*100,decreasing=TRUE)), names(res$var$coord[,2])[order(res$var$coord[,2]^2,decreasing=TRUE)])
@@ -184,17 +188,20 @@ df.bars_to_plot_PC2$index
 df.bars_to_plot_PC2$index <- factor(df.bars_to_plot_PC2$index, levels = df.bars_to_plot_PC2$index[order(df.bars_to_plot_PC2$value, decreasing=TRUE)])
 
 # df.bars_to_plot_PC2$value <- rev(df.bars_to_plot_PC2$value)
-bars_plot_PC2 <- ggplot (data=df.bars_to_plot_PC2, aes(x=index, y=value)) + 
+bars_plot_PC2 <- ggplot (data=df.bars_to_plot_PC2, aes(x=index, y=value)) +
+  ylim (c(0, 83)) +
   geom_bar (stat="identity", fill="gray", width=0.8) + 
   labs (title = "Variable contribution to PC2\n", x = "", y="Contribution in %\n") +
   theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1) )
 bars_plot_PC2
 
 #PLOT_paper
-# ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "bar_contribution_PC2.jpg", sep=""), dpi=900, height=5, width=10)
+# ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig4_PCA/", "bar_contribution_PC2.jpg", sep=""), dpi=900, height=5, width=10)
 # Final version
-# ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig1_PCA/", "bar_contribution_PC2.jpg", sep=""), dpi=900)
+# ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig4_PCA/", "bar_contribution_PC2.jpg", sep=""), dpi=900)
 
+# SfN poster
+# ggsave (bars_plot_PC2, file=paste(home, "/Dropbox (Personal)/2015_SfN/figures/", "bar_contribution_PC2.jpg", sep=""), dpi=900)
 
 #PC3
 df.bars_PC3 <- cbind (as.numeric(sort(res$var$coord[,3]^2/sum(res$var$coord[,3]^2)*100,decreasing=TRUE)), names(res$var$coord[,3])[order(res$var$coord[,3]^2,decreasing=TRUE)])
@@ -378,10 +385,10 @@ p_cloud_wt_acq1 <- ggplot(new_coord_WT.a1, aes(PC1, PC2, color=genotype_tt)) +
   #   geom_smooth(se=F, method='lm', show_guide = FALSE) + 
   geom_point(show_guide = FALSE) + 
   scale_color_manual(name='genotype_tt', 
-                     values=c("red", "blue", "magenta",  "yellow"),
+                     values=c("red", "blue", "magenta",  "gray"),
                      labels = c("WT", "WTEE", "WTEGCG", "WTEEEGCG")) + 
   scale_fill_manual( name='gentreat', 
-                     values=c("red", "blue", "magenta",  "yellow"),
+                     values=c("red", "blue", "magenta",  "gray"),
                      labels = c("WT", "WTEE", "WTEGCG", "WTEEEGCG")) + 
   #   geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
   scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
@@ -402,10 +409,10 @@ p_cloud_wt_acq5 <- ggplot(new_coord_WT.a5, aes(PC1, PC2, color=genotype_tt)) +
   #   geom_smooth(se=F, method='lm', show_guide = FALSE) + 
   geom_point(show_guide = FALSE) + 
   scale_color_manual(name='genotype_tt', 
-                     values = c("red", "blue", "magenta",  "yellow"), 
+                     values = c("red", "blue", "magenta",  "gray"), 
                      labels = c("WT", "WTEE", "WTEGCG", "WTEEEGCG")) + 
   scale_fill_manual( name='gentreat', 
-                     values = c("red", "blue", "magenta",  "yellow"),
+                     values = c("red", "blue", "magenta",  "gray"),
                      labels = c("WT", "WTEE", "WTEGCG", "WTEEEGCG")) + 
   #   geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
   scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
@@ -425,8 +432,70 @@ p_cloud_wt_acq5
 setwd("/Users/jespinosa/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/")
 
 #PLOT_paper
-# ggsave (p_cloud_wt_acq1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "PCA_acq1_wt_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
-# ggsave (p_cloud_wt_acq5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig2_PCA/", "PCA_acq5_wt_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
+# ggsave (p_cloud_wt_acq1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig5_PCA/", "PCA_acq1_wt_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
+# ggsave (p_cloud_wt_acq5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig5_PCA/", "PCA_acq5_wt_cloud.jpg", sep=""), width = 10, height = 10, dpi=900)
+
+
+
+
+
+#######################
+# PC2 of WT group
+# Tables with data are:
+# new_coord_WT.a1
+# new_coord_WT.a5
+
+boxPlots.PC1.WT.a1 <- ggplot(new_coord_WT.a1 , aes (genotype_tt, PC1, fill = genotype_tt)) + 
+  geom_boxplot(show_guide=FALSE) +
+  scale_fill_manual(name = "Genotype", values=c("red", "blue", "magenta",  "gray")) +
+  labs(title = "Session 1 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
+  theme (legend.title=element_blank())+ 
+  # Same axis limits in day 1 and day 5
+  #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
+  scale_y_continuous(breaks=c(-8,-6,-4,-2,0,2,4,6), limits=c(-9, 7))
+
+boxPlots.PC1.WT.a1 
+# + geom_point (position = position_jitter(width = 0.2), colour="red", show_guide=FALSE)
+
+boxPlots.PC1.WT.a5 <- ggplot(new_coord_WT.a5 , aes (genotype_tt, PC1, fill = genotype_tt)) + 
+  geom_boxplot(show_guide=FALSE) +
+  scale_fill_manual(name = "Genotype", values=c("red", "blue", "magenta",  "gray")) +
+  labs(title = "Session 5 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
+  theme (legend.title=element_blank())+ 
+  # Same axis limits in day 1 and day 5
+  #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
+  scale_y_continuous(breaks=c(-8,-6,-4,-2,0,2,4,6), limits=c(-9, 7)) 
+
+#PLOT_paper
+ggsave (boxPlots.PC1.WT.a1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig5_PCA/", "boxPlot_wt_a1.jpg", sep=""), dpi=900)
+ggsave (boxPlots.PC1.WT.a5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig5_PCA/", "boxPlot_wt_a5.jpg", sep=""), dpi=900)
+
+# Plotting a legend with scuares and colors
+l <- ggplot() + geom_point(data=new_coord_WT.a1, aes (x=PC1, y=PC2, colour = genotype_tt), shape=15, size=5) +
+  scale_colour_manual (values=c("red", "blue", "magenta",  "gray"))
+l <- l + guides(color=guide_legend(title=NULL)) 
+l <- l + theme(legend.key = element_blank())
+l
+# /20150515_PCA_old_frotiersPaper/figures/fig5_PCA
+
+ggsave (l, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig5_PCA/", "legend_squares_wt.jpg", sep=""), dpi=900)
+
+
+new_coord_all.a5
+
+
+
+# Both WT and TS PC2
+
+new_coord_all.a1 <- subset(new_coord, day==1)
+new_coord_all.a5 <- subset(new_coord, day==5)
+
+
+
+
+
+
+
 
 ####################
 #### BOXPLOTS of PC2
@@ -460,7 +529,73 @@ boxPlots.PC2.TS.a5 <- ggplot(new_coord_TS.a5 , aes (genotype, V2, fill = genotyp
 boxPlots.PC2.TS.a5
 
 #PLOT_paper
-ggsave (boxPlots.PC2.TS.a1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig_PC2_boxplot/", "boxPlot_ts_PC2_a1.jpg", sep=""), dpi=900)
-ggsave (boxPlots.PC2.TS.a5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig_PC2_boxplot/", "boxPlot_ts_PC2_a5.jpg", sep=""), dpi=900)
+# ggsave (boxPlots.PC2.TS.a1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig_PC2_boxplot/", "boxPlot_ts_PC2_a1.jpg", sep=""), dpi=900)
+# ggsave (boxPlots.PC2.TS.a5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig_PC2_boxplot/", "boxPlot_ts_PC2_a5.jpg", sep=""), dpi=900)
 
+#######################
+# PC2 of WT group
+# Tables with data are:
+# new_coord_WT.a1
+# new_coord_WT.a5
+
+boxPlots.PC2.WT.a1 <- ggplot(new_coord_WT.a1 , aes (genotype_tt, PC2, fill = genotype_tt)) + 
+  geom_boxplot(show_guide=FALSE) +
+  scale_fill_manual(name = "Genotype", values=c("red", "blue", "magenta",  "yellow")) +
+  labs(title = "Session 1 PC2\n") + xlab ("\nGroups") + ylab("PC2\n") +
+  theme (legend.title=element_blank())+ 
+  # Same axis limits in day 1 and day 5
+  #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
+  scale_y_continuous(breaks=c(-8,-6,-4,-2,0,2,4,6), limits=c(-9, 7))
+
+boxPlots.PC2.WT.a1
+
+boxPlots.PC2.WT.a5 <- ggplot(new_coord_WT.a5 , aes (genotype_tt, PC2, fill = genotype_tt)) + 
+  geom_boxplot(show_guide=FALSE) +
+  scale_fill_manual(name = "Genotype", values=c("red", "blue", "magenta",  "yellow")) +
+  labs(title = "Session 5 PC2\n") + xlab ("\nGroups") + ylab("PC2\n") +
+  theme (legend.title=element_blank())+ 
+  # Same axis limits in day 1 and day 5
+  #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
+  scale_y_continuous(breaks=c(-8,-6,-4,-2,0,2,4,6), limits=c(-9, 7)) 
+
+boxPlots.PC2.WT.a5
+
+#PLOT_paper
+ggsave (boxPlots.PC2.WT.a1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig_PC2_boxplot/", "boxPlot_wt_PC2_a1.jpg", sep=""), dpi=900)
+ggsave (boxPlots.PC2.WT.a5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig_PC2_boxplot/", "boxPlot_wt_PC2_a5.jpg", sep=""), dpi=900)
+
+# Both WT and TS PC2
+
+new_coord_all.a1 <- subset(new_coord, day==1)
+new_coord_all.a5 <- subset(new_coord, day==5)
+
+boxPlots.PC2.all.a1 <- ggplot(new_coord_all.a1, aes (genotype, V2, fill = genotype)) + 
+  geom_boxplot(show_guide=FALSE) +
+  scale_fill_manual(name = "Genotype", values = c("red", "darkgreen", "blue", "lightblue", "magenta", "orange", "yellow", "black")) +
+  labs(title = "Session 1 PC2\n") + xlab ("\nGroups") + ylab("PC2\n") +
+  theme (legend.title=element_blank())+ 
+  # Same axis limits in day 1 and day 5
+  #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
+  scale_y_continuous(breaks=c(-8,-6,-4,-2,0,2,4,6,8), limits=c(-9, 9)) +
+  geom_segment(aes(x = 7.63, y = median(new_coord_all.a1 [new_coord_all.a1$genotype == "TSEEEGCG","V2"]), 
+                   xend = 8.37, yend = median(new_coord_all.a1 [new_coord_all.a1$genotype == "TSEEEGCG","V2"])), 
+               colour="white", size =0.8)
+boxPlots.PC2.all.a1
+
+boxPlots.PC2.all.a5 <- ggplot(new_coord_all.a5, aes (genotype, V2, fill = genotype)) + 
+  geom_boxplot(show_guide=FALSE) +
+  scale_fill_manual(name = "Genotype", values = c("red", "darkgreen", "blue", "lightblue", "magenta", "orange", "yellow", "black")) +
+  labs(title = "Session 5 PC2\n") + xlab ("\nGroups") + ylab("PC2\n") +
+  theme (legend.title=element_blank())+ 
+  # Same axis limits in day 1 and day 5
+  #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
+  scale_y_continuous(breaks=c(-8,-6,-4,-2,0,2,4,6,8), limits=c(-9, 9)) +
+  geom_segment(aes(x = 7.63, y = median(new_coord_all.a5 [new_coord_all.a5$genotype == "TSEEEGCG","V2"]), 
+               xend = 8.37, yend = median(new_coord_all.a5 [new_coord_all.a5$genotype == "TSEEEGCG","V2"])), 
+              colour="white", size =0.8)
+boxPlots.PC2.all.a5
+
+#PLOT_paper
+# ggsave (boxPlots.PC2.all.a1, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig_PC2_boxplot/", "boxPlot_all_PC2_a1.jpg", sep=""), width=14, height=7, dpi=900)
+# ggsave (boxPlots.PC2.all.a5, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig_PC2_boxplot/", "boxPlot_all_PC2_a5.jpg", sep=""), width=14, height=7, dpi=900)
 
