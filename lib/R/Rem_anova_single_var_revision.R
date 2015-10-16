@@ -64,7 +64,8 @@ summary(l2_rem, test = adjusted(type = "BH"))
 ### Boxplot
 bp_gallagher <- ggplot(rem_data_all_var , aes (genotype, GALLAGHER.INDEX.REM, fill = genotype)) + 
   geom_boxplot (outlier.size=NA, show_guide=FALSE) +
-  scale_fill_manual(name = "genotype", values = c("red", "darkgreen", "blue", "lightblue", "magenta", "orange", "yellow", "black")) +
+#   scale_fill_manual(name = "genotype", values = c("red", "darkgreen", "blue", "lightblue", "magenta", "orange", "yellow", "black")) +
+  scale_fill_manual(name = "genotype", values = c("red", "darkgreen", "blue", "lightblue", "magenta", "orange", "gray", "black")) +
   labs(title = "Removal gallagher index\n") + xlab ("\nGroups") + ylab("Gallagher index (cm)\n") +
   theme (legend.title=element_blank()) +
   #   scale_y_continuous (breaks=1:10) +
@@ -103,7 +104,7 @@ summary(l2_rem, test = adjusted(type = "BH"))
 ### Boxplot
 bp_perc_NE <- ggplot(rem_data_all_var , aes (genotype, PERCENT.NE.REM, fill = genotype)) + 
   geom_boxplot (outlier.size=NA, show_guide=FALSE) +
-  scale_fill_manual(name = "genotype", values = c("red", "darkgreen", "blue", "lightblue", "magenta", "orange", "yellow", "black")) +
+  scale_fill_manual(name = "genotype", values = c("red", "darkgreen", "blue", "lightblue", "magenta", "orange", "gray", "black")) +
   labs(title = "Removal percentage of time in target quadrant\n") + xlab ("\nGroups") + ylab("% target quadrant\n") +
   theme (legend.title=element_blank()) +
   #   scale_y_continuous (breaks=1:10) +
