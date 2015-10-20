@@ -42,17 +42,25 @@ young_acq_7var <- subset(young_acq, select=-c(GALL.DIST, PER.CENTER))
 colnames(young_acq_7var) <- c("id", "gentreat","day", "distance", "gallindex", "latency", "speed", "percentne", "percentperi", "whishaw")
 head (young_acq_7var)
 
-# Saving for permutation test
-write.table(young_acq_7var, "/Users/jespinosa/20151001_ts65_young_MWM/data/ts65_young.csv", sep="\t")
+# Checking that actually speed decreases from day 4 to day 5
+# wt_5<- subset(young_acq_7var, day==5 & gentreat=="WT")
+# wt_4<-subset(young_acq_7var, day==4 & gentreat=="WT")
+# mean(wt_5$speed)
+# mean(wt_4$speed)
 
 young_acq_7var$gentreat <- gsub("H20", "", young_acq_7var$gentreat)
 young_acq_7var$gentreat <- gsub("NE", "", young_acq_7var$gentreat)
+young_acq_7var$day <- gsub("ACQ", "", young_acq_7var$day)
+tbl4permutation <- young_acq_7var 
+tbl4permutation$day <- paste("Day", young_acq_7var$day)
+# Saving for permutation test
+# write.table(tbl4permutation, "/Users/jespinosa/20151001_ts65_young_MWM/data/ts65_young.csv", sep="\t")
+
 # young_acq_7var$gentreat <- factor(young_acq_7var$gentreat , levels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"), 
 #                                   labels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"))
 young_acq_7var$gentreat <- factor(young_acq_7var$gentreat , levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"), 
                                   labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"))
 
-young_acq_7var$day <- gsub("ACQ", "", young_acq_7var$day)
 tbl_median <- with (young_acq_7var, aggregate (cbind (distance, gallindex, latency, speed, percentne, percentperi, whishaw), 
                     list (gentreat=gentreat, day=day), FUN=median))
 
@@ -106,9 +114,9 @@ pca_medians_acq_aspect_ratio <- pca_medians_acq + coord_fixed() +
   scale_y_continuous (limits=c(-2, 3), breaks=-2:3)
 
 pca_medians_acq_aspect_ratio
-ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20151001_ts65_young_MWM/figures/", 
+# ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20151001_ts65_young_MWM/figures/", 
         "PCA_medians_legend.jpg", sep=""), width = 10, height = 6, dpi=900)
-ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20151001_ts65_young_MWM/figures/", 
+# ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20151001_ts65_young_MWM/figures/", 
         "PCA_medians_NO_legend.jpg", sep=""), width = 9, height = 6, dpi=900)
 
 ### Circle Plot
@@ -143,7 +151,7 @@ p_circle_plot <- ggplot(circle_plot) +
 p_circle_plot
 
 # ggsave (p_circle_plot, file=paste(home, "/20151001_ts65_young_MWM/figures/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
-ggsave (p_circle_plot, file=paste(home, "/20151001_ts65_young_MWM/figures/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
+# ggsave (p_circle_plot, file=paste(home, "/20151001_ts65_young_MWM/figures/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 ############
 ## BARPLOT
@@ -162,7 +170,7 @@ bars_plot <- ggplot (data=df.bars_to_plot, aes(x=index, y=value)) +
 bars_plot
 
 #PLOT_paper
-ggsave (bars_plot, file=paste(home, "/20151001_ts65_young_MWM/figures/", "bar_contribution.jpg", sep=""), dpi=900)
+# ggsave (bars_plot, file=paste(home, "/20151001_ts65_young_MWM/figures/", "bar_contribution.jpg", sep=""), dpi=900)
 
 df.bars_PC2 <- cbind (as.numeric(sort(res$var$coord[,2]^2/sum(res$var$coord[,2]^2)*100,decreasing=TRUE)), names(res$var$coord[,2])[order(res$var$coord[,2]^2,decreasing=TRUE)])
 df.bars_to_plot_PC2 <- as.data.frame(df.bars_PC2)
@@ -183,7 +191,7 @@ bars_plot_PC2
 
 #PLOT_paper
 # Final version
-ggsave (bars_plot_PC2, file=paste(home, "/20151001_ts65_young_MWM/figures/", "bar_contribution_PC2.jpg", sep=""), dpi=900)
+# ggsave (bars_plot_PC2, file=paste(home, "/20151001_ts65_young_MWM/figures/", "bar_contribution_PC2.jpg", sep=""), dpi=900)
 
 ###################################
 # Plot of supplementary individuals
@@ -211,8 +219,8 @@ pca_plot_individuals <- ggplot (data=new_coord, aes (V1, V2)) +
 pca_plot_individuals
 
 #PLOT_paper
-ggsave (pca_plot_individuals, file=paste(home, "/20151001_ts65_young_MWM/figures/", "PCA_individuals.jpg", sep=""),
-        height = 10, width = 10, dpi=900)
+# ggsave (pca_plot_individuals, file=paste(home, "/20151001_ts65_young_MWM/figures/", "PCA_individuals.jpg", sep=""),
+#         height = 10, width = 10, dpi=900)
 
 head(new_coord)
 ## Individual variation as density plots
@@ -247,8 +255,8 @@ p_cloud_indiv_by_day_facet_lines <- p_cloud_indiv_by_day_facet + geom_vline(xint
                                     geom_hline(yintercept = 0, colour="gray")
 
 #PLOT_presentation
-ggsave (p_cloud_indiv_by_day_facet_lines, file=paste(home, "/20151001_ts65_young_MWM/figures/", "PCA_density_indiv_byDay.jpg", sep=""), 
-         width = 10, height = 10, dpi=900)
+# ggsave (p_cloud_indiv_by_day_facet_lines, file=paste(home, "/20151001_ts65_young_MWM/figures/", "PCA_density_indiv_byDay.jpg", sep=""), 
+#          width = 10, height = 10, dpi=900)
 
 # As I have only four groups I can plot all the grous and day 1 and 5 in the same plot
 PC1_acq1_5 <- subset(new_coord, day %in% c("1", "5"), c("V1", "V2", "day","genotype"))
@@ -277,8 +285,8 @@ p_cloud_acq1_5_facet <- p_cloud_acq1_5 + facet_grid(day ~ genotype_tt, margins=F
 p_cloud_acq1_5_facet
 
 #PLOT_presentation
-ggsave (p_cloud_acq1_5_facet, file=paste(home, "/20151001_ts65_young_MWM/figures/", "PCA_density_byGroupAndDay.jpg", sep=""), 
-        width = 10, height = 6, dpi=900)
+# ggsave (p_cloud_acq1_5_facet, file=paste(home, "/20151001_ts65_young_MWM/figures/", "PCA_density_byGroupAndDay.jpg", sep=""), 
+#         width = 10, height = 6, dpi=900)
 
 #### BOXPLOTS of PC1
 # I can use the same table
@@ -299,6 +307,7 @@ boxPlots.PC1.a1 <- ggplot(PC1.a1, aes (genotype, PC1, fill = genotype)) +
 
 # p_cloud_indiv_by_day_facet <- boxPlots.PC1 + facet_wrap(~genotype, ncol = 2)
 boxPlots.PC1.a1.line <- boxPlots.PC1.a1 + geom_hline(yintercept = 0, colour="gray")
+boxPlots.PC1.a1.line
 
 ## Session 5
 boxPlots.PC1.a5 <- ggplot(PC1.a5, aes (genotype, PC1, fill = genotype)) + 
@@ -315,5 +324,16 @@ boxPlots.PC1.a5 <- ggplot(PC1.a5, aes (genotype, PC1, fill = genotype)) +
 boxPlots.PC1.a5.line <- boxPlots.PC1.a5 + geom_hline(yintercept = 0, colour="gray")
 
 #PLOT_paper
-ggsave (boxPlots.PC1.a1.line, file=paste(home, "/20151001_ts65_young_MWM/figures/", "boxPlot_PC1_a1.jpg", sep=""), dpi=900)
-ggsave (boxPlots.PC1.a5.line, file=paste(home, "/20151001_ts65_young_MWM/figures/", "boxPlot_PC1_a5.jpg", sep=""), dpi=900)
+# ggsave (boxPlots.PC1.a1.line, file=paste(home, "/20151001_ts65_young_MWM/figures/", "boxPlot_PC1_a1.jpg", sep=""), dpi=900)
+# ggsave (boxPlots.PC1.a5.line, file=paste(home, "/20151001_ts65_young_MWM/figures/", "boxPlot_PC1_a5.jpg", sep=""), dpi=900)
+
+
+# Plotting a legend with scuares and colors
+l <- ggplot() + geom_point(data=PC1.a5, aes (x=PC1, y=PC2, colour = genotype), shape=15, size=5) +
+                scale_colour_manual (values=c("red", "darkgreen", "magenta", "black"))
+l <- l + guides(color=guide_legend(title=NULL)) 
+l <- l + theme(legend.key = element_blank())
+l
+
+ggsave (l, file=paste(home, "/20151001_ts65_young_MWM/figures/", "legend_squares.jpg", sep=""), dpi=900)
+
