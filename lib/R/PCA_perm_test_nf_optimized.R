@@ -83,9 +83,10 @@ print (argsL)
 
 # The data has to be in a general format if I get it in sav format first transform it outside to a csv format
 # ma2=spss.get(path2files)
-# ma2 <- read.csv("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/ts65_old_3sup_tsegcg_rev.csv", sep="\t") 
+# ma2 <- read.csv("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/ts65_old_3sup_tsegcg_rev.csv", sep="\t")
+# ma2 <- read.csv("/Users/jespinosa/20151001_ts65_young_MWM/data/ts65_young.csv", sep="\t")
 ma2 <- read.csv(path2files, sep="\t")
-  
+
 # Function t statistic calculation
 # f_t_stat <- function (df_coord, gen_1 = "TS", gen_2 = "TSEEEGCG"){
 #   group1 <- subset (new_coord, genotype == gen_1)
