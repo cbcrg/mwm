@@ -8,6 +8,10 @@
 ##Getting HOME directory
 home <- Sys.getenv("HOME")
 
+library("ggplot2")
+library("Hmisc")
+
+/Users/jespinosa/20151001_ts65_young_MWM/data/Jtracks parameters Young TS_SUBCONJ_REV_R_FORMAT.sav
 jtracks_data = spss.get(paste (home, "/20151001_ts65_young_MWM/data/Jtracks parameters Young TS_SUBCONJ_REV_R_FORMAT.sav", sep=""))
 #smart_data = spss.get(paste (home, "/20151001_ts65_young_MWM/data/Jtracks parameters Young TS_SUBCONJ.sav", sep=""))
 
@@ -15,9 +19,6 @@ jtracks_data = spss.get(paste (home, "/20151001_ts65_young_MWM/data/Jtracks para
 # head (data_nxf)
 # Loading functions:
 source (paste (home, "/git/mwm/lib/R/plot_param_public.R", sep=""))
-
-library("ggplot2")
-library("Hmisc")
 
 tail(jtracks_data, 50)
 # tail(smart_data)
