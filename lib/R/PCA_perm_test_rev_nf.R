@@ -79,7 +79,7 @@ print (argsL)
     path2files <- argsL$path2files
   }
 }
-ma3 <- read.csv("/Users/jespinosa/20151001_ts65_young_MWM/data/ts65_young_rev.csv", sep="\t")
+# ma3 <- read.csv("/Users/jespinosa/20151001_ts65_young_MWM/data/ts65_young_rev.csv", sep="\t")
 # ma3 <- read.csv("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/rev_data_f_6v.csv", sep="\t")
 ma3 <- read.csv(path2files, sep="\t")
 
