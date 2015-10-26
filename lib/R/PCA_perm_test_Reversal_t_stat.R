@@ -27,6 +27,8 @@ ma3 <- read.csv("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/rev_data_f
 ma3$gentreat <- factor(ma3$gentreat , levels=c("WT","TS","WTEE","TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"), 
                        labels=c(c("WT","TS","WTEE","TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG")))
 
+rev_data_f_6v <- ma3
+n_col <- dim (rev_data_f_6v)[2]
 variables_list <- colnames(rev_data_f_6v) [4:n_col] 
 
 tbl_median <- with (rev_data_f_6v, aggregate (cbind (distance, gallindex, speed, percentsw, perperi, wishaw, latency), 
@@ -42,8 +44,6 @@ n_median <- length(tbl_median[,1])
 n_median_plus1 <- n_median + 1
 
 res = PCA(tbl_med_ind[,(3:8)], scale.unit=TRUE, ind.sup=c(n_median_plus1:length(tbl_med_ind[,1]))) 
-
-
 
 # new_coord_real_lab <- as.data.frame (res$ind$coord[1:n_median,c(1,2)])
 new_coord_real_lab <- as.data.frame(cbind(-res$ind.sup$coord[,1],-res$ind.sup$coord[,2]))
