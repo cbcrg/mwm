@@ -11,7 +11,9 @@
 */
 
 //params.MWM_tbl = "20150515_PCA_old_frotiersPaper/data/Ts65Dn_OLD_ACQ1_ACQ5_SUBCONJ.sav"
-params.MWM_tbl = "20150515_PCA_old_frotiersPaper/data/rev_data_f_6v.csv"
+//params.MWM_tbl = "20150515_PCA_old_frotiersPaper/data/rev_data_f_6v.csv"
+params.MWM_tbl = "20150515_PCA_old_frotiersPaper/data/ts65_young_rev.csv"
+
 MWM_tbl_path = "$HOME/${params.MWM_tbl}"
 
 println "path: $MWM_tbl_path"
