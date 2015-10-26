@@ -41,8 +41,8 @@ process perm {
     file MWM_file
     
     output:
-    set file ('tbl_t_stat_rem3.csv') into tbl_t_stat
-    set file ('tbl_t_stat_rem1.csv') into tbl_t_stat_day1
+    set file ('tbl_t_stat_rev3.csv') into tbl_t_stat
+    set file ('tbl_t_stat_rev1.csv') into tbl_t_stat_day1
     
     script:
     println "Perm is $perm"
@@ -50,7 +50,7 @@ process perm {
     """
     export R_LIBS="/software/R/packages"
     
-    Rscript \$HOME/git/mwm/lib/R/PCA_perm_test_rem_nf.R --path2files=\$(readlink ${MWM_file}) --seed=${perm}    
+    Rscript \$HOME/git/mwm/lib/R/PCA_perm_test_rev_nf.R --path2files=\$(readlink ${MWM_file}) --seed=${perm}    
     """ 
 }
 
