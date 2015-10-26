@@ -79,7 +79,7 @@ print (argsL)
     path2files <- argsL$path2files
   }
 }
-
+ma3 <- read.csv("/Users/jespinosa/20151001_ts65_young_MWM/data/ts65_young_rev.csv", sep="\t")
 # ma3 <- read.csv("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/rev_data_f_6v.csv", sep="\t")
 ma3 <- read.csv(path2files, sep="\t")
 
@@ -98,8 +98,8 @@ f_t_stat <- function (df_coord, gen_1 = "TS", gen_2 = "TSEEEGCG", acq_day=5){
 
 
 id_group <- subset(ma3, grepl("1", ma3$day))
-
-id_group <- id_group [,c(1,3)]
+id_group<- subset (id_group, select=c(id, gentreat))
+# id_group <- id_group [,c(1,3)]
 
 set.seed (seed)
 
