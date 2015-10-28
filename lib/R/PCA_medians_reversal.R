@@ -157,7 +157,7 @@ p_circle_plot <- ggplot(circle_plot) +
   #        geom_polygon(aes(x, y), data = df, inherit.aes = F, Fill=NA)
   #                         scale_x_continuous(breaks=1:10)  
   geom_polygon (data = df.circle, aes(x, y), alpha=1, colour="black", fill=NA, size=1)
-base_size <- 12
+base_size <- 10
 dailyInt_theme <- theme_update (axis.title.x = element_text (size=base_size * 2, face="bold"),
                                 axis.title.y = element_text (size=base_size * 2, angle = 90, face="bold"),
                                 plot.title = element_text (size=base_size * 2, face="bold"))
@@ -183,7 +183,7 @@ bars_plot <- ggplot (data=df.bars_to_plot, aes(x=index, y=value)) +
 bars_plot
 
 #PLOT_paper
-# ggsave (bars_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/figReversal_PCA/", "bar_contribution.jpg", sep=""), dpi=900)
+ggsave (bars_plot, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig6_Reversal_PCA/", "bar_contribution.jpg", sep=""), dpi=900)
 
 
 df.bars_PC2 <- cbind (as.numeric(sort(res$var$coord[,2]^2/sum(res$var$coord[,2]^2)*100,decreasing=TRUE)), names(res$var$coord[,2])[order(res$var$coord[,2]^2,decreasing=TRUE)])
@@ -205,7 +205,7 @@ bars_plot_PC2
 
 #PLOT_paper
 # Final version
-# ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/figReversal_PCA/", "bar_contribution_PC2.jpg", sep=""), dpi=900)
+ggsave (bars_plot_PC2, file=paste(home, "/20150515_PCA_old_frotiersPaper/figures/fig6_Reversal_PCA/", "bar_contribution_PC2.jpg", sep=""), dpi=900)
 
 
 
