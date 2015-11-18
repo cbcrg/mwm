@@ -178,7 +178,7 @@ bars_plot <- ggplot (data=df.bars_to_plot, aes(x=index, y=value)) +
 bars_plot
 
 #PLOT_paper
-ggsave (bars_plot, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "bar_contribution.jpg", sep=""), dpi=900)
+# ggsave (bars_plot, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "bar_contribution.jpg", sep=""), dpi=900)
 
 df.bars_PC2 <- cbind (as.numeric(sort(res$var$coord[,2]^2/sum(res$var$coord[,2]^2)*100,decreasing=TRUE)), names(res$var$coord[,2])[order(res$var$coord[,2]^2,decreasing=TRUE)])
 df.bars_to_plot_PC2 <- as.data.frame(df.bars_PC2)
@@ -199,13 +199,15 @@ bars_plot_PC2
 
 #PLOT_paper
 # Final version
-ggsave (bars_plot_PC2, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "bar_contribution_PC2.jpg", sep=""), dpi=900)
+# ggsave (bars_plot_PC2, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "bar_contribution_PC2.jpg", sep=""), dpi=900)
 
 ###################################
 # Plot of supplementary individuals
 day <- c()
 genotype <- c()
-new_coord <- as.data.frame(cbind(-res$ind.sup$coord[,1],-res$ind.sup$coord[,2]))
+
+# I only change direction of X axis 
+new_coord <- as.data.frame(cbind(-res$ind.sup$coord[,1],res$ind.sup$coord[,2]))
 dim(new_coord)
 
 # the info of the genotype and the tt was in this table
@@ -218,8 +220,8 @@ new_coord$genotype <- factor(new_coord$genotype , levels=c("WT", "TS", "WTEEEGCG
 pca_plot_individuals <- ggplot (data=new_coord, aes (V1, V2)) + 
   geom_text (aes(label=day, colour = genotype), size=5, show_guide = FALSE) +
   scale_color_manual(values=c("red", "darkgreen", "magenta", "black")) +
-  xlim (c(-5, 10)) + ylim (c(-5, 5)) +
-  geom_path (data=pca2plot, aes(x=-Dim.1, y=-Dim.2, colour=gentreat),size = 1,show_guide = TRUE) +
+  xlim (c(-6, 6)) + ylim (c(-6, 6)) +
+  geom_path (data=pca2plot, aes(x=-Dim.1, y=Dim.2, colour=gentreat),size = 1,show_guide = FALSE) +
   labs(title = "Individual as supplementary points\n", x = paste("\nPC1 (", var_PC1, "% of variance)", sep=""), 
        y=paste("PC2 (", var_PC2, "% of variance)\n", sep = ""))  +
   coord_fixed()
@@ -227,8 +229,8 @@ pca_plot_individuals <- ggplot (data=new_coord, aes (V1, V2)) +
 pca_plot_individuals
 
 #PLOT_paper
-# ggsave (pca_plot_individuals, file=paste(home, "/20151001_ts65_young_MWM/figures/", "PCA_individuals.jpg", sep=""),
-#         height = 10, width = 10, dpi=900)
+ggsave (pca_plot_individuals, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "PCA_individuals.jpg", sep=""),
+        height = 10, width = 10, dpi=900)
 
 head(new_coord)
 ## Individual variation as density plots
@@ -267,11 +269,11 @@ p_cloud_indiv_by_day_facet_lines <- p_cloud_indiv_by_day_facet + geom_vline(xint
 #          width = 10, height = 10, dpi=900)
 
 # As I have only four groups I can plot all the grous and day 1 and 5 in the same plot
-PC1_acq1_5 <- subset(new_coord, day %in% c("1", "5"), c("V1", "V2", "day","genotype"))
-colnames (PC1_acq1_5) <- c("PC1","PC2", "day", "genotype_tt") 
-PC1_acq1_5$day <- as.factor(PC1_acq1_5$day)
+PC1_rev1_3 <- subset(new_coord, day %in% c("1", "3"), c("V1", "V2", "day","genotype"))
+colnames (PC1_rev1_3) <- c("PC1","PC2", "day", "genotype_tt") 
+PC1_rev1_3$day <- as.factor(PC1_rev1_3$day)
 
-p_cloud_acq1_5 <- ggplot(PC1_acq1_5, aes(PC1, PC2, color=genotype_tt)) + 
+p_cloud_rev1_3 <- ggplot(PC1_rev1_3, aes(PC1, PC2, color=genotype_tt)) + 
   stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
                  geom="polygon", color=NA, n=100, h=5, bins=6, show_guide = F) +
   geom_point(show_guide = F) + 
@@ -286,63 +288,66 @@ p_cloud_acq1_5 <- ggplot(PC1_acq1_5, aes(PC1, PC2, color=genotype_tt)) +
   scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
   coord_cartesian(xlim=c(-8, 11),
                   ylim=c(-5, 6.5)) +
-  labs(title = "PCA coordinates density, session 1 and 5\n", x = "\nPC1", y="PC2\n")
+  labs(title = "PCA coordinates density, session 1 and 3\n", x = "\nPC1", y="PC2\n")
 
-p_cloud_acq1_5_facet <- p_cloud_acq1_5 + facet_grid(day ~ genotype_tt, margins=FALSE) + geom_vline(xintercept = 0, colour="gray") +
+p_cloud_rev1_3_facet <- p_cloud_rev1_3 + facet_grid(day ~ genotype_tt, margins=FALSE) + geom_vline(xintercept = 0, colour="gray") +
   geom_hline(yintercept = 0, colour="gray")
-p_cloud_acq1_5_facet
+p_cloud_rev1_3_facet
 
 #PLOT_presentation
-# ggsave (p_cloud_acq1_5_facet, file=paste(home, "/20151001_ts65_young_MWM/figures/", "PCA_density_byGroupAndDay.jpg", sep=""), 
+# ggsave (p_cloud_rev1_3_facet, file=paste(home, "/20151001_ts65_young_MWM/figures/", "PCA_density_byGroupAndDay.jpg", sep=""), 
 #         width = 10, height = 6, dpi=900)
 
 #### BOXPLOTS of PC1
 # I can use the same table
-PC1_acq1_5$genotype <- PC1_acq1_5$genotype_tt
+PC1_rev1_3$genotype <- PC1_rev1_3$genotype_tt
 
-PC1.a1 <- subset(PC1_acq1_5,  day==1)
-PC1.a5 <- subset(PC1_acq1_5,  day==5)
+PC1.rev1 <- subset(PC1_rev1_3,  day==1)
+PC1.rev3 <- subset(PC1_rev1_3,  day==3)
 
-boxPlots.PC1.a1 <- ggplot(PC1.a1, aes (genotype, PC1, fill = genotype)) + 
+boxPlots.PC1.rev1 <- ggplot(PC1.rev1, aes (genotype, PC1, fill = genotype)) + 
   geom_boxplot(show_guide=FALSE) +
   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
   labs(title = "Session 1 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
   theme (legend.title=element_blank()) + 
   # Same axis limits in day 1 and day 5
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
-  scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-5.5, 9.5)) +
-  geom_segment(aes(x = 3.63, y = median(PC1.a1[PC1.a1$genotype == "TSEEEGCG","PC1"]), xend = 4.37, yend = median(PC1.a1[PC1.a1$genotype == "TSEEEGCG","PC1"])), colour="white")
+#   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-5.5, 9.5)) +
+  scale_y_continuous(breaks=c(-6,-4,-2,0,2,4,6), limits=c(-6, 6)) +
+  geom_segment(aes(x = 3.63, y = median(PC1.rev1[PC1.rev1$genotype == "TSEEEGCG","PC1"]), xend = 4.37, yend = median(PC1.rev1[PC1.rev1$genotype == "TSEEEGCG","PC1"])), colour="white")
 
 # p_cloud_indiv_by_day_facet <- boxPlots.PC1 + facet_wrap(~genotype, ncol = 2)
-boxPlots.PC1.a1.line <- boxPlots.PC1.a1 + geom_hline(yintercept = 0, colour="gray")
-boxPlots.PC1.a1.line
+boxPlots.PC1.rev1.line <- boxPlots.PC1.rev1 + geom_hline(yintercept = 0, colour="gray")
+boxPlots.PC1.rev1.line
 
-## Session 5
-boxPlots.PC1.a5 <- ggplot(PC1.a5, aes (genotype, PC1, fill = genotype)) + 
+## Session 3
+boxPlots.PC1.rev3 <- ggplot(PC1.rev3, aes (genotype, PC1, fill = genotype)) + 
   geom_boxplot(show_guide=FALSE) +
   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
-  labs(title = "Session 1 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
+  labs(title = "Session 3 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
   theme (legend.title=element_blank()) + 
   # Same axis limits in day 1 and day 5
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
-  scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-5.5, 9.5)) +
-  geom_segment(aes(x = 3.63, y = median(PC1.a5[PC1.a1$genotype == "TSEEEGCG","PC1"]), xend = 4.37, yend = median(PC1.a5[PC1.a5$genotype == "TSEEEGCG","PC1"])), colour="white")
+  scale_y_continuous(breaks=c(-6,-4,-2,0,2,4,6), limits=c(-6, 6)) +
+  geom_segment(aes(x = 3.63, y = median(PC1.rev3[PC1.rev3$genotype == "TSEEEGCG","PC1"]), xend = 4.37, yend = median(PC1.rev3[PC1.rev3$genotype == "TSEEEGCG","PC1"])), colour="white")
 
 # p_cloud_indiv_by_day_facet <- boxPlots.PC1 + facet_wrap(~genotype, ncol = 2)
-boxPlots.PC1.a5.line <- boxPlots.PC1.a5 + geom_hline(yintercept = 0, colour="gray")
+boxPlots.PC1.rev3.line <- boxPlots.PC1.rev3 + geom_hline(yintercept = 0, colour="gray")
+boxPlots.PC1.rev3.line
+max(PC1.rev3$PC1)
 
 #PLOT_paper
-# ggsave (boxPlots.PC1.a1.line, file=paste(home, "/20151001_ts65_young_MWM/figures/", "boxPlot_PC1_a1.jpg", sep=""), dpi=900)
-# ggsave (boxPlots.PC1.a5.line, file=paste(home, "/20151001_ts65_young_MWM/figures/", "boxPlot_PC1_a5.jpg", sep=""), dpi=900)
-
+# ggsave (boxPlots.PC1.rev1.line, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "boxPlot_PC1_rev1.jpg", sep=""), dpi=900)
+# ggsave (boxPlots.PC1.rev3.line, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "boxPlot_PC1_rev3.jpg", sep=""), dpi=900)
+ 
 
 # Plotting a legend with scuares and colors
-l <- ggplot() + geom_point(data=PC1.a5, aes (x=PC1, y=PC2, colour = genotype), shape=15, size=5) +
+l <- ggplot() + geom_point(data=PC1.rev3, aes (x=PC1, y=PC2, colour = genotype), shape=15, size=5) +
   scale_colour_manual (values=c("red", "darkgreen", "magenta", "black"))
 l <- l + guides(color=guide_legend(title=NULL)) 
 l <- l + theme(legend.key = element_blank())
 l
 
-ggsave (l, file=paste(home, "/20151001_ts65_young_MWM/figures/", "legend_squares.jpg", sep=""), dpi=900)
+ggsave (l, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "legend_squares.jpg", sep=""), dpi=900)
 
 
