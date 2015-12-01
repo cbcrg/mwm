@@ -94,7 +94,6 @@ pca2plot$gentreat <- factor(pca2plot$gentreat , levels=c("WT", "TS", "WTEEEGCG",
                                   labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"))
 
 pca_medians_acq <- ggplot(pca2plot, aes(x=-Dim.1, y=-Dim.2, colour=gentreat )) + 
-  #                           geom_path (size = 1,show_guide = T) + 
   geom_path (size = 1,show_guide = F) + 
   scale_color_manual(values=c("red", "darkgreen", "magenta", "black")) +
   
@@ -116,8 +115,13 @@ pca_medians_acq_aspect_ratio <- pca_medians_acq + coord_fixed() +
   scale_y_continuous (limits=c(-2, 3), breaks=-2:3)
 
 pca_medians_acq_aspect_ratio
-# ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20151001_ts65_young_MWM/figures/", 
-        "PCA_medians_legend.jpg", sep=""), width = 10, height = 6, dpi=900)
+
+pca_medians_acq_aspect_ratio_leg <- pca_medians_acq_aspect_ratio  + geom_path (size = 1,show_guide = T)
+
+pca_medians_acq_aspect_ratio_leg
+
+ggsave (pca_medians_acq_aspect_ratio_leg, file=paste(home, "/20151001_ts65_young_MWM/figures/", 
+         "PCA_medians_legend.jpg", sep=""), width = 10, height = 6, dpi=900)
 # ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20151001_ts65_young_MWM/figures/", 
         "PCA_medians_NO_legend.jpg", sep=""), width = 9, height = 6, dpi=900)
 
