@@ -19,7 +19,6 @@ f_t_stat_only <- function (df_coord, gen_1 = "TS", gen_2 = "TSEEEGCG", acq_day=1
   return (t_stat)
 }
 
-# young data already adapted from PCA_MWM_youngTs65.R
 # we load the table from there
 ma3 <- read.csv("/Users/jespinosa/20150515_PCA_old_frotiersPaper/data/rev_data_f_6v.csv", sep="\t")
 
