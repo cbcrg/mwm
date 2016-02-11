@@ -74,6 +74,11 @@ n_median_plus1 <- n_median + 1
 
 res = PCA(tbl_med_ind[,(3:9)], scale.unit=TRUE, ind.sup=c(n_median_plus1:length(tbl_med_ind[,1]))) 
 
+## Performing the pca of only the medians to see the directionality of variables directly from the plot of the 
+## in order to avoid mistakes when I am twisting the directions to be the same as in the old paper
+PCA(tbl_median[,(3:9)], scale.unit=TRUE)
+
+tbl_med_ind[,(3:9)]
 # res$var$coord[,1],res$var$coord[,2]
 summary_resPCA<- summary(res)
 
@@ -114,17 +119,22 @@ pca_medians_acq_aspect_ratio <- pca_medians_acq + coord_fixed() +
   scale_x_continuous (limits=c(-4, 5), breaks=-4:5) + 
   scale_y_continuous (limits=c(-2, 3), breaks=-2:3)
 
-pca_medians_acq_aspect_ratio
+
+pca_medians_acq_aspect_ratio_big_title <- pca_medians_acq_aspect_ratio +  theme(plot.title = element_text(size=22)) + 
+  theme(axis.title.x = element_text(size =22)) +
+  theme(axis.title.y = element_text(size =22))
 
 pca_medians_acq_aspect_ratio_leg <- pca_medians_acq_aspect_ratio  + geom_path (size = 1,show_guide = T)
 
 pca_medians_acq_aspect_ratio_leg
 
-ggsave (pca_medians_acq_aspect_ratio_leg, file=paste(home, "/20151001_ts65_young_MWM/figures/", 
-         "PCA_medians_legend.jpg", sep=""), width = 10, height = 6, dpi=900)
-# ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20151001_ts65_young_MWM/figures/", 
-        "PCA_medians_NO_legend.jpg", sep=""), width = 9, height = 6, dpi=900)
-
+# ggsave (pca_medians_acq_aspect_ratio_leg, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", 
+#          "PCA_medians_legend.jpg", sep=""), width = 10, height = 6, dpi=900)
+# ggsave (pca_medians_acq_aspect_ratio, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", 
+#         "PCA_medians_NO_legend.jpg", sep=""), width = 9, height = 6, dpi=900)
+ggsave (pca_medians_acq_aspect_ratio_big_title, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", 
+                                                           "PCA_medians_NO_legend.jpg", sep=""), width = 15, height = 10, dpi=900)
+        
 ### Circle Plot
 circle_plot <- as.data.frame (res$var$coord)
 labels_v <- row.names(res$var$coord)
@@ -145,7 +155,9 @@ df.circle <- data.frame(x = sin(angle), y = cos(angle))
 
 p_circle_plot <- ggplot(circle_plot) + 
   geom_segment (data=circle_plot, aes(x=0, y=0, xend=-Dim.1, yend=-Dim.2), arrow=arrow(length=unit(0.2,"cm")), alpha=1, size=1, color="red") +
-  xlim (c(-1.2, 1.2)) + ylim (c(-1.2, 1.2)) +
+#   xlim (c(-1.2, 1.2)) + ylim (c(-1.2, 1.2)) +
+  scale_x_continuous(limits=c(-1.4, 1.4), breaks=(c(-1,0,1))) +
+  scale_y_continuous(limits=c(-1.4, 1.4), breaks=(c(-1,0,1))) +
   geom_text (data=neg_positions, aes (x=-Dim.1, y=-Dim.2, label=neg_labels, hjust=1.2), show_guide = FALSE, size=5) + 
   geom_text (data=pos_positions, aes (x=-Dim.1, y=-Dim.2, label=pos_labels, hjust=-0.3), show_guide = FALSE, size=5) +
   geom_vline (xintercept = 0, linetype="dotted") +
@@ -154,10 +166,15 @@ p_circle_plot <- ggplot(circle_plot) +
         y=paste("PC2 (", var_PC2, "% of variance)\n", sep = "")) +
   geom_polygon (data = df.circle, aes(x, y), alpha=1, colour="black", fill=NA, size=1)
 
-p_circle_plot
-
-# ggsave (p_circle_plot, file=paste(home, "/20151001_ts65_young_MWM/figures/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
-# ggsave (p_circle_plot, file=paste(home, "/20151001_ts65_young_MWM/figures/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
+p_circle_big_title <- p_circle_plot + coord_fixed() +
+                      theme(plot.title = element_text(size=22)) + 
+                      theme(axis.title.x = element_text(size =22)) +
+                      theme(axis.title.y = element_text(size =22))
+# No axis
+#                       theme(panel.border = element_blank(), axis.line = element_blank())
+p_circle_big_title + theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+# ggsave (p_circle_plot, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", "circle_plot.jpg", sep=""), width = 6, height = 6, dpi=900)
+ggsave (p_circle_big_title, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
 
 ############
 ## BARPLOT
@@ -169,14 +186,18 @@ df.bars_to_plot$value <- as.numeric(sort(res$var$coord[,1]^2/sum(res$var$coord[,
 df.bars_to_plot$index <- factor(df.bars_to_plot$index, levels = df.bars_to_plot$index[order(df.bars_to_plot$value, decreasing=TRUE)])
 
 bars_plot <- ggplot (data=df.bars_to_plot, aes(x=index, y=value)) + 
-  ylim (c(0, 71)) +
+  ylim (c(0, 80)) +
   geom_bar (stat="identity", fill="gray", width=0.8) + 
   labs (title = "Variable contribution to PC1\n", x = "", y="Contribution in %\n") +
   theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1) )
 bars_plot
 
+bar_plot_big_title <- bars_plot + theme(plot.title = element_text(size=22)) + 
+                      theme(axis.title.x = element_text(size =22)) +
+                      theme(axis.title.y = element_text(size =22))
 #PLOT_paper
-# ggsave (bars_plot, file=paste(home, "/20151001_ts65_young_MWM/figures/", "bar_contribution.jpg", sep=""), dpi=900)
+# ggsave (bars_plot, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq", "bar_contribution.jpg", sep=""), dpi=900)
+ggsave (bar_plot_big_title, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", "bar_contribution.jpg", sep=""), dpi=900)
 
 df.bars_PC2 <- cbind (as.numeric(sort(res$var$coord[,2]^2/sum(res$var$coord[,2]^2)*100,decreasing=TRUE)), names(res$var$coord[,2])[order(res$var$coord[,2]^2,decreasing=TRUE)])
 df.bars_to_plot_PC2 <- as.data.frame(df.bars_PC2)
@@ -190,14 +211,20 @@ df.bars_to_plot_PC2$index <- factor(df.bars_to_plot_PC2$index, levels = df.bars_
 
 # df.bars_to_plot_PC2$value <- rev(df.bars_to_plot_PC2$value)
 bars_plot_PC2 <- ggplot (data=df.bars_to_plot_PC2, aes(x=index, y=value)) + 
+  ylim (c(0, 80)) +
   geom_bar (stat="identity", fill="gray", width=0.8) + 
   labs (title = "Variable contribution to PC2\n", x = "", y="Contribution in %\n") +
   theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1) )
 bars_plot_PC2
 
+bars_plot_PC2_big_title <- bars_plot_PC2 + theme(plot.title = element_text(size=22)) + 
+  theme(axis.title.x = element_text(size =22)) +
+  theme(axis.title.y = element_text(size =22))
+
 #PLOT_paper
 # Final version
-# ggsave (bars_plot_PC2, file=paste(home, "/20151001_ts65_young_MWM/figures/", "bar_contribution_PC2.jpg", sep=""), dpi=900)
+# ggsave (bars_plot_PC2, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", "bar_contribution_PC2.jpg", sep=""), dpi=900)
+ggsave (bars_plot_PC2_big_title, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", "bar_contribution_PC2.jpg", sep=""), dpi=900)
 
 ###################################
 # Plot of supplementary individuals
@@ -341,5 +368,21 @@ l <- l + guides(color=guide_legend(title=NULL))
 l <- l + theme(legend.key = element_blank())
 l
 
-ggsave (l, file=paste(home, "/20151001_ts65_young_MWM/figures/", "legend_squares.jpg", sep=""), dpi=900)
+# ggsave (l, file=paste(home, "/20151001_ts65_young_MWM/figures/", "legend_squares.jpg", sep=""), dpi=900)
 
+# Plotting a legend with scuares and colors
+l <- ggplot() + geom_lines(data=PC1.a5, aes (x=PC1, y=PC2, colour = genotype), shape=15, size=5) +
+  scale_colour_manual (values=c("red", "darkgreen", "magenta", "black"))
+l <- l + guides(color=guide_legend(title=NULL)) 
+l <- l + theme(legend.key = element_blank())
+l
+
+## Plotting a legend with lines and colors
+l <- ggplot() + geom_line(data=PC1.a5, aes (x=PC1, y=PC2, colour = genotype), shape=15, size=2) +
+  scale_colour_manual (values=c("red", "darkgreen", "magenta", "black"))
+l <- l + guides(color=guide_legend(title=NULL)) 
+l <- l + theme(legend.key = element_blank())
+l
+## PLOT_paper
+ggsave (l, file=paste(home, "/20151001_ts65_young_MWM/figures/", "lines_legend.jpg", sep=""), 
+         width=14, height=7, dpi=900)
