@@ -156,8 +156,8 @@ df.circle <- data.frame(x = sin(angle), y = cos(angle))
 p_circle_plot <- ggplot(circle_plot) + 
   geom_segment (data=circle_plot, aes(x=0, y=0, xend=-Dim.1, yend=-Dim.2), arrow=arrow(length=unit(0.2,"cm")), alpha=1, size=1, color="red") +
 #   xlim (c(-1.2, 1.2)) + ylim (c(-1.2, 1.2)) +
-  scale_x_continuous(limits=c(-1.4, 1.4), breaks=(c(-1,0,1))) +
-  scale_y_continuous(limits=c(-1.4, 1.4), breaks=(c(-1,0,1))) +
+  scale_x_continuous(limits=c(-1.3, 1.3), breaks=(c(-1,0,1))) +
+  scale_y_continuous(limits=c(-1.3, 1.3), breaks=(c(-1,0,1))) +
   geom_text (data=neg_positions, aes (x=-Dim.1, y=-Dim.2, label=neg_labels, hjust=1.2), show_guide = FALSE, size=5) + 
   geom_text (data=pos_positions, aes (x=-Dim.1, y=-Dim.2, label=pos_labels, hjust=-0.3), show_guide = FALSE, size=5) +
   geom_vline (xintercept = 0, linetype="dotted") +
@@ -172,7 +172,7 @@ p_circle_big_title <- p_circle_plot + coord_fixed() +
                       theme(axis.title.y = element_text(size =22))
 # No axis
 #                       theme(panel.border = element_blank(), axis.line = element_blank())
-p_circle_big_title + theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+p_circle_big_title
 # ggsave (p_circle_plot, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", "circle_plot.jpg", sep=""), width = 6, height = 6, dpi=900)
 ggsave (p_circle_big_title, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
 
