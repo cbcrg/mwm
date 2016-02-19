@@ -18,6 +18,7 @@ jtracks_data = spss.get(paste (home, "/20151001_ts65_young_MWM/data/Jtracks para
 # head (data_nxf)
 # Loading functions:
 source (paste (home, "/git/mwm/lib/R/plot_param_public.R", sep=""))
+source (paste (home, "/git/mwm/lib/R/stat_density_2d_function.R", sep=""))
 
 # The last records are empty
 tail(jtracks_data, 50)
@@ -259,37 +260,37 @@ pca_plot_individuals
 
 head(new_coord)
 
-# ## Individual variation as density plots
-# p_cloud_indiv_by_day <- ggplot(new_coord, aes(V1, V2, color=genotype, label=day)) + 
-#   stat_density2d(aes(fill=factor(genotype), alpha = ..level..), 
-#                  geom="polygon", color=NA, n=100, h=4, bins=6, show.legend = FALSE) + 
-#   geom_point(show.legend = FALSE) + 
-#   scale_color_manual(name='genotype', 
-#                      values = c("red", "darkgreen", "magenta", "black"),                                            
-#                      labels = c("WT", "TS", "WTEEEGCG", "TSEEEGCG")) +
-# #                      values = c("red","gray", "green", "black"),
-# #                      labels = c("WT","WTEEEGCG", "TS",  "TSEEEGCG")) + 
-#   scale_fill_manual( name='gentreat', 
-# #                      values = c("red","gray", "green", "black"), 
-# #                      labels = c("WT","WTEEEGCG", "TS",  "TSEEEGCG")) + 
-#                      values = c("red", "darkgreen", "magenta", "black"),                                            
-#                      labels = c("WT", "TS", "WTEEEGCG", "TSEEEGCG")) +
-#   geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
-#   scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
-#   scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
-#   coord_cartesian(xlim=c(-7, 9),
-#                   ylim=c(-10, 10)) +
-#   labs(title = "Density plot of individual variation\n", x = "\nPC1", y="PC2\n") +
-#   scale_alpha_continuous(range=c(0.3,0.5)) 
-# p_cloud_indiv_by_day
+## Individual variation as density plots
+p_cloud_indiv_by_day <- ggplot(new_coord, aes(V1, V2, color=genotype, label=day)) + 
+  stat_density2d(aes(fill=factor(genotype), alpha = ..level..), 
+                 geom="polygon", color=NA, n=100, h=4, bins=6, show.legend = FALSE) + 
+  geom_point(show.legend = FALSE) + 
+  scale_color_manual(name='genotype', 
+                     values = c("red", "darkgreen", "magenta", "black"),                                            
+                     labels = c("WT", "TS", "WTEEEGCG", "TSEEEGCG")) +
+#                      values = c("red","gray", "green", "black"),
+#                      labels = c("WT","WTEEEGCG", "TS",  "TSEEEGCG")) + 
+  scale_fill_manual( name='gentreat', 
+#                      values = c("red","gray", "green", "black"), 
+#                      labels = c("WT","WTEEEGCG", "TS",  "TSEEEGCG")) + 
+                     values = c("red", "darkgreen", "magenta", "black"),                                            
+                     labels = c("WT", "TS", "WTEEEGCG", "TSEEEGCG")) +
+  geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
+  scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
+  scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
+  coord_cartesian(xlim=c(-7, 9),
+                  ylim=c(-10, 10)) +
+  labs(title = "Density plot of individual variation\n", x = "\nPC1", y="PC2\n") +
+  scale_alpha_continuous(range=c(0.3,0.5)) 
+p_cloud_indiv_by_day
 # +
 #   geom_path (data=pca2plot, aes(x=Dim.1, y=Dim.2, colour=gentreat), size = 0.5, linetype = 2, show_guide = FALSE)
 
-# p_cloud_indiv_by_day
-# p_cloud_indiv_by_day_facet <- p_cloud_indiv_by_day + facet_wrap(~genotype, ncol = 2)
-#                   
-# p_cloud_indiv_by_day_facet_lines <- p_cloud_indiv_by_day_facet + geom_vline(xintercept = 0, colour="gray") + 
-#                                     geom_hline(yintercept = 0, colour="gray")
+p_cloud_indiv_by_day
+p_cloud_indiv_by_day_facet <- p_cloud_indiv_by_day + facet_wrap(~genotype, ncol = 2)
+                  
+p_cloud_indiv_by_day_facet_lines <- p_cloud_indiv_by_day_facet + geom_vline(xintercept = 0, colour="gray") + 
+                                    geom_hline(yintercept = 0, colour="gray")
 
 #PLOT_presentation
 # ggsave (p_cloud_indiv_by_day_facet_lines, file=paste(home, "/20151001_ts65_young_MWM/figures/", "PCA_density_indiv_byDay.jpg", sep=""), 
@@ -321,101 +322,6 @@ PC1_acq1_5$day <- as.factor(PC1_acq1_5$day)
 #                         geom_hline(yintercept = 0, colour="gray")
 # p_cloud_acq1_5_facet
 
-
-
-
-
-
-
-
-
-
-
-################
-################
-################
-################
-################
-################
-
-
-#' @export
-#' @rdname geom_density_2d
-#' @param contour If \code{TRUE}, contour the results of the 2d density
-#'   estimation
-#' @param n number of grid points in each direction
-#' @param h Bandwidth (vector of length two). If \code{NULL}, estimated
-#'   using \code{\link[MASS]{bandwidth.nrd}}.
-#' @section Computed variables:
-#' Same as \code{\link{stat_contour}}
-stat_density_2d <- function(mapping = NULL, data = NULL, geom = "density_2d",
-                            position = "identity", contour = TRUE,
-                            n = 100, h = NULL, na.rm = FALSE,
-                            show.legend = NA, inherit.aes = TRUE, ...) {
-  layer(
-    data = data,
-    mapping = mapping,
-    stat = StatDensity2d,
-    geom = geom,
-    position = position,
-    show.legend = show.legend,
-    inherit.aes = inherit.aes,
-    params = list(
-      na.rm = na.rm,
-      contour = contour,
-      n = n,
-      h = h,
-      ...
-    )
-  )
-}
-
-#' @export
-#' @rdname geom_density_2d
-#' @usage NULL
-stat_density2d <- stat_density_2d
-
-#' @rdname ggplot2-ggproto
-#' @format NULL
-#' @usage NULL
-#' @export
-StatDensity2d <- ggproto("StatDensity2d", Stat,
-                         default_aes = aes(colour = "#3366FF", size = 0.5),
-                         
-                         required_aes = c("x", "y"),
-                         
-                         compute_group = function(data, scales, na.rm = FALSE, h = NULL,
-                                                  contour = TRUE, n = 100, bins = NULL,
-                                                  binwidth = NULL) {
-                           if (is.null(h)) {
-                             h <- c(MASS::bandwidth.nrd(data$x), MASS::bandwidth.nrd(data$y))
-                           }
-                           
-                           dens <- MASS::kde2d(
-                             data$x, data$y, h = h, n = n,
-                             lims = c(scales$x$dimension(), scales$y$dimension())
-                           )
-                           df <- data.frame(expand.grid(x = dens$x, y = dens$y), z = as.vector(dens$z))
-                           df$group <- data$group[1]
-                           
-                           if (contour) {
-                             StatContour$compute_panel(df, scales, bins, binwidth)
-                           } else {
-                             names(df) <- c("x", "y", "density", "group")
-                             df$level <- 1
-                             df$piece <- 1
-                             df
-                           }
-                         }
-)
-
-
-################
-################
-################
-################
-################
-################
 ## Labels facet
 levels(PC1_acq1_5$day) <- c("Acq 1","Acq 5")
 
@@ -442,7 +348,7 @@ p_cloud_acq1_5 <- ggplot(PC1_acq1_5, aes(PC1, PC2, color=genotype_tt)) +
 
 p_cloud_acq1_5_facet <- p_cloud_acq1_5 + facet_grid(day ~ genotype_tt, margins=FALSE) + geom_vline(xintercept = 0, colour="gray") +
   geom_hline(yintercept = 0, colour="gray") +
-  theme(strip.text.x = element_text(size=14, face="bold"), strip.text.y = element_text(size=14, face="bold")) +
+  theme(strip.text.x = element_text(size=14, face="bold"), strip.text.y = element_text(size=14, face="bold", angle=90)) +
   theme(plot.title = element_text(size=22)) + 
   theme(axis.title.x = element_text(size =22)) +
   theme(axis.title.y = element_text(size =22))
