@@ -20,6 +20,12 @@ jtracks_data = spss.get(paste (home, "/20151001_ts65_young_MWM/data/Jtracks para
 source (paste (home, "/git/mwm/lib/R/plot_param_public.R", sep=""))
 source (paste (home, "/git/mwm/lib/R/stat_density_2d_function.R", sep=""))
 
+# Parameter to set plot qualities
+dpi_q <- 300
+# dpi_q <- 900
+# img_format = ".jpg"
+img_format = ".tiff"
+
 # The last records are empty
 tail(jtracks_data, 50)
 # tail(smart_data)
@@ -99,11 +105,11 @@ pca2plot$gentreat <- factor(pca2plot$gentreat , levels=c("WT", "TS", "WTEEEGCG",
                                   labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"))
 
 pca_medians_acq <- ggplot(pca2plot, aes(x=-Dim.1, y=-Dim.2, colour=gentreat )) + 
-  geom_path (size = 1,show_guide = F) + 
+  geom_path (size = 1,show.legend = F) + 
   scale_color_manual(values=c("red", "darkgreen", "magenta", "black")) +
   
-  #                           geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show_guide = T)+
-  geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show_guide = F)+
+  #                           geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show.legend = T)+
+  geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show.legend = F)+
   theme(legend.key=element_rect(fill=NA)) +
   labs(title = "PCA of group medians\n", x = paste("\nPC1 (", var_PC1, "% of variance)", sep=""), 
        y=paste("PC2 (", var_PC2, "% of variance)\n", sep = "")) +
@@ -124,7 +130,7 @@ pca_medians_acq_aspect_ratio_big_title <- pca_medians_acq_aspect_ratio +  theme(
   theme(axis.title.x = element_text(size =22)) +
   theme(axis.title.y = element_text(size =22))
 
-pca_medians_acq_aspect_ratio_leg <- pca_medians_acq_aspect_ratio  + geom_path (size = 1,show_guide = T)
+pca_medians_acq_aspect_ratio_leg <- pca_medians_acq_aspect_ratio  + geom_path (size = 1,show.legend = T)
 
 pca_medians_acq_aspect_ratio_leg
 
@@ -158,8 +164,8 @@ p_circle_plot <- ggplot(circle_plot) +
 #   xlim (c(-1.2, 1.2)) + ylim (c(-1.2, 1.2)) +
   scale_x_continuous(limits=c(-1.3, 1.3), breaks=(c(-1,0,1))) +
   scale_y_continuous(limits=c(-1.3, 1.3), breaks=(c(-1,0,1))) +
-  geom_text (data=neg_positions, aes (x=-Dim.1, y=-Dim.2, label=neg_labels, hjust=1.2), show_guide = FALSE, size=5) + 
-  geom_text (data=pos_positions, aes (x=-Dim.1, y=-Dim.2, label=pos_labels, hjust=-0.3), show_guide = FALSE, size=5) +
+  geom_text (data=neg_positions, aes (x=-Dim.1, y=-Dim.2, label=neg_labels, hjust=1.2), show.legend = FALSE, size=5) + 
+  geom_text (data=pos_positions, aes (x=-Dim.1, y=-Dim.2, label=pos_labels, hjust=-0.3), show.legend = FALSE, size=5) +
   geom_vline (xintercept = 0, linetype="dotted") +
   geom_hline (yintercept=0, linetype="dotted") +
   labs (title = "PCA of the variables\n", x = paste("\nPC1 (", var_PC1, "% of variance)", sep=""), 
@@ -284,7 +290,7 @@ p_cloud_indiv_by_day <- ggplot(new_coord, aes(V1, V2, color=genotype, label=day)
   scale_alpha_continuous(range=c(0.3,0.5)) 
 p_cloud_indiv_by_day
 # +
-#   geom_path (data=pca2plot, aes(x=Dim.1, y=Dim.2, colour=gentreat), size = 0.5, linetype = 2, show_guide = FALSE)
+#   geom_path (data=pca2plot, aes(x=Dim.1, y=Dim.2, colour=gentreat), size = 0.5, linetype = 2, show.legend = FALSE)
 
 p_cloud_indiv_by_day
 p_cloud_indiv_by_day_facet <- p_cloud_indiv_by_day + facet_wrap(~genotype, ncol = 2)
@@ -303,8 +309,8 @@ PC1_acq1_5$day <- as.factor(PC1_acq1_5$day)
 
 # p_cloud_acq1_5 <- ggplot(PC1_acq1_5, aes(PC1, PC2, color=genotype_tt)) + 
 #                           stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
-#                                          geom="polygon", color=NA, n=100, h=5, bins=6, show_guide = F) +
-#                           geom_point(show_guide = F) + 
+#                                          geom="polygon", color=NA, n=100, h=5, bins=6, show.legend = F) +
+#                           geom_point(show.legend = F) + 
 #                           scale_color_manual(name='genotype_tt', 
 #                                              values = c("red", "darkgreen", "magenta", "black"),                                            
 #                                              labels = c("WT", "TS", "WTEEEGCG", "TSEEEGCG")) +
@@ -364,41 +370,86 @@ p_cloud_acq1_5_facet
 # I can use the same table
 PC1_acq1_5$genotype <- PC1_acq1_5$genotype_tt
 
+# Changing again the labels of acquisiton
+levels(PC1_acq1_5$day) <- c("1","5")
 PC1.a1 <- subset(PC1_acq1_5,  day==1)
 PC1.a5 <- subset(PC1_acq1_5,  day==5)
 
 boxPlots.PC1.a1 <- ggplot(PC1.a1, aes (genotype, PC1, fill = genotype)) + 
-  geom_boxplot(show_guide=FALSE) +
+  geom_boxplot(show.legend=FALSE) +
   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
   labs(title = "Session 1 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
   theme (legend.title=element_blank()) + 
   # Same axis limits in day 1 and day 5
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
-  scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-5.5, 9.5)) +
+  scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8,10,12), limits=c(-4.5, 13)) +
   geom_segment(aes(x = 3.63, y = median(PC1.a1[PC1.a1$genotype == "TSEEEGCG","PC1"]), xend = 4.37, yend = median(PC1.a1[PC1.a1$genotype == "TSEEEGCG","PC1"])), colour="white")
 
 # p_cloud_indiv_by_day_facet <- boxPlots.PC1 + facet_wrap(~genotype, ncol = 2)
-boxPlots.PC1.a1.line <- boxPlots.PC1.a1 + geom_hline(yintercept = 0, colour="gray")
+boxPlots.PC1.a1.line <- boxPlots.PC1.a1 + geom_hline(yintercept = 0, colour="gray") + 
+                        theme(plot.title = element_text(size=22)) + 
+                        theme(axis.title.x = element_text(size =22)) +
+                        theme(axis.title.y = element_text(size =22))
 boxPlots.PC1.a1.line
 
 ## Session 5
 boxPlots.PC1.a5 <- ggplot(PC1.a5, aes (genotype, PC1, fill = genotype)) + 
-  geom_boxplot(show_guide=FALSE) +
+  geom_boxplot(show.legend=FALSE) +
   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
-  labs(title = "Session 1 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
+  labs(title = "Session 5 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
   theme (legend.title=element_blank()) + 
   # Same axis limits in day 1 and day 5
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
-  scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-5.5, 9.5)) +
+  scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8,10,12), limits=c(-4.5, 13)) +
   geom_segment(aes(x = 3.63, y = median(PC1.a5[PC1.a1$genotype == "TSEEEGCG","PC1"]), xend = 4.37, yend = median(PC1.a5[PC1.a5$genotype == "TSEEEGCG","PC1"])), colour="white")
 
 # p_cloud_indiv_by_day_facet <- boxPlots.PC1 + facet_wrap(~genotype, ncol = 2)
-boxPlots.PC1.a5.line <- boxPlots.PC1.a5 + geom_hline(yintercept = 0, colour="gray")
+boxPlots.PC1.a5.line <- boxPlots.PC1.a5 + geom_hline(yintercept = 0, colour="gray") +
+                        theme(plot.title = element_text(size=22)) + 
+                        theme(axis.title.x = element_text(size =22)) +
+                        theme(axis.title.y = element_text(size =22))
+
+
+# This work but is a line not a bracket
+boxPlots.PC1.a1.line + geom_segment(aes(x = 1, y = 7.2, xend = 2, yend = 7.2), colour="black")
+
+# I need the factor genotype, to make it work, I just add a fake genotype
+sl_1 <- data.frame(x = c(1, 1, 2, 2), y = c(3.2, 3.5, 3.5, 3.2), genotype=rep("TS",4))
+sl_2 <- data.frame(x = c(2, 2, 3, 3), y = c(4.4, 4.7, 4.7, 4.4), genotype=rep("TS",4))
+sl_3 <- data.frame(x = c(2, 2, 4, 4), y = c(5.6, 5.9, 5.9, 5.6), genotype=rep("TS",4))
+
+boxPlots.PC1.a1.line.sig <- boxPlots.PC1.a1.line + geom_path(data = sl_1, aes(x = x, y = y)) +
+                                                   geom_path(data = sl_2, aes(x = x, y = y)) +
+                                                   geom_path(data = sl_3, aes(x = x, y = y)) +
+                                                   annotate("text", x=1.5, y=3.6,label="***", size=10) +
+                                                   annotate("text", x=2.5, y=4.8,label="***", size=10) +
+                                                   annotate("text", x=3, y=6,label="**", size=10)
+
+boxPlots.PC1.a1.line.sig
+
+# I need the factor genotype, to make it work, I just add a fake genotype
+sl_1 <- data.frame(x = c(1, 1, 2, 2), y = c(7.2, 7.5, 7.5, 7.2), genotype=rep("TS",4))
+sl_2 <- data.frame(x = c(2, 2, 3, 3), y = c(8.4, 8.7, 8.7, 8.4), genotype=rep("TS",4))
+sl_3 <- data.frame(x = c(3, 3, 4, 4), y = c(9.6, 9.9, 9.9, 9.6), genotype=rep("TS",4))
+sl_4 <- data.frame(x = c(2, 2, 4, 4), y = c(10.8, 11.1, 11.1, 10.8), genotype=rep("TS",4))
+sl_5 <- data.frame(x = c(1, 1, 4, 4), y = c(12, 12.3, 12.3, 12), genotype=rep("TS",4))
+
+boxPlots.PC1.a5.line.sig <- boxPlots.PC1.a5.line + geom_path(data = sl_1, aes(x = x, y = y)) +
+                                                   geom_path(data = sl_2, aes(x = x, y = y)) +
+                                                   geom_path(data = sl_3, aes(x = x, y = y)) +
+                                                   geom_path(data = sl_4, aes(x = x, y = y)) +
+                                                   geom_path(data = sl_5, aes(x = x, y = y)) +
+                                                   annotate("text", x=1.5, y=7.6,label="***", size=10) +
+                                                   annotate("text", x=3.5, y=10,label="*", size=10) +
+                                                   annotate("text", x=2.5, y=8.8,label="***", size=10) +
+                                                   annotate("text", x=3, y=11.2,label="*", size=10) +
+                                                   annotate("text", x=2.5, y=12.4,label="**", size=10)
 
 #PLOT_paper
-# ggsave (boxPlots.PC1.a1.line, file=paste(home, "/20151001_ts65_young_MWM/figures/", "boxPlot_PC1_a1.jpg", sep=""), dpi=900)
-# ggsave (boxPlots.PC1.a5.line, file=paste(home, "/20151001_ts65_young_MWM/figures/", "boxPlot_PC1_a5.jpg", sep=""), dpi=900)
-
+# ggsave (boxPlots.PC1.a1.line, file=paste(home, "/20151001_ts65_young_MWM/figures/", "boxPlot_PC1_a1", img_format, sep=""), dpi=dpi_q, units="cm", width = 10, height = 7.5)
+# ggsave (boxPlots.PC1.a5.line, file=paste(home, "/20151001_ts65_young_MWM/figures/", "boxPlot_PC1_a5", img_format, sep=""), dpi=dpi_q, units="cm", width = 10, height = 7.5)
+ggsave (boxPlots.PC1.a1.line.sig, file=paste(home, "/20151001_ts65_young_MWM/figures/", "boxPlot_PC1_a1", img_format, sep=""), dpi=dpi_q)
+ggsave (boxPlots.PC1.a5.line.sig, file=paste(home, "/20151001_ts65_young_MWM/figures/", "boxPlot_PC1_a5", img_format, sep=""), dpi=dpi_q)
 
 # Plotting a legend with scuares and colors
 l <- ggplot() + geom_point(data=PC1.a5, aes (x=PC1, y=PC2, colour = genotype), shape=15, size=5) +
