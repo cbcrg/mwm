@@ -10,6 +10,8 @@ home <- Sys.getenv("HOME")
 library("ggplot2")
 library("Hmisc")
 library("FactoMineR") #PCA
+# install.packages("cowplot")
+library("cowplot")
 
 jtracks_data = spss.get(paste (home, "/20151001_ts65_young_MWM/data/Jtracks parameters Young TS_SUBCONJ_REV_R_FORMAT.sav", sep=""))
 #smart_data = spss.get(paste (home, "/20151001_ts65_young_MWM/data/Jtracks parameters Young TS_SUBCONJ.sav", sep=""))
@@ -23,8 +25,10 @@ source (paste (home, "/git/mwm/lib/R/stat_density_2d_function.R", sep=""))
 # Parameter to set plot qualities
 dpi_q <- 300
 # dpi_q <- 900
-# img_format = ".jpg"
-img_format = ".tiff"
+# img_format <- ".jpg"
+img_format <- ".tiff"
+size_titles <- 18
+size_axis <- 14
 
 # The last records are empty
 tail(jtracks_data, 50)
@@ -126,9 +130,9 @@ pca_medians_acq_aspect_ratio <- pca_medians_acq + coord_fixed() +
   scale_y_continuous (limits=c(-2, 3), breaks=-2:3)
 
 
-pca_medians_acq_aspect_ratio_big_title <- pca_medians_acq_aspect_ratio +  theme(plot.title = element_text(size=22)) + 
-  theme(axis.title.x = element_text(size =22)) +
-  theme(axis.title.y = element_text(size =22))
+pca_medians_acq_aspect_ratio_big_title <- pca_medians_acq_aspect_ratio +  theme(plot.title = element_text(size=size_titles)) + 
+  theme(axis.title.x = element_text(size=size_axis)) +
+  theme(axis.title.y = element_text(size=size_axis))
 
 pca_medians_acq_aspect_ratio_leg <- pca_medians_acq_aspect_ratio  + geom_path (size = 1,show.legend = T)
 
@@ -173,9 +177,9 @@ p_circle_plot <- ggplot(circle_plot) +
   geom_polygon (data = df.circle, aes(x, y), alpha=1, colour="black", fill=NA, size=1)
 
 p_circle_big_title <- p_circle_plot + coord_fixed() +
-                      theme(plot.title = element_text(size=22)) + 
-                      theme(axis.title.x = element_text(size =22)) +
-                      theme(axis.title.y = element_text(size =22))
+                      theme(plot.title = element_text(size=size_titles)) + 
+                      theme(axis.title.x = element_text(size=size_axis)) +
+                      theme(axis.title.y = element_text(size=size_axis))
 # No axis
 #                       theme(panel.border = element_blank(), axis.line = element_blank())
 p_circle_big_title
@@ -198,9 +202,9 @@ bars_plot <- ggplot (data=df.bars_to_plot, aes(x=index, y=value)) +
   theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1) )
 bars_plot
 
-bar_plot_big_title <- bars_plot + theme(plot.title = element_text(size=22)) + 
-                      theme(axis.title.x = element_text(size =22)) +
-                      theme(axis.title.y = element_text(size =22))
+bar_plot_big_title <- bars_plot + theme(plot.title = element_text(size=size_titles)) + 
+                      theme(axis.title.x = element_text(size=size_axis)) +
+                      theme(axis.title.y = element_text(size=size_axis))
 #PLOT_paper
 # ggsave (bars_plot, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq", "bar_contribution.jpg", sep=""), dpi=900)
 # ggsave (bar_plot_big_title, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", "bar_contribution.jpg", sep=""), dpi=900)
@@ -223,9 +227,9 @@ bars_plot_PC2 <- ggplot (data=df.bars_to_plot_PC2, aes(x=index, y=value)) +
   theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1) )
 bars_plot_PC2
 
-bars_plot_PC2_big_title <- bars_plot_PC2 + theme(plot.title = element_text(size=22)) + 
-  theme(axis.title.x = element_text(size =22)) +
-  theme(axis.title.y = element_text(size =22))
+bars_plot_PC2_big_title <- bars_plot_PC2 + theme(plot.title = element_text(size=size_titles)) + 
+  theme(axis.title.x = element_text(size=size_axis)) +
+  theme(axis.title.y = element_text(size=size_axis))
 
 #PLOT_paper
 # Final version
@@ -298,6 +302,7 @@ p_cloud_indiv_by_day_facet <- p_cloud_indiv_by_day + facet_wrap(~genotype, ncol 
 p_cloud_indiv_by_day_facet_lines <- p_cloud_indiv_by_day_facet + geom_vline(xintercept = 0, colour="gray") + 
                                     geom_hline(yintercept = 0, colour="gray")
 
+p_cloud_indiv_by_day_facet_lines
 #PLOT_presentation
 # ggsave (p_cloud_indiv_by_day_facet_lines, file=paste(home, "/20151001_ts65_young_MWM/figures/", "PCA_density_indiv_byDay.jpg", sep=""), 
 #          width = 10, height = 10, dpi=900)
@@ -329,7 +334,7 @@ PC1_acq1_5$day <- as.factor(PC1_acq1_5$day)
 # p_cloud_acq1_5_facet
 
 ## Labels facet
-levels(PC1_acq1_5$day) <- c("Acq 1","Acq 5")
+levels(PC1_acq1_5$day) <- c("Session 1","Session 5")
 
 # Trying to do density plot again, the changed the function arggggg
 p_cloud_acq1_5 <- ggplot(PC1_acq1_5, aes(PC1, PC2, color=genotype_tt)) + 
@@ -351,20 +356,32 @@ p_cloud_acq1_5 <- ggplot(PC1_acq1_5, aes(PC1, PC2, color=genotype_tt)) +
   labs(title = "PCA coordinates density, session 1 and 5\n", x = "\nPC1", y="PC2\n")
  
 # p_cloud_acq1_5
-
+size_strips <- 12
 p_cloud_acq1_5_facet <- p_cloud_acq1_5 + facet_grid(day ~ genotype_tt, margins=FALSE) + geom_vline(xintercept = 0, colour="gray") +
   geom_hline(yintercept = 0, colour="gray") +
-  theme(strip.text.x = element_text(size=14, face="bold"), strip.text.y = element_text(size=14, face="bold", angle=90)) +
-  theme(plot.title = element_text(size=22)) + 
-  theme(axis.title.x = element_text(size =22)) +
-  theme(axis.title.y = element_text(size =22))
+  theme(strip.text.x = element_text(size=size_strips, face="bold"), strip.text.y = element_text(size=size_strips, face="bold", angle=90)) +
+  theme(plot.title = element_text(size=size_titles)) + 
+  theme(axis.title.x = element_text(size=size_axis)) +
+  theme(axis.title.y = element_text(size=size_axis)) +
+  theme(strip.background = element_blank()) + 
+  panel_border() + theme(panel.border = element_rect(colour = "black"))
 
-p_cloud_acq1_5_facet <- p_cloud_acq1_5_facet + coord_fixed()
-p_cloud_acq1_5_facet
+#   theme(panel.background = element_rect(fill=NA, col="black"))+
+#   theme(panel.border = element_rect(colour = "black"))
+#   theme(panel.grid.major = element_line(colour = "black"))
+#   theme(strip.background = element_rect(fill="black"))
+#   theme(strip.background = element_blank())
 
-                                                                       #PLOT_presentation
+p_cloud_acq1_5_facet_coord <- p_cloud_acq1_5_facet + coord_fixed()
+p_cloud_acq1_5_facet_coord
+
+#PLOT_presentation
 # ggsave (p_cloud_acq1_5_facet, file=paste(home, "/20151001_ts65_young_MWM/figures/", "PCA_density_byGroupAndDay.jpg", sep=""), 
 #         width = 10, height = 6, dpi=900)
+
+#PLOT_paper
+# ggsave (p_cloud_acq1_5_facet_coord, file=paste(home, "/20151001_ts65_young_MWM/figures/", "PCA_density_byGroupAndDay_coordFixed", img_format, sep=""), 
+#         dpi=dpi_q)
 
 #### BOXPLOTS of PC1
 # I can use the same table
@@ -387,9 +404,10 @@ boxPlots.PC1.a1 <- ggplot(PC1.a1, aes (genotype, PC1, fill = genotype)) +
 
 # p_cloud_indiv_by_day_facet <- boxPlots.PC1 + facet_wrap(~genotype, ncol = 2)
 boxPlots.PC1.a1.line <- boxPlots.PC1.a1 + geom_hline(yintercept = 0, colour="gray") + 
-                        theme(plot.title = element_text(size=22)) + 
-                        theme(axis.title.x = element_text(size =22)) +
-                        theme(axis.title.y = element_text(size =22))
+                        theme(plot.title = element_text(size=size_titles)) + 
+                        theme(axis.title.x = element_text(size=size_axis)) +
+                        theme(axis.title.y = element_text(size=size_axis)) +
+                        panel_border() + theme(panel.border = element_rect(colour = "black"))
 boxPlots.PC1.a1.line
 
 ## Session 5
@@ -405,13 +423,14 @@ boxPlots.PC1.a5 <- ggplot(PC1.a5, aes (genotype, PC1, fill = genotype)) +
 
 # p_cloud_indiv_by_day_facet <- boxPlots.PC1 + facet_wrap(~genotype, ncol = 2)
 boxPlots.PC1.a5.line <- boxPlots.PC1.a5 + geom_hline(yintercept = 0, colour="gray") +
-                        theme(plot.title = element_text(size=22)) + 
-                        theme(axis.title.x = element_text(size =22)) +
-                        theme(axis.title.y = element_text(size =22))
+                        theme(plot.title = element_text(size=size_titles)) + 
+                        theme(axis.title.x = element_text(size=size_axis)) +
+                        theme(axis.title.y = element_text(size=size_axis)) +
+                        panel_border() + theme(panel.border = element_rect(colour = "black"))
 
 
-# This work but is a line not a bracket
-boxPlots.PC1.a1.line + geom_segment(aes(x = 1, y = 7.2, xend = 2, yend = 7.2), colour="black")
+## This work but is a line not a bracket
+# boxPlots.PC1.a1.line + geom_segment(aes(x = 1, y = 7.2, xend = 2, yend = 7.2), colour="black")
 
 # I need the factor genotype, to make it work, I just add a fake genotype
 sl_1 <- data.frame(x = c(1, 1, 2, 2), y = c(3.2, 3.5, 3.5, 3.2), genotype=rep("TS",4))
@@ -445,11 +464,99 @@ boxPlots.PC1.a5.line.sig <- boxPlots.PC1.a5.line + geom_path(data = sl_1, aes(x 
                                                    annotate("text", x=3, y=11.2,label="*", size=10) +
                                                    annotate("text", x=2.5, y=12.4,label="**", size=10)
 
+###################
+###################
+# boxplot but facet
+####
+
+PC1_acq1_5
+
+## Labels facet
+levels(PC1_acq1_5$day) <- c("Session 1", "Session 5")
+
+# I need the factor genotype, to make it work, I just add a fake genotype
+sl_1 <- data.frame(x = c(1, 1, 2, 2, 2, 2, 3, 3, 2, 2, 4, 4, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 2, 2, 4, 4, 1, 1, 4, 4), 
+                   y = c(3.2, 3.5, 3.5, 3.2, 4.4, 4.7, 4.7, 4.4, 5.6, 5.9, 5.9, 5.6, 7.2, 7.5, 
+                         7.5, 7.2, 8.4, 8.7, 8.7, 8.4,9.6, 9.9, 9.9, 9.6, 10.8, 11.1, 11.1, 10.8, 12, 12.3, 12.3, 12), 
+                   genotype=c(rep("WT",4),rep("TS",4), rep("TSEEEGCG",4),rep("WT",4),rep("TS",4), rep("TSEEEGCG",4),
+                              rep("WTEEEGCG",4), rep("TS_fake",4)), 
+                   day=c(rep("Session 1", 12), rep("Session 5", 20)))
+sl_1$genotype <- factor(sl_1$genotype, levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"), 
+                              labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"))
+
+stars_plot <- data.frame(x_pos = c(1.5, 2.5, 3, 1.5, 3.5, 2.5, 3, 2.5), y_pos = c(3.6, 4.8, 6, 7.6, 10, 8.8, 11.2, 12.4), 
+                         label=c("***","***","**", "***", "*", "***", "*", "**"), 
+                         day=c(rep("Session 1", 3), 
+                               rep("Session 5", 5)),
+                         genotype=c(rep("WT",8)))                       
+
+median_line_5 <- data.frame(x=3.63,y=median(PC1.a5[PC1.a5$genotype == "TSEEEGCG","PC1"]),
+                           xend=4.37, yend=median(PC1.a5[PC1.a5$genotype == "TSEEEGCG","PC1"]),
+                           day=factor("Session 5", levels=c("Session 1","Session 5")), genotype="TS")
+median_line_1 <- data.frame(x=3.63,y= median(PC1.a1[PC1.a1$genotype == "TSEEEGCG","PC1"]),
+                           xend=4.37, yend= median(PC1.a1[PC1.a1$genotype == "TSEEEGCG","PC1"]),
+                           day=factor("Session 1", levels=c("Session 1","Session 5")), genotype="TS")
+# PC1_acq1_5 <- factor (sl_1$genotype)
+
+PC1_acq1_5$genotype <- factor(PC1_acq1_5$genotype, levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"), 
+                              labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"))
+
+boxPlots.PC1.facet <- ggplot(PC1_acq1_5, aes (genotype, PC1, fill = genotype)) + 
+  geom_boxplot(show.legend=FALSE) +
+#   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black", "gray")) +
+  scale_fill_manual(name = "Genotype", values=c("darkgreen", "black","magenta", "red", "magenta")) +
+  labs(title = "PC1 distribution\n") + xlab ("\nGroups") + ylab("PC1\n") +
+  theme (legend.title=element_blank()) + 
+  # Same axis limits in day 1 and day 5
+  #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
+  scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8,10,12), limits=c(-4.5, 13)) +
+  geom_segment(data=median_line_5, aes(x = x, y = y, xend=xend, yend=yend), colour="white") +
+  geom_segment(data=median_line_1, aes(x = x, y = y, xend=xend, yend=yend), colour="white") +
+  facet_grid(. ~ day)
+
+boxPlots.PC1.facet 
+
+# p_cloud_indiv_by_day_facet <- boxPlots.PC1 + facet_wrap(~genotype, ncol = 2)
+boxPlots.PC1.line <-boxPlots.PC1.facet  + geom_hline(yintercept = 0, colour="gray") +
+  theme(plot.title = element_text(size=size_titles)) + 
+  theme(axis.title.x = element_text(size=size_axis)) +
+  theme(axis.title.y = element_text(size=size_axis)) +
+  panel_border() + theme(panel.border = element_rect(colour = "black"))
+
+boxPlots.PC1.line.stars <- boxPlots.PC1.line + geom_path(data = sl_1, aes(x = x, y = y)) +                  
+                                               geom_text(data=stars_plot, aes(x=x_pos, y=y_pos, label=label), 
+                                                         size=10, show.legend = FALSE) +
+                                               theme(strip.text.x = element_text(size=size_strips, face="bold")) +
+                                               theme(plot.title = element_text(size=size_titles)) + 
+                                               theme(axis.title.x = element_text(size=size_axis)) +
+                                               theme(axis.title.y = element_text(size=size_axis)) +
+                                               theme(strip.background = element_blank()) + 
+                                               panel_border() + theme(panel.border = element_rect(colour = "black"))                                                                                                      
+
 #PLOT_paper
 # ggsave (boxPlots.PC1.a1.line, file=paste(home, "/20151001_ts65_young_MWM/figures/", "boxPlot_PC1_a1", img_format, sep=""), dpi=dpi_q, units="cm", width = 10, height = 7.5)
 # ggsave (boxPlots.PC1.a5.line, file=paste(home, "/20151001_ts65_young_MWM/figures/", "boxPlot_PC1_a5", img_format, sep=""), dpi=dpi_q, units="cm", width = 10, height = 7.5)
-ggsave (boxPlots.PC1.a1.line.sig, file=paste(home, "/20151001_ts65_young_MWM/figures/", "boxPlot_PC1_a1", img_format, sep=""), dpi=dpi_q)
-ggsave (boxPlots.PC1.a5.line.sig, file=paste(home, "/20151001_ts65_young_MWM/figures/", "boxPlot_PC1_a5", img_format, sep=""), dpi=dpi_q)
+
+# ggsave (boxPlots.PC1.a1.line.sig, file=paste(home, "/20151001_ts65_young_MWM/figures/", "boxPlot_PC1_a1", img_format, sep=""), dpi=dpi_q)
+# ggsave (boxPlots.PC1.a5.line.sig, file=paste(home, "/20151001_ts65_young_MWM/figures/", "boxPlot_PC1_a5", img_format, sep=""), dpi=dpi_q)
+
+######
+#####
+
+img_3plots <- ggdraw() + draw_plot(p_cloud_acq1_5_facet_coord, 0, .5, 1, .5) +
+              draw_label("ddd\n") +
+              draw_plot(boxPlots.PC1.a1.line.sig, 0, 0, .45, .5) +
+              draw_plot(boxPlots.PC1.a5.line.sig, .5, 0, .45, .5) +
+              draw_plot_label(c("A", "B", "C"), c(0, 0, 0.5), c(1, 0.5, 0.5), size = size_titles)
+
+# plot_grid (p_cloud_acq1_5_facet_coord, boxPlots.PC1.line.stars, labels=c("A","B"), nrow = 2)
+
+img_2plots <- ggdraw() + draw_plot(p_cloud_acq1_5_facet_coord, 0, .5, 1, .5) +
+              draw_plot(boxPlots.PC1.line.stars, 0, 0, 1, .5) +
+              draw_plot_label(c("A", "B"), c(0, 0), c(1, 0.5), size = size_titles)
+ggsave (img_2plots, file=paste(home, "/20151001_ts65_young_MWM/figures/", "panel_boxPlot", img_format, sep=""), 
+        dpi=dpi_q, width=14, height=11)
+1100, 700
 
 # Plotting a legend with scuares and colors
 l <- ggplot() + geom_point(data=PC1.a5, aes (x=PC1, y=PC2, colour = genotype), shape=15, size=5) +
