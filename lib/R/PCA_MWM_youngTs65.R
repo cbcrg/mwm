@@ -514,7 +514,6 @@ sl_1 <- data.frame(x = c(1, 1, 2, 2, 2, 2, 3, 3, 2, 2, 4, 4, 1, 1, 2, 2, 2, 2, 3
                    day=c(rep("Session 1", 12), rep("Session 5", 20)))
 sl_1$genotype <- factor(sl_1$genotype, levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"), 
                               labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"))
-
 stars_plot <- data.frame(x_pos = c(1.5, 2.5, 3, 1.5, 3.5, 2.5, 3, 2.5), y_pos = c(3.6, 4.8, 6, 7.6, 10, 8.8, 11.2, 12.4), 
                          label=c("***","***","**", "***", "*", "***", "*", "**"), 
                          day=c(rep("Session 1", 3), 
@@ -563,6 +562,7 @@ boxPlots.PC1.line.stars <- boxPlots.PC1.line + geom_path(data = sl_1, aes(x = x,
                                                theme(axis.title.y = element_text(size=size_axis)) +
                                                theme(strip.background = element_blank()) + 
                                                panel_border() + theme(panel.border = element_rect(colour = "black"))                                                                                                      
+boxPlots.PC1.line.stars
 
 #PLOT_paper
 # ggsave (boxPlots.PC1.a1.line, file=paste(home, "/20151001_ts65_young_MWM/figures/", "boxPlot_PC1_a1", img_format, sep=""), dpi=dpi_q, units="cm", width = 10, height = 7.5)
@@ -585,8 +585,8 @@ img_3plots <- ggdraw() + draw_plot(p_cloud_acq1_5_facet_coord, 0, .5, 1, .5) +
 img_2plots <- ggdraw() + draw_plot(p_cloud_acq1_5_facet_coord, 0, .5, 1, .5) +
               draw_plot(boxPlots.PC1.line.stars, 0, 0, 1, .5) +
               draw_plot_label(c("A", "B"), c(0, 0), c(1, 0.5), size = size_titles)
-ggsave (img_2plots, file=paste(home, "/20151001_ts65_young_MWM/figures/", "panel_boxPlot", img_format, sep=""), 
-        dpi=dpi_q, width=14, height=11)
+# ggsave (img_2plots, file=paste(home, "/20151001_ts65_young_MWM/figures/", "panel_boxPlot", img_format, sep=""), 
+#         dpi=dpi_q, width=14, height=11)
 # size 1100, 700
 
 # Plotting a legend with scuares and colors
