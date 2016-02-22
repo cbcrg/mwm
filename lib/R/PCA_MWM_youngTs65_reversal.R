@@ -417,26 +417,92 @@ median_line_r3 <- data.frame(x=3.63,y= median(PC1.rev3[PC1.rev3$genotype == "TSE
 #   geom_segment(data=median_line_1, aes(x = x, y = y, xend=xend, yend=yend), colour="white") +
 #   facet_grid(. ~ day)
 #  
+PC1_rev1_3$genotype <- factor(PC1_rev1_3$genotype_tt, levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"), 
+                              labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"))
+
 boxPlots.PC1.rev.facet <- ggplot(PC1_rev1_3, aes (genotype, PC1, fill = genotype)) + 
   geom_boxplot(show.legend=FALSE) +
-  scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
+#   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
+  scale_fill_manual(name = "Genotype", values=c("darkgreen", "black","magenta", "red", "magenta")) +
   labs(title = "Session 1 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
   theme (legend.title=element_blank()) + 
   # Same axis limits in day 1 and day 5
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-5.5, 9.5)) +
-  scale_y_continuous(breaks=c(-6,-4,-2,0,2,4,6), limits=c(-6, 6)) +
+  scale_y_continuous(breaks=c(-6,-4,-2,0,2,4,6), limits=c(-6, 12)) +
   geom_segment(data=median_line_r3, aes(x = x, y = y, xend=xend, yend=yend), colour="white") +
   geom_segment(data=median_line_r1, aes(x = x, y = y, xend=xend, yend=yend), colour="white") +
   facet_grid(. ~ day) +
   geom_hline(yintercept = 0, colour="gray")
 
+# p_cloud_indiv_by_day_facet <- boxPlots.PC1 + facet_wrap(~genotype, ncol = 2)
+boxPlots.PC1.rev3.line <- boxPlots.PC1.rev.facet + geom_hline(yintercept = 0, colour="gray")
+boxPlots.PC1.rev3.line
 
+# sl_1$genotype <- factor(sl_1$genotype, levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"), 
+#                         labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"))
+# 
+# stars_plot <- data.frame(x_pos = c(1.5, 2.5, 3.5), 
+#                          y_pos=c(4.2,5.8,7),
+#                          label=c("***","***"),
+#                          day=c(rep("Session 1", 3)),
+#                          genotype=c(rep("WT",3)))
+
+sl_1 <- data.frame(x = c(1, 1, 2, 2, 
+                         2, 2, 3, 3, 
+                         2, 2, 4, 4,
+                         3, 3, 4, 4,
+                         1, 1, 4, 4,
+                         # session 3
+                         1, 1, 2, 2,
+                         3, 3, 4, 4,
+                         2, 2, 3, 3,
+                         2, 2, 4, 4,
+                         1, 1, 4, 4
+                         ),
+                   y = c(3.2, 3.5, 3.5, 3.2, 
+                         4.4, 4.7, 4.7, 4.4, 
+                         5.6, 5.9, 5.9, 5.6,
+                         3.2, 3.5, 3.5, 3.2,
+                         7.2, 7.5, 7.5, 7.2,
+                         # session 3
+                         7.2, 7.5, 7.5, 7.2,
+                         7.2, 7.5, 7.5, 7.2,
+                         8.4, 8.7, 8.7, 8.4,
+                         9.6, 9.9, 9.9, 9.6,
+                         10.8, 11.1, 11.1, 10.8
+                         ), 
+                   genotype=c(rep("WT",4), rep("TS",4), rep("WTEEEGCG",4), rep("TSEEEGCG",4), rep("TS_fake",4),
+                              rep("WT",4), rep("TS",4), rep("TSEEEGCG",4), rep("WTEEEGCG",4), rep("TS_fake",4)),
+                   day=c(rep("Session 1", 20), rep("Session 3", 20)))
+
+sl_1$genotype <- factor(sl_1$genotype, levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"), 
+                        labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"))
+
+stars_plot <- data.frame(x_pos = c(1.5, 2.5, 3, 3.5, 2.5, 1.5, 3.5, 2.5, 3, 2.5), y_pos = c(3.6, 4.8, 6, 3.6, 7.6, 7.6, 7.6, 8.8, 10, 11.2),
+                         label=c("***","***","*","**", "*", "***", "***", "***", "*", "*"),
+                         day=c(rep("Session 1", 5), rep("Session 3", 5)),
+                         genotype=c(rep("WT", 10)))         
 
 # p_cloud_indiv_by_day_facet <- boxPlots.PC1 + facet_wrap(~genotype, ncol = 2)
-boxPlots.PC1.rev3.line <- boxPlots.PC1.rev3 + geom_hline(yintercept = 0, colour="gray")
-boxPlots.PC1.rev3.line
-max(PC1.rev3$PC1)
+boxPlots.PC1.rev.line <-boxPlots.PC1.rev.facet + geom_hline(yintercept = 0, colour="gray") +
+  theme(plot.title = element_text(size=size_titles)) + 
+  theme(axis.title.x = element_text(size=size_axis)) +
+  theme(axis.title.y = element_text(size=size_axis)) +
+  panel_border() + theme(panel.border = element_rect(colour = "black"))
+
+boxPlots.PC1.rev.line.stars <- boxPlots.PC1.rev.line + geom_path(data = sl_1, aes(x = x, y = y)) +                  
+  geom_text(data=stars_plot, aes(x=x_pos, y=y_pos, label=label), 
+            size=10, show.legend = FALSE) +
+  theme(strip.text.x = element_text(size=size_strips, face="bold")) +
+  theme(plot.title = element_text(size=size_titles)) + 
+  theme(axis.title.x = element_text(size=size_axis)) +
+  theme(axis.title.y = element_text(size=size_axis)) +
+  theme(strip.background = element_blank()) + 
+  panel_border() + theme(panel.border = element_rect(colour = "black"))                                                                                                      
+
+boxPlots.PC1.rev.line.stars
+
 #####################
 ####################
 ###################
@@ -448,6 +514,6 @@ l <- l + guides(color=guide_legend(title=NULL))
 l <- l + theme(legend.key = element_blank())
 l
 
-ggsave (l, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "legend_squares.jpg", sep=""), dpi=900)
+# ggsave (l, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "legend_squares.jpg", sep=""), dpi=900)
 
 
