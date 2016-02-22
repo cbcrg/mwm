@@ -237,8 +237,8 @@ panel_pca <- ggdraw() + draw_plot (pca_medians_rev_aspect_ratio, 0, .5, 0.5, .5)
 panel_pca
 
 img_format=".tiff"
-ggsave (panel_pca, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "panel_PCA_reversal", img_format, sep=""), 
-        dpi=dpi_q, width=15, height=11)
+# ggsave (panel_pca, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "panel_PCA_reversal", img_format, sep=""), 
+#         dpi=dpi_q, width=15, height=11)
 
 ###################################
 # Plot of supplementary individuals
@@ -319,6 +319,8 @@ p_cloud_rev1_3 <- ggplot(PC1_rev1_3, aes(PC1, PC2, color=genotype_tt)) +
   stat_density2d(aes(fill=factor(genotype_tt), alpha = ..level..), 
                  geom="polygon", color=NA, n=100, h=5, bins=6, show.legend = F) +
   geom_point(show.legend = F) + 
+  scale_y_continuous(limits = c(-5, 8), breaks=seq(-5,8,5)) +
+  scale_x_continuous(limits = c(-15, 7), breaks=seq(-15,8,5)) +
   scale_color_manual(name='genotype_tt', 
                      values = c("red", "darkgreen", "magenta", "black"),                                            
                      labels = c("WT", "TS", "WTEEEGCG", "TSEEEGCG")) +
@@ -326,24 +328,27 @@ p_cloud_rev1_3 <- ggplot(PC1_rev1_3, aes(PC1, PC2, color=genotype_tt)) +
                      values = c("red", "darkgreen", "magenta", "black"),
                      labels = c("WT", "TS", "WTEEEGCG", "TSEEEGCG")) + 
   #   geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
-  scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
-  scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
-  coord_cartesian(xlim=c(-8, 11),
-                  ylim=c(-5, 6.5)) +
-  labs(title = "PCA coordinates density, session 1 and 3\n", x = "\nPC1", y="PC2\n")
+#   scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
+#   scale_y_continuous(expand=c(0.3, 0)) + # don't reach edges of plot.
+#   coord_cartesian(xlim=c(-8, 11),
+#                   ylim=c(-5, 6.5)) +
+  labs(title = "PCA coordinates density, reversal session 1 and 3\n", x = "\nPC1", y="PC2\n")
 
 p_cloud_rev1_3_facet <- p_cloud_rev1_3 + facet_grid(day ~ genotype_tt, margins=FALSE) + geom_vline(xintercept = 0, colour="gray") +
   geom_hline(yintercept = 0, colour="gray")
 p_cloud_rev1_3_facet <- p_cloud_rev1_3_facet + panel_border() + theme(panel.border = element_rect(colour = "black")) +
                         theme(plot.title = element_text(size=size_titles)) + 
                         theme(axis.title.x = element_text(size=size_axis)) +
-                        theme(axis.title.y = element_text(size=size_axis)) +
+                        theme(axis.title.y = element_text(size=size_axis)) 
                         
 p_cloud_rev1_3_facet_strips <-  p_cloud_rev1_3_facet + theme(strip.text.x = element_text(size=size_strips, face="bold"), strip.text.y = element_text(size=size_strips, face="bold", angle=90)) +
                                 theme(plot.title = element_text(size=size_titles)) + 
                                 theme(axis.title.x = element_text(size=size_axis)) +
                                 theme(axis.title.y = element_text(size=size_axis)) +
-                                theme(strip.background = element_blank()) 
+                                theme(strip.background = element_blank()) +
+                                panel_border() + theme(panel.border = element_rect(colour = "black"))
+p_cloud_rev1_3_facet_strips_coord <- p_cloud_rev1_3_facet_strips + coord_fixed()
+
 #PLOT_presentation
 # ggsave (p_cloud_rev1_3_facet, file=paste(home, "/20151001_ts65_young_MWM/figures/", "PCA_density_byGroupAndDay.jpg", sep=""), 
 #         width = 10, height = 6, dpi=900)
@@ -404,19 +409,6 @@ median_line_r3 <- data.frame(x=3.63,y= median(PC1.rev3[PC1.rev3$genotype == "TSE
                              xend=4.37, yend= median(PC1.rev3[PC1.rev3$genotype == "TSEEEGCG","PC1"]),
                              day=factor("Session 3", levels=c("Session 1","Session 3")), genotype="TS")
 
-# boxPlots.PC1.facet <- ggplot(PC1_acq1_5, aes (genotype, PC1, fill = genotype)) + 
-#   geom_boxplot(show.legend=FALSE) +
-#   #   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black", "gray")) +
-#   scale_fill_manual(name = "Genotype", values=c("darkgreen", "black","magenta", "red", "magenta")) +
-#   labs(title = "PC1 distribution\n") + xlab ("\nGroups") + ylab("PC1\n") +
-#   theme (legend.title=element_blank()) + 
-#   # Same axis limits in day 1 and day 5
-#   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
-#   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8,10,12), limits=c(-4.5, 13)) +
-#   geom_segment(data=median_line_5, aes(x = x, y = y, xend=xend, yend=yend), colour="white") +
-#   geom_segment(data=median_line_1, aes(x = x, y = y, xend=xend, yend=yend), colour="white") +
-#   facet_grid(. ~ day)
-#  
 PC1_rev1_3$genotype <- factor(PC1_rev1_3$genotype_tt, levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"), 
                               labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"))
 
@@ -429,7 +421,7 @@ boxPlots.PC1.rev.facet <- ggplot(PC1_rev1_3, aes (genotype, PC1, fill = genotype
   # Same axis limits in day 1 and day 5
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-5.5, 9.5)) +
-  scale_y_continuous(breaks=c(-6,-4,-2,0,2,4,6), limits=c(-6, 12)) +
+  scale_y_continuous(breaks=c(-6,-4,-2,0,2,4,6,8,10,12), limits=c(-6, 12)) +
   geom_segment(data=median_line_r3, aes(x = x, y = y, xend=xend, yend=yend), colour="white") +
   geom_segment(data=median_line_r1, aes(x = x, y = y, xend=xend, yend=yend), colour="white") +
   facet_grid(. ~ day) +
@@ -438,15 +430,6 @@ boxPlots.PC1.rev.facet <- ggplot(PC1_rev1_3, aes (genotype, PC1, fill = genotype
 # p_cloud_indiv_by_day_facet <- boxPlots.PC1 + facet_wrap(~genotype, ncol = 2)
 boxPlots.PC1.rev3.line <- boxPlots.PC1.rev.facet + geom_hline(yintercept = 0, colour="gray")
 boxPlots.PC1.rev3.line
-
-# sl_1$genotype <- factor(sl_1$genotype, levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"), 
-#                         labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"))
-# 
-# stars_plot <- data.frame(x_pos = c(1.5, 2.5, 3.5), 
-#                          y_pos=c(4.2,5.8,7),
-#                          label=c("***","***"),
-#                          day=c(rep("Session 1", 3)),
-#                          genotype=c(rep("WT",3)))
 
 sl_1 <- data.frame(x = c(1, 1, 2, 2, 
                          2, 2, 3, 3, 
@@ -502,6 +485,19 @@ boxPlots.PC1.rev.line.stars <- boxPlots.PC1.rev.line + geom_path(data = sl_1, ae
   panel_border() + theme(panel.border = element_rect(colour = "black"))                                                                                                      
 
 boxPlots.PC1.rev.line.stars
+
+#######################
+#######
+## Panel with boxplots
+panel_boxPlots <- ggdraw() + draw_plot(p_cloud_rev1_3_facet_strips_coord, 0, .5, 1, .5) +
+  draw_plot(boxPlots.PC1.rev.line.stars, 0, 0, 1, .5) +
+  draw_plot_label(c("A", "B"), c(0, 0), c(1, 0.5), size = size_titles)
+panel_boxPlots
+
+ggsave (panel_boxPlots, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "panel_boxPlot_rev", img_format, sep=""), 
+        dpi=dpi_q, width=15, height=11)
+# size 1100, 700
+
 
 #####################
 ####################
