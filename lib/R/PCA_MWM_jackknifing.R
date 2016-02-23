@@ -75,17 +75,69 @@ df_jk <- as.data.frame(tbl_jk)
 result_jk <- ddply (df_jk, c("id"), function(x) { angle_bw_v (ori_pc1, as.vector(subset(df_jk, id == x$id, select=c(2:8))))})
 
 # Angles are in radians
-result_jk$angle_degrees <- result_jk$angle * 180/3.1416
+result_jk$angle_degrees <- result_jk$V1 * 180/3.1416
 
 colnames (result_jk) <- c("dropped_id", "angle_rad", "angle_degree")
 setwd("/Users/jespinosa/20151001_ts65_young_MWM/tbl/")
 wd <- getwd()
 write.table(result_jk, file = paste(wd, "/jackknife_angles.csv", sep=""), sep="\t", row.names=FALSE, col.names=T)
 
+histogram(result_jk$angle_degree)
+
+#######################
+# El otro plot normal
+ggplot(result_jk, aes(angle_degree)) + geom_histogram(binwidth=0.1, fill="red") +
+                                       scale_x_continuous(limits=c(0.15, 1.14), breaks=(seq(0.15, 1.14, by=0.1))) +
+  labs(title = "Angle distribution\n", x = paste("\nAngle to original PC1 (degrees)", sep=""), 
+       y=paste("Count\n", sep = "")) 
+
+ggplot(result_jk, aes(angle_degree)) + geom_density(colour="red", fill="red") +
+  scale_x_continuous(limits=c(0, 1.30), breaks=(seq(0, 1.30, by=0.1)))
 
 
-# t.values[p] <- t_s
+ggplot(result_jk, aes(x=angle_degree)) + 
+  geom_histogram(aes(y=..density..),      # Histogram with density instead of count on y-axis
+                 binwidth=.1,
+                 colour="black", fill="white") +
+  geom_density(alpha=.2, fill="#FF6666") +
+  scale_x_continuous(limits=c(0, 1.30), breaks=(seq(0, 1.30, by=0.1)))
+
+ggplot(result_jk, aes(x=angle_degree)) + 
+  geom_density(aes(x=angle_degree, y=..scaled.., fill=grp), alpha=.2, fill="#FF6666") +
+  scale_x_continuous(limits=c(0, 1.30), breaks=(seq(0, 1.30, by=0.1)))
+
+ggplot(result_jk, aes(x=angle_degree)) + geom_histogram(aes(y=..count..)) 
+
+ggplot(result_jk, aes(x=angle_degree)) + geom_histogram(aes(y=..count..)) +
+geom_density(aes(x=angle_degree, y=..count..), alpha=.2, fill="#FF6666")
+
+### counts frequency
+ggplot(result_jk, aes(x=angle_degree)) + 
+  geom_histogram(aes(y=..density..),      # Histogram with density instead of count on y-axis
+                 binwidth=.1,
+                 colour="black", fill="white") +
+  geom_density(alpha=.2, fill="#FF6666") +
+  scale_x_continuous(limits=c(0, 1.30), breaks=(seq(0, 1.30, by=0.1)))
+
+# version final
+ggplot(result_jk, aes(x=angle_degree)) + 
+  geom_histogram(aes(y=..count..),      # Histogram with density instead of count on y-axis
+                 binwidth=.1,
+                 colour="black", fill="white") +
+  scale_x_continuous(limits=c(0.15, 1.14), breaks=(seq(0.15, 1.14, by=0.1))) +
+  geom_density(aes(x=angle_degree, y=..density..), alpha=.2, fill="#FF6666")
 
 
+require(scales)
+p <- ggplot(result_jk, aes(x = angle_degree)) +  
+  geom_bar(aes(y = (..count..)/sum(..count..))) + 
+  ## version 3.0.9
+  # scale_y_continuous(labels = percent_format())
+  ## version 3.1.0
+  scale_y_continuous(labels=percent) +
+  scale_x_continuous(limits=c(0.15, 1.14), breaks=(seq(0.15, 1.14, by=0.1)))
+p
 
-
+min(result_jk$angle_degree)
+max(result_jk$angle_degree)
+seq(-5, 10, by=5)
