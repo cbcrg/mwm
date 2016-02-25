@@ -132,7 +132,12 @@ pca_medians_rev_aspect_ratio <- pca_medians_rev_aspect_ratio +
                                 theme(plot.title = element_text(size=size_titles)) + 
                                 theme(axis.title.x = element_text(size=size_axis)) +
                                 theme(axis.title.y = element_text(size=size_axis)) + coord_fixed()
-pca_medians_rev_aspect_ratio
+pca_medians_rev_aspect_ratio_leg <- pca_medians_rev_aspect_ratio + geom_path (size = 1, show.legend = T) +
+                                    theme(legend.title=element_blank()) +                                     
+                                    theme(legend.text = element_text(size = 11)) +
+#                                     theme(legend.position = c(0.87, 0.87))
+                                    theme(legend.position = c(0.15, 0.2))
+pca_medians_rev_aspect_ratio_leg
 # ggsave (pca_medians_rev_aspect_ratio, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", 
 #         "PCA_medians_legend_rev.jpg", sep=""), width = 10, height = 6, dpi=900)
 # ggsave (pca_medians_rev_aspect_ratio, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", 
@@ -229,14 +234,14 @@ bars_plot_PC2
 #################
 #######
 ## Panel
-panel_pca <- ggdraw() + draw_plot (pca_medians_rev_aspect_ratio, 0, .5, 0.5, .5) +
+panel_pca <- ggdraw() + draw_plot (pca_medians_rev_aspect_ratio_leg, 0, .5, 0.5, .5) +
   draw_plot (p_circle_plot, 0.5, 0.5, 0.5, 0.5) +
   draw_plot (bars_plot, 0, 0, 0.5, .5) +
   draw_plot (bars_plot_PC2, 0.5, 0, 0.5, .5) +
   draw_plot_label(c("A", "B", "C"), c(0, 0.5, 0), c(1, 1, 0.5), size = size_titles)
 panel_pca
 
-img_format=".tiff"
+# img_format=".tiff"
 # ggsave (panel_pca, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "panel_PCA_reversal", img_format, sep=""), 
 #         dpi=dpi_q, width=15, height=11)
 
@@ -494,8 +499,8 @@ panel_boxPlots <- ggdraw() + draw_plot(p_cloud_rev1_3_facet_strips_coord, 0, .5,
   draw_plot_label(c("A", "B"), c(0, 0), c(1, 0.5), size = size_titles)
 panel_boxPlots
 
-ggsave (panel_boxPlots, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "panel_boxPlot_rev", img_format, sep=""), 
-        dpi=dpi_q, width=15, height=11)
+# ggsave (panel_boxPlots, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "panel_boxPlot_rev", img_format, sep=""), 
+#         dpi=dpi_q, width=15, height=11)
 # size 1100, 700
 
 
