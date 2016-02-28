@@ -260,8 +260,8 @@ panel_pca <- ggdraw() + draw_plot (pca_medians_acq_aspect_ratio_leg, 0, .5, 0.5,
 panel_pca
 # This way the figure is ok
 img_format=".tiff"
-ggsave (panel_pca, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", "panel_PCA_PlotSaved", img_format, sep=""), 
-        dpi=dpi_q, width=15, height=11)
+# ggsave (panel_pca, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", "panel_PCA_PlotSaved", img_format, sep=""), 
+#         dpi=dpi_q, width=15, height=11)
 # size 1100, 700
 
 plot_grid(pca_medians_acq_aspect_ratio_leg, p_circle_big_title, bar_plot_big_title, bars_plot_PC2_big_title,
@@ -585,6 +585,32 @@ img_3plots <- ggdraw() + draw_plot(p_cloud_acq1_5_facet_coord, 0, .5, 1, .5) +
 img_2plots <- ggdraw() + draw_plot(p_cloud_acq1_5_facet_coord, 0, .5, 1, .5) +
               draw_plot(boxPlots.PC1.line.stars, 0, 0, 1, .5) +
               draw_plot_label(c("A", "B"), c(0, 0), c(1, 0.5), size = size_titles)
+img_2plots
+
+###############################################
+# Panel with pca and boxplots in th same figure
+panel_pca <- ggdraw() + draw_plot (pca_medians_acq_aspect_ratio_leg, 0, .5, 0.5, .5) +
+  draw_plot (p_circle_big_title, 0.5, 0.5, 0.5, 0.5) +
+  draw_plot (bar_plot_big_title, 0, 0, 0.5, .5) +
+  draw_plot (bars_plot_PC2_big_title, 0.5, 0, 0.5, .5) +
+  draw_plot_label(c("A", "B", "C"), c(0, 0.5, 0), c(1, 1, 0.5), size = size_titles)
+panel_pca
+
+img_2plots <- ggdraw() + draw_plot(p_cloud_acq1_5_facet_coord, 0, .5, 1, .5) +
+  draw_plot(boxPlots.PC1.line.stars, 0, 0, 1, .5) +
+  draw_plot_label(c("A", "B"), c(0, 0), c(1, 0.5), size = size_titles)
+img_2plots
+
+panel_pca_all <- 
+  ggdraw() + draw_plot (pca_medians_acq_aspect_ratio_leg, 0, 0.6,0.5,0.25) +
+  draw_plot (p_circle_big_title, 0.5, 0.6, 0.5, 0.25)+
+  draw_plot (bar_plot_big_title, 0, 0.3, 0.5, .25) +
+  draw_plot (bars_plot_PC2_big_title, 0.5, 0.3, 0.5, .25) 
++
+  draw_plot_label(c("A", "B", "C"), c(0, 0.5, 0), c(1, 1, 0.5), size = size_titles)
+
+panel_pca_all 
+
 # ggsave (img_2plots, file=paste(home, "/20151001_ts65_young_MWM/figures/", "panel_boxPlot", img_format, sep=""), 
 #         dpi=dpi_q, width=14, height=11)
 # size 1100, 700
