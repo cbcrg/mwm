@@ -256,12 +256,14 @@ panel_pca <- ggdraw() + draw_plot (pca_medians_acq_aspect_ratio_leg, 0, .5, 0.5,
              draw_plot (p_circle_big_title, 0.5, 0.5, 0.5, 0.5) +
              draw_plot (bar_plot_big_title, 0, 0, 0.5, .5) +
              draw_plot (bars_plot_PC2_big_title, 0.5, 0, 0.5, .5) +
-             draw_plot_label(c("A", "B", "C"), c(0, 0.5, 0), c(1, 1, 0.5), size = size_titles)
+#              draw_plot_label(c("A", "B", "C"), c(0, 0.5, 0), c(1, 1, 0.5), size = size_titles)
+             draw_plot_label(c("A", "B", "C", "D"), c(0, 0.5, 0, 0.5), c(1, 1, 0.5, 0.5), size = size_titles)
 panel_pca
+
 # This way the figure is ok
 img_format=".tiff"
-# ggsave (panel_pca, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", "panel_PCA_PlotSaved", img_format, sep=""), 
-#         dpi=dpi_q, width=15, height=11)
+ggsave (panel_pca, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", "panel_PCA_PlotSaved", img_format, sep=""), 
+        dpi=dpi_q, width=15, height=11)
 # size 1100, 700
 
 plot_grid(pca_medians_acq_aspect_ratio_leg, p_circle_big_title, bar_plot_big_title, bars_plot_PC2_big_title,
@@ -288,16 +290,17 @@ pca_plot_individuals <- ggplot (data=new_coord, aes (V1, V2)) +
   scale_x_continuous (limits=c(-5, 10), breaks=seq(-5, 10, by=5)) +
   scale_y_continuous (limits=c(-5, 5), breaks=seq(-5, 5, by=5)) +
   geom_path (data=pca2plot, aes(x=-Dim.1, y=-Dim.2, colour=gentreat),size = 1, show.legend = TRUE) +
-  guides(color=guide_legend(guide_legend(title = "Group"))) +
-  labs(title = "Individual as supplementary points\n", x = paste("\nPC1 (", var_PC1, "% of variance)", sep=""), 
+#   guides(color=guide_legend(guide_legend(title = "Group"))) +
+  labs(title = "Individual as supplementary points, acquisition\n", x = paste("\nPC1 (", var_PC1, "% of variance)", sep=""), 
        y=paste("PC2 (", var_PC2, "% of variance)\n", sep = ""))  +
+  theme (legend.title=element_blank()) + 
   coord_fixed()
 
 pca_plot_individuals
 
 #PLOT_paper
-# ggsave (pca_plot_individuals, file=paste(home, "/20151001_ts65_young_MWM/figures/", "PCA_individuals.jpg", sep=""),
-#         height = 10, width = 10, dpi=900)
+# ggsave (pca_plot_individuals, file=paste(home, "/20151001_ts65_young_MWM/figures/", "PCA_individuals_acq", img_format, sep=""),
+#         height = 10, width = 10, dpi=dpi_q)
 
 head(new_coord)
 
@@ -584,40 +587,17 @@ img_3plots <- ggdraw() + draw_plot(p_cloud_acq1_5_facet_coord, 0, .5, 1, .5) +
 
 img_2plots <- ggdraw() + draw_plot(p_cloud_acq1_5_facet_coord, 0, .5, 1, .5) +
               draw_plot(boxPlots.PC1.line.stars, 0, 0, 1, .5) +
-              draw_plot_label(c("A", "B"), c(0, 0), c(1, 0.5), size = size_titles)
+#               draw_plot_label(c("A", "B"), c(0, 0), c(1, 0.5), size = size_titles) +
+              draw_plot_label(c("E", "F"), c(0, 0), c(1, 0.5), size = size_titles)
 img_2plots
 
-###############################################
-# Panel with pca and boxplots in th same figure
-panel_pca <- ggdraw() + draw_plot (pca_medians_acq_aspect_ratio_leg, 0, .5, 0.5, .5) +
-  draw_plot (p_circle_big_title, 0.5, 0.5, 0.5, 0.5) +
-  draw_plot (bar_plot_big_title, 0, 0, 0.5, .5) +
-  draw_plot (bars_plot_PC2_big_title, 0.5, 0, 0.5, .5) +
-  draw_plot_label(c("A", "B", "C"), c(0, 0.5, 0), c(1, 1, 0.5), size = size_titles)
-panel_pca
-
-img_2plots <- ggdraw() + draw_plot(p_cloud_acq1_5_facet_coord, 0, .5, 1, .5) +
-  draw_plot(boxPlots.PC1.line.stars, 0, 0, 1, .5) +
-  draw_plot_label(c("A", "B"), c(0, 0), c(1, 0.5), size = size_titles)
-img_2plots
-
-panel_pca_all <- 
-  ggdraw() + draw_plot (pca_medians_acq_aspect_ratio_leg, 0, 0.6,0.5,0.25) +
-  draw_plot (p_circle_big_title, 0.5, 0.6, 0.5, 0.25)+
-  draw_plot (bar_plot_big_title, 0, 0.3, 0.5, .25) +
-  draw_plot (bars_plot_PC2_big_title, 0.5, 0.3, 0.5, .25) 
-+
-  draw_plot_label(c("A", "B", "C"), c(0, 0.5, 0), c(1, 1, 0.5), size = size_titles)
-
-panel_pca_all 
-
-# ggsave (img_2plots, file=paste(home, "/20151001_ts65_young_MWM/figures/", "panel_boxPlot", img_format, sep=""), 
-#         dpi=dpi_q, width=14, height=11)
+ggsave (img_2plots, file=paste(home, "/20151001_ts65_young_MWM/figures/", "panel_boxPlot", img_format, sep=""), 
+        dpi=dpi_q, width=14, height=11)
 # size 1100, 700
 
 # Plotting a legend with scuares and colors
 l <- ggplot() + geom_point(data=PC1.a5, aes (x=PC1, y=PC2, colour = genotype), shape=15, size=5) +
-                scale_colour_manual (values=c("red", "darkgreen", "magenta", "black"))
+  scale_colour_manual (values=c("red", "darkgreen", "magenta", "black"))
 l <- l + guides(color=guide_legend(title=NULL)) 
 l <- l + theme(legend.key = element_blank())
 l
@@ -640,3 +620,35 @@ l
 ## PLOT_paper
 # ggsave (l, file=paste(home, "/20151001_ts65_young_MWM/figures/", "lines_legend.jpg", sep=""), 
 #          width=14, height=7, dpi=900)
+
+
+###############################################
+# Panel with pca and boxplots in th same figure
+panel_pca <- ggdraw() + draw_plot (pca_medians_acq_aspect_ratio_leg, 0, .5, 0.5, .5) +
+  draw_plot (p_circle_big_title, 0.5, 0.5, 0.5, 0.5) +
+  draw_plot (bar_plot_big_title, 0, 0, 0.5, .5) +
+  draw_plot (bars_plot_PC2_big_title, 0.5, 0, 0.5, .5) +
+#   draw_plot_label(c("A", "B", "C"), c(0, 0.5, 0), c(1, 1, 0.5), size = size_titles)
+  draw_plot_label(c("A", "B", "C", "D"), c(0, 0.5, 0, 0.5), c(1, 1, 0.5, 0.5), size = size_titles)
+panel_pca
+
+img_2plots <- ggdraw() + draw_plot(p_cloud_acq1_5_facet_coord, 0, .5, 1, .5) +
+  draw_plot(boxPlots.PC1.line.stars, 0, 0, 1, .5) +
+  draw_plot_label(c("A", "B"), c(0, 0), c(1, 0.5), size = size_titles)
+img_2plots
+
+panel_pca_all <- 
+  ggdraw() + draw_plot (pca_medians_acq_aspect_ratio_leg, 0, 0.7,0.5,0.25) +
+  draw_plot (p_circle_big_title, 0.5, 0.7, 0.5, 0.25)+
+  draw_plot (bar_plot_big_title, 0, 0.5, 0.5, .25) +
+  draw_plot (bars_plot_PC2_big_title, 0.5, 0.5, 0.5, .25) +
+  draw_plot(p_cloud_acq1_5_facet_coord, 0, 0.15,  1, .25) +
+  draw_plot(boxPlots.PC1.line.stars, 0, 0, 1, .25) 
+
+
++
++
+  draw_plot_label(c("A", "B", "C"), c(0, 0.5, 0), c(1, 1, 0.5), size = size_titles)
+
+panel_pca_all 
+

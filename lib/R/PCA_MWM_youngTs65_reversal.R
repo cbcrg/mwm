@@ -238,7 +238,8 @@ panel_pca <- ggdraw() + draw_plot (pca_medians_rev_aspect_ratio_leg, 0, .5, 0.5,
   draw_plot (p_circle_plot, 0.5, 0.5, 0.5, 0.5) +
   draw_plot (bars_plot, 0, 0, 0.5, .5) +
   draw_plot (bars_plot_PC2, 0.5, 0, 0.5, .5) +
-  draw_plot_label(c("A", "B", "C"), c(0, 0.5, 0), c(1, 1, 0.5), size = size_titles)
+#   draw_plot_label(c("A", "B", "C"), c(0, 0.5, 0), c(1, 1, 0.5), size = size_titles)
+  draw_plot_label(c("A", "B", "C", "D"), c(0, 0.5, 0, 0.5), c(1, 1, 0.5, 0.5), size = size_titles)
 panel_pca
 
 # img_format=".tiff"
@@ -265,16 +266,19 @@ pca_plot_individuals <- ggplot (data=new_coord, aes (V1, V2)) +
   geom_text (aes(label=day, colour = genotype), size=5, show.legend = FALSE) +
   scale_color_manual(values=c("red", "darkgreen", "magenta", "black")) +
   xlim (c(-6, 6)) + ylim (c(-6, 6)) +
-  geom_path (data=pca2plot, aes(x=-Dim.1, y=Dim.2, colour=gentreat),size = 1,show.legend = FALSE) +
-  labs(title = "Individual as supplementary points\n", x = paste("\nPC1 (", var_PC1, "% of variance)", sep=""), 
-       y=paste("PC2 (", var_PC2, "% of variance)\n", sep = ""))  +
+  geom_path (data=pca2plot, aes(x=-Dim.1, y=Dim.2, colour=gentreat),size = 1,show.legend = TRUE) +
+  labs(title = "Individual as supplementary points, reversal\n", x = paste("\nPC1 (", var_PC1, "% of variance)", sep=""), 
+       y=paste("PC2 (", var_PC2, "% of variance)\n", sep = "")) +
+  theme (legend.title=element_blank()) + 
   coord_fixed()
 
 pca_plot_individuals <- pca_plot_individuals + panel_border() + theme(panel.border = element_rect(colour = "black"))
 
+pca_plot_individuals
+
 #PLOT_paper
-# ggsave (pca_plot_individuals, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "PCA_individuals.jpg", sep=""),
-#         height = 10, width = 10, dpi=900)
+ggsave (pca_plot_individuals, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "PCA_individuals_rev.tiff", sep=""),
+        height = 5, width = 5, dpi=300)
 
 head(new_coord)
 ## Individual variation as density plots
@@ -496,7 +500,8 @@ boxPlots.PC1.rev.line.stars
 ## Panel with boxplots
 panel_boxPlots <- ggdraw() + draw_plot(p_cloud_rev1_3_facet_strips_coord, 0, .5, 1, .5) +
   draw_plot(boxPlots.PC1.rev.line.stars, 0, 0, 1, .5) +
-  draw_plot_label(c("A", "B"), c(0, 0), c(1, 0.5), size = size_titles)
+#   draw_plot_label(c("A", "B"), c(0, 0), c(1, 0.5), size = size_titles)
+  draw_plot_label(c("E", "F"), c(0, 0), c(1, 0.5), size = size_titles)
 panel_boxPlots
 
 # ggsave (panel_boxPlots, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "panel_boxPlot_rev", img_format, sep=""), 
