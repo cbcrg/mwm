@@ -509,19 +509,63 @@ PC1_acq1_5
 levels(PC1_acq1_5$day) <- c("Session 1", "Session 5")
 
 # I need the factor genotype, to make it work, I just add a fake genotype
-sl_1 <- data.frame(x = c(1, 1, 2, 2, 2, 2, 3, 3, 2, 2, 4, 4, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 2, 2, 4, 4, 1, 1, 4, 4), 
-                   y = c(3.2, 3.5, 3.5, 3.2, 4.4, 4.7, 4.7, 4.4, 5.6, 5.9, 5.9, 5.6, 7.2, 7.5, 
-                         7.5, 7.2, 8.4, 8.7, 8.7, 8.4,9.6, 9.9, 9.9, 9.6, 10.8, 11.1, 11.1, 10.8, 12, 12.3, 12.3, 12), 
-                   genotype=c(rep("WT",4),rep("TS",4), rep("TSEEEGCG",4),rep("WT",4),rep("TS",4), rep("TSEEEGCG",4),
-                              rep("WTEEEGCG",4), rep("TS_fake",4)), 
-                   day=c(rep("Session 1", 12), rep("Session 5", 20)))
-sl_1$genotype <- factor(sl_1$genotype, levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"), 
-                              labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"))
-stars_plot <- data.frame(x_pos = c(1.5, 2.5, 3, 1.5, 3.5, 2.5, 3, 2.5), y_pos = c(3.6, 4.8, 6, 7.6, 10, 8.8, 11.2, 12.4), 
-                         label=c("***","***","**", "***", "*", "***", "*", "**"), 
-                         day=c(rep("Session 1", 3), 
-                               rep("Session 5", 5)),
-                         genotype=c(rep("WT",8)))                       
+# sl_1 <- data.frame(x = c(1, 1, 2, 2, 2, 2, 3, 3, 2, 2, 4, 4, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 2, 2, 4, 4, 1, 1, 4, 4), 
+#                    y = c(3.2, 3.5, 3.5, 3.2, 4.4, 4.7, 4.7, 4.4, 5.6, 5.9, 5.9, 5.6, 7.2, 7.5, 
+#                          7.5, 7.2, 8.4, 8.7, 8.7, 8.4,9.6, 9.9, 9.9, 9.6, 10.8, 11.1, 11.1, 10.8, 12, 12.3, 12.3, 12), 
+#                    genotype=c(rep("WT",4),rep("TS",4), rep("TSEEEGCG",4),rep("WT",4),rep("TS",4), rep("TSEEEGCG",4),
+#                               rep("WTEEEGCG",4), rep("TS_fake",4)), 
+#                    day=c(rep("Session 1", 12), rep("Session 5", 20)))
+# sl_1$genotype <- factor(sl_1$genotype, levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"), 
+#                               labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"))
+# stars_plot <- data.frame(x_pos = c(1.5, 2.5, 3, 1.5, 3.5, 2.5, 3, 2.5), y_pos = c(3.6, 4.8, 6, 7.6, 10, 8.8, 11.2, 12.4), 
+#                          label=c("***","***","**", "***", "*", "***", "*", "**"), 
+#                          day=c(rep("Session 1", 3), 
+#                                rep("Session 5", 5)),
+#                          genotype=c(rep("WT",8)))   
+
+sl_1 <- data.frame(x = c(1, 1, 2, 2, 
+                         2, 2, 4, 4,
+                         # session 5
+                         1, 1, 2, 2, 
+                         3, 3, 4, 4, 
+                         2, 2, 4, 4, 
+                         1, 1, 4, 4), 
+                   y = c(3.2, 3.5, 3.5, 3.2, 
+                         4.4, 4.7, 4.7, 4.4,
+                         # session 5
+                         #5.6, 5.9, 5.9, 5.6,
+                         #7.2, 7.5, 7.5, 7.2, 
+                         8.4, 8.7, 8.7, 8.4,
+                         9.6, 9.9, 9.9, 9.6,
+                         10.8, 11.1, 11.1, 10.8,
+                         12, 12.3, 12.3, 12), 
+                   genotype=c(rep("WT",4),
+                              #rep("TS",4), 
+                              rep("TSEEEGCG",4),
+                              # session 5
+                              rep("WT",4),
+                              rep("TS",4), 
+                              rep("TSEEEGCG",4),
+#                               rep("WTEEEGCG",4),
+                              rep("WTEEEGCG",4)),
+                              #rep("TS_fake",4)), 
+                   day=c(rep("Session 1", 8), rep("Session 5", 16)))
+sl_1$genotype <- factor(sl_1$genotype, 
+#                         levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"),
+                        levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"), 
+#                         labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"))
+                        labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"))
+stars_plot <- data.frame(x_pos = c(1.5, 3, 
+                                   1.5, 3.5, 3, 2.5), 
+                         y_pos = c(3.6, 4.8, #6,
+                                   #session 5
+#                                    7.6, 10, 8.8, 11.2), 
+                                   8.8, 10,  11.2, 12.4),
+                         label=c("***", "**", 
+                                 "***", "*", "*", "**"), 
+                         day=c(rep("Session 1", 2), 
+                               rep("Session 5", 4)),
+                         genotype=c(rep("WT",6)))
 
 median_line_5 <- data.frame(x=3.63,y=median(PC1.a5[PC1.a5$genotype == "TSEEEGCG","PC1"]),
                            xend=4.37, yend=median(PC1.a5[PC1.a5$genotype == "TSEEEGCG","PC1"]),
@@ -591,8 +635,8 @@ img_2plots <- ggdraw() + draw_plot(p_cloud_acq1_5_facet_coord, 0, .5, 1, .5) +
               draw_plot_label(c("E", "F"), c(0, 0), c(1, 0.5), size = size_titles)
 img_2plots
 
-ggsave (img_2plots, file=paste(home, "/20151001_ts65_young_MWM/figures/", "panel_boxPlot", img_format, sep=""), 
-        dpi=dpi_q, width=14, height=11)
+# ggsave (img_2plots, file=paste(home, "/20151001_ts65_young_MWM/figures/", "panel_boxPlot_noSig", img_format, sep=""), 
+#         dpi=dpi_q, width=14, height=11)
 # size 1100, 700
 
 # Plotting a legend with scuares and colors
