@@ -262,8 +262,7 @@ panel_pca
 
 # This way the figure is ok
 img_format=".tiff"
-ggsave (panel_pca, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", "panel_PCA_PlotSaved", img_format, sep=""), 
-        dpi=dpi_q, width=15, height=11)
+# ggsave (panel_pca, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", "panel_PCA_PlotSaved", img_format, sep=""), 
 # size 1100, 700
 
 plot_grid(pca_medians_acq_aspect_ratio_leg, p_circle_big_title, bar_plot_big_title, bars_plot_PC2_big_title,
@@ -527,7 +526,7 @@ sl_1 <- data.frame(x = c(1, 1, 2, 2,
                          2, 2, 4, 4,
                          # session 5
                          1, 1, 2, 2, 
-                         3, 3, 4, 4, 
+#                          3, 3, 4, 4, 
                          2, 2, 4, 4, 
                          1, 1, 4, 4), 
                    y = c(3.2, 3.5, 3.5, 3.2, 
@@ -537,35 +536,41 @@ sl_1 <- data.frame(x = c(1, 1, 2, 2,
                          #7.2, 7.5, 7.5, 7.2, 
                          8.4, 8.7, 8.7, 8.4,
                          9.6, 9.9, 9.9, 9.6,
-                         10.8, 11.1, 11.1, 10.8,
-                         12, 12.3, 12.3, 12), 
+                         10.8, 11.1, 11.1, 10.8),
+#                          12, 12.3, 12.3, 12), 
                    genotype=c(rep("WT",4),
                               #rep("TS",4), 
                               rep("TSEEEGCG",4),
                               # session 5
                               rep("WT",4),
-                              rep("TS",4), 
+#                               rep("TS",4), 
                               rep("TSEEEGCG",4),
 #                               rep("WTEEEGCG",4),
                               rep("WTEEEGCG",4)),
                               #rep("TS_fake",4)), 
-                   day=c(rep("Session 1", 8), rep("Session 5", 16)))
+#                    day=c(rep("Session 1", 8), rep("Session 5", 16)))
+                   day=c(rep("Session 1", 8), rep("Session 5", 12)))
 sl_1$genotype <- factor(sl_1$genotype, 
 #                         levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"),
                         levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"), 
 #                         labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"))
                         labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"))
+
 stars_plot <- data.frame(x_pos = c(1.5, 3, 
-                                   1.5, 3.5, 3, 2.5), 
+#                                    1.5, 3.5, 3, 2.5), 
+                                   1.5, 3, 2.5), 
                          y_pos = c(3.6, 4.8, #6,
                                    #session 5
 #                                    7.6, 10, 8.8, 11.2), 
-                                   8.8, 10,  11.2, 12.4),
+#                                    8.8, 10,  11.2, 12.4),
+                                   8.8, 10,  11.2),
                          label=c("***", "**", 
-                                 "***", "*", "*", "**"), 
+#                                  "***", "*", "*", "**"),
+                                 "***", "*", "**"),
                          day=c(rep("Session 1", 2), 
-                               rep("Session 5", 4)),
-                         genotype=c(rep("WT",6)))
+#                                rep("Session 5", 4)),
+                               rep("Session 5", 3)),
+                         genotype=c(rep("WT",5)))
 
 median_line_5 <- data.frame(x=3.63,y=median(PC1.a5[PC1.a5$genotype == "TSEEEGCG","PC1"]),
                            xend=4.37, yend=median(PC1.a5[PC1.a5$genotype == "TSEEEGCG","PC1"]),
@@ -635,7 +640,7 @@ img_2plots <- ggdraw() + draw_plot(p_cloud_acq1_5_facet_coord, 0, .5, 1, .5) +
               draw_plot_label(c("E", "F"), c(0, 0), c(1, 0.5), size = size_titles)
 img_2plots
 
-# ggsave (img_2plots, file=paste(home, "/20151001_ts65_young_MWM/figures/", "panel_boxPlot_noSig", img_format, sep=""), 
+# ggsave (img_2plots, file=paste(home, "/20151001_ts65_young_MWM/figures/", "panel_boxPlot", img_format, sep=""), 
 #         dpi=dpi_q, width=14, height=11)
 # size 1100, 700
 
