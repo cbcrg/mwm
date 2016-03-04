@@ -18,6 +18,7 @@ home <- Sys.getenv("HOME")
 library(FactoMineR)
 library(Hmisc)
 library(plyr)
+library(cowplot)
 
 # Variables
 img_format <- ".tiff"
@@ -86,7 +87,7 @@ result_jk$angle_degrees <- result_jk$V1 * 180/3.1416
 colnames (result_jk) <- c("dropped_id", "angle_rad", "angle_degree")
 setwd("/Users/jespinosa/20151001_ts65_young_MWM/tbl/")
 wd <- getwd()
-write.table(result_jk, file = paste(wd, "/jackknife_angles.csv", sep=""), sep="\t", row.names=FALSE, col.names=T)
+# write.table(result_jk, file = paste(wd, "/jackknife_angles.csv", sep=""), sep="\t", row.names=FALSE, col.names=T)
 
 #################
 # PC2 jackknifing 
@@ -108,7 +109,7 @@ result_jk_PC2$angle_degrees <- result_jk_PC2$V1 * 180/3.1416
 colnames (result_jk_PC2) <- c("dropped_id", "angle_rad", "angle_degree")
 setwd("/Users/jespinosa/20151001_ts65_young_MWM/tbl/")
 wd <- getwd()
-write.table(result_jk_PC2, file = paste(wd, "/jackknife_angles_PC2.csv", sep=""), sep="\t", row.names=FALSE, col.names=T)
+# write.table(result_jk_PC2, file = paste(wd, "/jackknife_angles_PC2.csv", sep=""), sep="\t", row.names=FALSE, col.names=T)
 
 ###########
 ### Plots
@@ -131,8 +132,8 @@ PC1_hist<- ggplot(result_jk, aes(angle_degree)) + geom_histogram(binwidth=0.1, c
   theme(axis.title.x = element_text(size=size_axis)) +
   theme(axis.title.y = element_text(size=size_axis))
 
-ggsave (PC1_hist, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_jackknifing/", "hist_pc1.tiff", sep=""), 
-        width = 8.5, height = 6, dpi=900)
+# ggsave (PC1_hist, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_jackknifing/", "hist_pc1.tiff", sep=""), 
+#         width = 8.5, height = 6, dpi=900)
 
 #####
 # PC2
@@ -147,16 +148,17 @@ PC2_hist <- ggplot(result_jk_PC2, aes(angle_degree)) + geom_histogram(binwidth=1
   theme(axis.title.x = element_text(size=size_axis)) +
   theme(axis.title.y = element_text(size=size_axis))
 
-ggsave (PC2_hist, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_jackknifing/", "hist_pc2.jpg", sep=""), 
-        width = 8.5, height = 6, dpi=900)
+# ggsave (PC2_hist, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_jackknifing/", "hist_pc2.jpg", sep=""), 
+#         width = 8.5, height = 6, dpi=900)
 
 panel_hist_PC <- ggdraw() + draw_plot (PC1_hist, 0, 0.5, 1, 0.5) +
   draw_plot (PC2_hist, 0, 0, 1, 0.5) +
   draw_plot_label(c("A", "B"), c(0, 0), c(1, 0.5), size = size_titles)
 panel_hist_PC
 
-ggsave (panel_hist_PC, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_jackknifing/", "hist_pc_panel.jpg", sep=""), 
-        width = 8.5, height = 12, dpi=900)
+ggsave (panel_hist_PC, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_jackknifing/", "hist_pc_panel", img_format, sep=""), 
+        width = 8.5, height = 12, dpi=300)
+
 ##########
 # Together
 result_jk$PC <- 1

@@ -16,6 +16,10 @@ size_titles <- 18
 size_axis <- 14
 size_strips <- 12
 dpi_q <- 300 
+dpi_q <- 300
+# dpi_q <- 900
+# img_format <- ".jpg"
+img_format <- ".tiff"
 
 #############
 ### Latency old
@@ -277,8 +281,8 @@ pca_plot_individuals <- pca_plot_individuals + panel_border() + theme(panel.bord
 pca_plot_individuals
 
 #PLOT_paper
-ggsave (pca_plot_individuals, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "PCA_individuals_rev.tiff", sep=""),
-        height = 5, width = 5, dpi=300)
+# ggsave (pca_plot_individuals, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "PCA_individuals_rev.tiff", sep=""),
+#         height = 5, width = 5, dpi=300)
 
 head(new_coord)
 ## Individual variation as density plots
@@ -441,40 +445,52 @@ boxPlots.PC1.rev3.line <- boxPlots.PC1.rev.facet + geom_hline(yintercept = 0, co
 boxPlots.PC1.rev3.line
 
 sl_1 <- data.frame(x = c(1, 1, 2, 2, 
-                         2, 2, 3, 3, 
+#                          2, 2, 3, 3, 
                          2, 2, 4, 4,
-                         3, 3, 4, 4,
+#                          3, 3, 4, 4,
                          1, 1, 4, 4,
                          # session 3
                          1, 1, 2, 2,
-                         3, 3, 4, 4,
-                         2, 2, 3, 3,
+#                          3, 3, 4, 4,
+#                          2, 2, 3, 3,
                          2, 2, 4, 4,
                          1, 1, 4, 4
                          ),
                    y = c(3.2, 3.5, 3.5, 3.2, 
                          4.4, 4.7, 4.7, 4.4, 
                          5.6, 5.9, 5.9, 5.6,
-                         3.2, 3.5, 3.5, 3.2,
-                         7.2, 7.5, 7.5, 7.2,
+#                          3.2, 3.5, 3.5, 3.2,
+#                          7.2, 7.5, 7.5, 7.2,
                          # session 3
                          7.2, 7.5, 7.5, 7.2,
-                         7.2, 7.5, 7.5, 7.2,
+#                          7.2, 7.5, 7.5, 7.2,
                          8.4, 8.7, 8.7, 8.4,
-                         9.6, 9.9, 9.9, 9.6,
-                         10.8, 11.1, 11.1, 10.8
+                         9.6, 9.9, 9.9, 9.6#,
+#                          10.8, 11.1, 11.1, 10.8
                          ), 
-                   genotype=c(rep("WT",4), rep("TS",4), rep("WTEEEGCG",4), rep("TSEEEGCG",4), rep("TS_fake",4),
-                              rep("WT",4), rep("TS",4), rep("TSEEEGCG",4), rep("WTEEEGCG",4), rep("TS_fake",4)),
-                   day=c(rep("Session 1", 20), rep("Session 3", 20)))
+#                    genotype=c(rep("WT",4), rep("TS",4), rep("WTEEEGCG",4), rep("TSEEEGCG",4), rep("TS_fake",4),
+                     genotype=c(rep("WT",4), rep("TS",4), rep("WTEEEGCG",4),
+#                               rep("WT",4), rep("TS",4), rep("TSEEEGCG",4), rep("WTEEEGCG",4), rep("TS_fake",4)),
+                                rep("WT",4), rep("TS",4), rep("TSEEEGCG",4)),
+                   day=c(rep("Session 1", 12), rep("Session 3", 12)))
 
-sl_1$genotype <- factor(sl_1$genotype, levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"), 
-                        labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG", "TS_fake"))
+sl_1$genotype <- factor(sl_1$genotype, levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"), 
+                        labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"))
 
-stars_plot <- data.frame(x_pos = c(1.5, 2.5, 3, 3.5, 2.5, 1.5, 3.5, 2.5, 3, 2.5), y_pos = c(3.6, 4.8, 6, 3.6, 7.6, 7.6, 7.6, 8.8, 10, 11.2),
-                         label=c("***","***","*","**", "*", "***", "***", "***", "*", "*"),
-                         day=c(rep("Session 1", 5), rep("Session 3", 5)),
-                         genotype=c(rep("WT", 10)))         
+stars_plot <- data.frame(x_pos = c(1.5, 3,  2.5,
+                                  #c(1.5, 2.5, 3, 3.5, 2.5,
+                                   1.5, 3, 2.5), 
+                         y_pos = c(3.6, 4.8, 6, #3.6, 7.6, 
+#                                    7.6, 7.6, 8.8, 10, 11.2),
+                                   7.6, 8.8, 10),
+                         label=c("***","*", "*",
+                               #c("***","***","*","**", "*",
+#                                  "***", "***", "***", "*", "*"),
+                                "***", "*", "*"),
+#                          day=c(rep("Session 1", 5), rep("Session 3", 5)),
+                         day=c(rep("Session 1", 3), rep("Session 3", 3)),
+#                          genotype=c(rep("WT", 10)))         
+                         genotype=c(rep("WT", 6)))   
 
 # p_cloud_indiv_by_day_facet <- boxPlots.PC1 + facet_wrap(~genotype, ncol = 2)
 boxPlots.PC1.rev.line <-boxPlots.PC1.rev.facet + geom_hline(yintercept = 0, colour="gray") +
@@ -504,8 +520,8 @@ panel_boxPlots <- ggdraw() + draw_plot(p_cloud_rev1_3_facet_strips_coord, 0, .5,
   draw_plot_label(c("E", "F"), c(0, 0), c(1, 0.5), size = size_titles)
 panel_boxPlots
 
-# ggsave (panel_boxPlots, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "panel_boxPlot_rev", img_format, sep=""), 
-#         dpi=dpi_q, width=15, height=11)
+ggsave (panel_boxPlots, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "panel_boxPlot_rev", img_format, sep=""), 
+        dpi=dpi_q, width=15, height=11)
 # size 1100, 700
 
 
