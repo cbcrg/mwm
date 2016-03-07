@@ -585,8 +585,8 @@ PC1_acq1_5$genotype <- factor(PC1_acq1_5$genotype, levels=c("WT", "TS", "WTEEEGC
 
 boxPlots.PC1.facet <- ggplot(PC1_acq1_5, aes (genotype, PC1, fill = genotype)) + 
   geom_boxplot(show.legend=FALSE) +
-#   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black", "gray")) +
-  scale_fill_manual(name = "Genotype", values=c("darkgreen", "black","magenta", "red", "magenta")) +
+  scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black", "gray")) +
+#   scale_fill_manual(name = "Genotype", values=c("darkgreen", "black","magenta", "red", "magenta")) +
   labs(title = "PC1 distribution\n") + xlab ("\nGroups") + ylab("PC1\n") +
   theme (legend.title=element_blank()) + 
   # Same axis limits in day 1 and day 5
@@ -640,8 +640,8 @@ img_2plots <- ggdraw() + draw_plot(p_cloud_acq1_5_facet_coord, 0, .5, 1, .5) +
               draw_plot_label(c("E", "F"), c(0, 0), c(1, 0.5), size = size_titles)
 img_2plots
 
-# ggsave (img_2plots, file=paste(home, "/20151001_ts65_young_MWM/figures/", "panel_boxPlot", img_format, sep=""), 
-#         dpi=dpi_q, width=14, height=11)
+ggsave (img_2plots, file=paste(home, "/20151001_ts65_young_MWM/figures/", "panel_boxPlot", img_format, sep=""), 
+        dpi=dpi_q, width=14, height=11)
 # size 1100, 700
 
 # Plotting a legend with scuares and colors

@@ -427,8 +427,8 @@ PC1_rev1_3$genotype <- factor(PC1_rev1_3$genotype_tt, levels=c("WT", "TS", "WTEE
 
 boxPlots.PC1.rev.facet <- ggplot(PC1_rev1_3, aes (genotype, PC1, fill = genotype)) + 
   geom_boxplot(show.legend=FALSE) +
-#   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
-  scale_fill_manual(name = "Genotype", values=c("darkgreen", "black","magenta", "red", "magenta")) +
+  scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
+#   scale_fill_manual(name = "Genotype", values=c("darkgreen", "black","magenta", "red", "magenta")) +
   labs(title = "Session 1 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
   theme (legend.title=element_blank()) + 
   # Same axis limits in day 1 and day 5
