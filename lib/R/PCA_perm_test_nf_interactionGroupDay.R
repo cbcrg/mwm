@@ -92,7 +92,7 @@ ma2 <- read.csv(path2files, sep="\t")
 f_t_stat <- function (df_coord, gen_tt_day_a = "TS_1", gen_tt_day_b = "TS_2"){
   group1 <- subset (df_coord, gentreat_day == gen_tt_day_a)
   group2 <- subset (df_coord, gentreat_day == gen_tt_day_b)
-  t_stat = t.test(group1$V1, group2$V1)$statistic  
+  t_stat = t.test(group1$V2, group2$V2)$statistic  
   return <- c(t_stat, gen_tt_day_a, gen_tt_day_b, paste (gen_tt_day_a, gen_tt_day_b, sep="_"))
 }
 
@@ -175,7 +175,7 @@ for (row in 1:length(gentreat_day_pairs [,1])) {
 
 group1 <- subset (new_coord, gentreat_day == "TS_1")
 group2 <- subset (new_coord, gentreat_day == "TS_2")
-t_stat = t.test(group1$V1, group2$V1)$statistic
+t_stat = t.test(group1$V2, group2$V2)$statistic
 
 wd <- getwd()
 write.table(result, file = paste(wd, "/tbl_t_stat_interaction.csv", sep=""), sep="\t", row.names=FALSE, col.names=FALSE)
