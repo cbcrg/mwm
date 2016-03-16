@@ -40,7 +40,7 @@ process perm {
     export R_LIBS="/software/R/packages"
     
     # Rscript \$HOME/git/mwm/lib/R/PCA_perm_test_day_4_5_PC2_young_nf.R --path2files=\$(readlink ${MWM_file}) --seed=${perm}
-    Rscript \$HOME/git/mwm/lib/R/PCA_perm_randomizedDay_PC2_young_nf.R    
+    Rscript \$HOME/git/mwm/lib/R/PCA_perm_randomizedDay_PC2_young_nf.R --path2files=\$(readlink ${MWM_file}) --seed=${perm}
     """ 
 }
 
