@@ -39,7 +39,8 @@ process perm {
     """
     export R_LIBS="/software/R/packages"
     
-    Rscript \$HOME/git/mwm/lib/R/PCA_perm_test_day_4_5_PC2_young_nf.R --path2files=\$(readlink ${MWM_file}) --seed=${perm}    
+    # Rscript \$HOME/git/mwm/lib/R/PCA_perm_test_day_4_5_PC2_young_nf.R --path2files=\$(readlink ${MWM_file}) --seed=${perm}
+    Rscript \$HOME/git/mwm/lib/R/PCA_perm_randomizedDay_PC2_young_nf.R    
     """ 
 }
 
@@ -49,5 +50,6 @@ tbl_t_stat
     .subscribe {
         //println "Entries are saved to file: $it"
         //println "File content is: ${it.text}"
-        it.copyTo( dump_dir.resolve ( "PCA_t_statistic_PC2_day4_5_${start_perm}.csv" ) )
+        //it.copyTo( dump_dir.resolve ( "PCA_t_statistic_PC2_day4_5_${start_perm}.csv" ) )
+        it.copyTo( dump_dir.resolve ( "PCA_t_statistic_PC2_randomizedDays_${start_perm}.csv" ) )
     }
