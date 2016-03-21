@@ -200,6 +200,7 @@ bars_plot <- ggplot (data=df.bars_to_plot, aes(x=index, y=value)) +
                      labs (title = "Variable contribution to PC1\n", x = "", y="Contribution in %\n") +
                      theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1) )
 bars_plot <- bars_plot + panel_border() + theme(panel.border = element_rect(colour = "black")) +
+             ylim (c(0, 80)) +
              theme(plot.title = element_text(size=size_titles)) + 
              theme(axis.title.x = element_text(size=size_axis)) +
              theme(axis.title.y = element_text(size=size_axis))
@@ -225,6 +226,7 @@ bars_plot_PC2 <- ggplot (data=df.bars_to_plot_PC2, aes(x=index, y=value)) +
 bars_plot_PC2 <- bars_plot_PC2 + panel_border() + theme(panel.border = element_rect(colour = "black"))
 
 bars_plot_PC2 <- bars_plot_PC2 + panel_border() + theme(panel.border = element_rect(colour = "black")) +
+                 ylim (c(0, 80)) +
                  theme(plot.title = element_text(size=size_titles)) + 
                  theme(axis.title.x = element_text(size=size_axis)) +
                  theme(axis.title.y = element_text(size=size_axis))
@@ -246,7 +248,7 @@ panel_pca <- ggdraw() + draw_plot (pca_medians_rev_aspect_ratio_leg, 0, .5, 0.5,
   draw_plot_label(c("A", "B", "C", "D"), c(0, 0.5, 0, 0.5), c(1, 1, 0.5, 0.5), size = size_titles)
 panel_pca
 
-# img_format=".tiff"
+img_format=".tiff"
 # ggsave (panel_pca, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "panel_PCA_reversal", img_format, sep=""), 
 #         dpi=dpi_q, width=15, height=11)
 
@@ -281,6 +283,7 @@ pca_plot_individuals <- pca_plot_individuals + panel_border() + theme(panel.bord
 pca_plot_individuals
 
 #PLOT_paper
+panel_PCA_reversal
 # ggsave (pca_plot_individuals, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "PCA_individuals_rev.tiff", sep=""),
 #         height = 5, width = 5, dpi=300)
 
