@@ -30,6 +30,10 @@ img_format <- ".tiff"
 size_titles <- 18
 size_axis <- 14
 
+## Colors 
+colors_old <- c("red", "darkgreen", "magenta", "black")
+colors_new <- c("red", "darkgreen", "magenta", "green")
+
 # The last records are empty
 tail(jtracks_data, 50)
 # tail(smart_data)
@@ -65,6 +69,7 @@ young_acq_7var$gentreat <- gsub("NE", "", young_acq_7var$gentreat)
 young_acq_7var$day <- gsub("ACQ", "", young_acq_7var$day)
 tbl4permutation <- young_acq_7var 
 tbl4permutation$day <- paste("Day", young_acq_7var$day)
+
 # Saving for permutation test
 # write.table(tbl4permutation, "/Users/jespinosa/20151001_ts65_young_MWM/data/ts65_young.csv", sep="\t")
 
@@ -72,7 +77,13 @@ tbl4permutation$day <- paste("Day", young_acq_7var$day)
 #                                   labels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"))
 young_acq_7var$gentreat <- factor(young_acq_7var$gentreat , levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"), 
                                   labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"))
+#del
+# perm_tbl<- read.table ("/Users/jespinosa/20151001_ts65_young_MWM/data/ts65_young.csv", sep="\t")
 
+# comparison <- compare(tbl4permutation, perm_tbl,allowAll=TRUE)
+# comparison$tM
+# head (tbl4permutation)
+# head (perm_tbl)
 tbl_median <- with (young_acq_7var, aggregate (cbind (distance, gallindex, latency, speed, percentne, percentperi, whishaw), 
                     list (gentreat=gentreat, day=day), FUN=median))
 
@@ -86,7 +97,7 @@ res = PCA(tbl_med_ind[,(3:9)], scale.unit=TRUE, ind.sup=c(n_median_plus1:length(
 
 ## Performing the pca of only the medians to see the directionality of variables directly from the plot of the 
 ## in order to avoid mistakes when I am twisting the directions to be the same as in the old paper
-PCA(tbl_median[,(3:9)], scale.unit=TRUE)
+# PCA(tbl_median[,(3:9)], scale.unit=TRUE)
 
 tbl_med_ind[,(3:9)]
 # res$var$coord[,1],res$var$coord[,2]
@@ -99,6 +110,7 @@ var_PC2 <- round (res$eig [2,2])
 # Coordinates are store here
 # res$ind$coord --- rownames(res$ind$coord)
 pca2plot <- as.data.frame (res$ind$coord[1:n_median,])
+
 pca2plot$gen_day <- row.names(pca2plot)
 pca2plot$days <-  as.factor(as.numeric (gsub(".*([0-9]+)$", "\\1", pca2plot$gen_day)))
 pca2plot$gentreat <-  as.factor(gsub("([A-Z]+).*$", "\\1", pca2plot$gen_day))
@@ -108,9 +120,10 @@ pca2plot$gentreat <-  as.factor(gsub("([A-Z]+).*$", "\\1", pca2plot$gen_day))
 pca2plot$gentreat <- factor(pca2plot$gentreat , levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"), 
                                   labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"))
 
+# PC1 and PC2 are reversed because to follow the same direction that in the other paper
 pca_medians_acq <- ggplot(pca2plot, aes(x=-Dim.1, y=-Dim.2, colour=gentreat )) + 
   geom_path (size = 1,show.legend = F) + 
-  scale_color_manual(values=c("red", "darkgreen", "magenta", "black")) +
+  scale_color_manual(values=colors_new) +
   
   #                           geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show.legend = T)+
   geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show.legend = F)+
@@ -128,7 +141,6 @@ pca_medians_acq
 pca_medians_acq_aspect_ratio <- pca_medians_acq + coord_fixed() + 
   scale_x_continuous (limits=c(-4, 5), breaks=-4:5) + 
   scale_y_continuous (limits=c(-2, 3), breaks=-2:3)
-
 
 pca_medians_acq_aspect_ratio_big_title <- pca_medians_acq_aspect_ratio +  theme(plot.title = element_text(size=size_titles)) + 
   theme(axis.title.x = element_text(size=size_axis)) +
@@ -171,6 +183,7 @@ pos_positions <- circle_plot [c(4,5,7), c(1,2)]
 angle <- seq(-pi, pi, length = 50)
 df.circle <- data.frame(x = sin(angle), y = cos(angle))
 
+# PC1 and PC2 are reversed because to follow the same direction that in the other paper
 p_circle_plot <- ggplot(circle_plot) + 
   geom_segment (data=circle_plot, aes(x=0, y=0, xend=-Dim.1, yend=-Dim.2), arrow=arrow(length=unit(0.2,"cm")), alpha=1, size=1, color="red") +
 #   xlim (c(-1.2, 1.2)) + ylim (c(-1.2, 1.2)) +
@@ -261,15 +274,18 @@ panel_pca <- ggdraw() + draw_plot (pca_medians_acq_aspect_ratio_leg, 0, .5, 0.5,
 panel_pca
 
 # This way the figure is ok
-img_format=".tiff"
-# ggsave (panel_pca, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", "panel_PCA_PlotSaved", img_format, sep=""), 
+# if i save it manually
 # size 1100, 700
+img_format=".tiff"
+ggsave (panel_pca, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", "panel_PCA_PlotSaved", img_format, sep=""), 
+        dpi=dpi_q, width=14, height=11)
 
 plot_grid(pca_medians_acq_aspect_ratio_leg, p_circle_big_title, bar_plot_big_title, bars_plot_PC2_big_title,
           labels=c("A", "B", "C", "D"), size=14, ncol = 2)
 
 ###################################
 # Plot of supplementary individuals
+# I also reversed the PC1 and the PC2
 day <- c()
 genotype <- c()
 new_coord <- as.data.frame(cbind(-res$ind.sup$coord[,1],-res$ind.sup$coord[,2]))
@@ -284,7 +300,8 @@ new_coord$genotype <- factor(new_coord$genotype , levels=c("WT", "TS", "WTEEEGCG
   
 pca_plot_individuals <- ggplot (data=new_coord, aes (V1, V2)) + 
   geom_text (aes(label=day, colour = genotype), size=5, show.legend = FALSE) +
-  scale_color_manual(values=c("red", "darkgreen", "magenta", "black")) +
+#   scale_color_manual(values=c("red", "darkgreen", "magenta", "black")) +
+  scale_color_manual(values=c("red", "darkgreen", "magenta", "green")) +
 #   xlim (c(-5, 10)) + ylim (c(-5, 5)) +
   scale_x_continuous (limits=c(-5, 10), breaks=seq(-5, 10, by=5)) +
   scale_y_continuous (limits=c(-5, 5), breaks=seq(-5, 5, by=5)) +
@@ -379,10 +396,12 @@ p_cloud_acq1_5 <- ggplot(PC1_acq1_5, aes(PC1, PC2, color=genotype_tt)) +
   scale_y_continuous(limits = c(-5, 6), breaks=seq(-5,5,5)) +
   scale_x_continuous(limits = c(-6, 11), breaks=seq(-5,10,5)) +
   scale_color_manual(name='genotype_tt', 
-                     values = c("red", "darkgreen", "magenta", "black"),                                            
+#                      values = c("red", "darkgreen", "magenta", "black"),                                            
+                     values = c("red", "darkgreen", "magenta", "green"),  
                      labels = c("WT", "TS", "WTEEEGCG", "TSEEEGCG")) +
   scale_fill_manual( name='gentreat', 
-                     values = c("red", "darkgreen", "magenta", "black"),
+#                      values = c("red", "darkgreen", "magenta", "black"),                                            
+                     values = c("red", "darkgreen", "magenta", "green"),
                      labels = c("WT", "TS", "WTEEEGCG", "TSEEEGCG")) +
 #   scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
 #   scale_y_continuous(expand=c(0.3, 0)) #+ # don't reach edges of plot.
@@ -427,13 +446,14 @@ PC1.a5 <- subset(PC1_acq1_5,  day==5)
 
 boxPlots.PC1.a1 <- ggplot(PC1.a1, aes (genotype, PC1, fill = genotype)) + 
   geom_boxplot(show.legend=FALSE) +
-  scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
+#   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
+  scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "green")) +
   labs(title = "Session 1 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
   theme (legend.title=element_blank()) + 
   # Same axis limits in day 1 and day 5
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
-  scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8,10,12), limits=c(-4.5, 13)) +
-  geom_segment(aes(x = 3.63, y = median(PC1.a1[PC1.a1$genotype == "TSEEEGCG","PC1"]), xend = 4.37, yend = median(PC1.a1[PC1.a1$genotype == "TSEEEGCG","PC1"])), colour="white")
+  scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8,10,12), limits=c(-4.5, 13)) #+
+#   geom_segment(aes(x = 3.63, y = median(PC1.a1[PC1.a1$genotype == "TSEEEGCG","PC1"]), xend = 4.37, yend = median(PC1.a1[PC1.a1$genotype == "TSEEEGCG","PC1"])), colour="white")
 
 # p_cloud_indiv_by_day_facet <- boxPlots.PC1 + facet_wrap(~genotype, ncol = 2)
 boxPlots.PC1.a1.line <- boxPlots.PC1.a1 + geom_hline(yintercept = 0, colour="gray") + 
@@ -446,13 +466,14 @@ boxPlots.PC1.a1.line
 ## Session 5
 boxPlots.PC1.a5 <- ggplot(PC1.a5, aes (genotype, PC1, fill = genotype)) + 
   geom_boxplot(show.legend=FALSE) +
-  scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
+#   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
+  scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "green")) +
   labs(title = "Session 5 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
   theme (legend.title=element_blank()) + 
   # Same axis limits in day 1 and day 5
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
-  scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8,10,12), limits=c(-4.5, 13)) +
-  geom_segment(aes(x = 3.63, y = median(PC1.a5[PC1.a1$genotype == "TSEEEGCG","PC1"]), xend = 4.37, yend = median(PC1.a5[PC1.a5$genotype == "TSEEEGCG","PC1"])), colour="white")
+  scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8,10,12), limits=c(-4.5, 13)) #+
+#   geom_segment(aes(x = 3.63, y = median(PC1.a5[PC1.a1$genotype == "TSEEEGCG","PC1"]), xend = 4.37, yend = median(PC1.a5[PC1.a5$genotype == "TSEEEGCG","PC1"])), colour="white")
 
 # p_cloud_indiv_by_day_facet <- boxPlots.PC1 + facet_wrap(~genotype, ncol = 2)
 boxPlots.PC1.a5.line <- boxPlots.PC1.a5 + geom_hline(yintercept = 0, colour="gray") +
@@ -461,6 +482,90 @@ boxPlots.PC1.a5.line <- boxPlots.PC1.a5 + geom_hline(yintercept = 0, colour="gra
                         theme(axis.title.y = element_text(size=size_axis)) +
                         panel_border() + theme(panel.border = element_rect(colour = "black"))
 
+###################
+## Comparison day 4 and day 5 for PC2
+# PC1_acq1_5 <- subset(new_coord, day %in% c("1", "5"), c("V1", "V2", "day","genotype"))
+# colnames (PC1_acq1_5) <- c("PC1","PC2", "day", "genotype_tt") 
+# PC1_acq1_5$day <- as.factor(PC1_acq1_5$day)
+
+# tbl_median <- with (young_acq_7var, aggregate (cbind (distance, gallindex, latency, speed, percentne, percentperi, whishaw), 
+#                                                list (gentreat=gentreat, day=day), FUN=median))
+
+PC2_acq4_5 <- subset(new_coord, day %in% c("4", "5"), c("V1", "V2", "day","genotype"))
+colnames (PC2_acq4_5) <- c("PC1","PC2", "day", "genotype_tt")
+levels(PC2_acq4_5$day) <- c("1","5")
+PC2.a4 <- subset(PC2_acq4_5,  day==4)
+PC2.a5 <- subset(PC2_acq4_5,  day==5)
+
+head (PC2_acq4_5)
+class(PC2_acq4_5$PC1)
+class(PC2_acq4_5$PC2)
+
+with (PC2_acq4_5, aggregate (cbind (PC1, PC2), list (genotype_tt=genotype_tt, day=day), FUN=median))
+with (new_coord, aggregate (cbind (V1, V2), list (genotype=genotype, day=day), FUN=median))
+
+boxPlots.PC2.a4 <- ggplot(PC2.a4, aes (genotype_tt, PC2, fill = genotype_tt)) + 
+  geom_boxplot(show.legend=FALSE) +
+#   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
+  scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "green")) +
+  labs(title = "Session 4 PC2\n") + xlab ("\nGroups") + ylab("PC2\n") +
+  scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8,10,12), limits=c(-4.5, 13))
+boxPlots.PC2.a4
+
+
+boxPlots.PC2.a5 <- ggplot(PC2.a5, aes (genotype_tt, PC2, fill = genotype_tt)) + 
+  geom_boxplot(show.legend=FALSE) +
+  #   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
+  scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "green")) +
+  labs(title = "Session 5 PC2\n") + xlab ("\nGroups") + ylab("PC2\n")+
+  scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8,10,12), limits=c(-4.5, 13))
+boxPlots.PC2.a5
+
+
+
+
+PC2_acq4_5$day <- as.factor(PC2_acq4_5$day)
+
+levels(PC2_acq4_5$day) <- c("4","5")
+class(PC2_acq4_5$day)
+class(PC2_acq4_5$genotype_tt)
+
+# PC2.a1 <- subset(PC1_acq1_5,  day==4)
+# PC2.a5 <- subset(PC1_acq1_5,  day==5)
+PC2_acq4_5$genotype <- PC2_acq4_5$genotype_tt
+PC2_acq4_5$genotype <- factor(PC2_acq4_5$genotype , levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"), 
+                             labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"))
+
+PC2_acq4_5$genotype_tt_day <- as.factor(paste(PC2_acq4_5$genotype_tt, PC2_acq4_5$day, sep="_"))
+class (PC2_acq4_5$genotype_tt_day)
+PC2_acq4_5$genotype_tt_day <- factor(PC2_acq4_5$genotype_tt_day , levels=c("WT_4","WT_5", "TS_4", "TS_5",
+                                                                           "WTEEEGCG_4", "WTEEEGCG_5", "TSEEEGCG_4", "TSEEEGCG_5"), 
+                              labels=c("WT_4","WT_5", "TS_4", "TS_5",
+                                       "WTEEEGCG_4", "WTEEEGCG_5", "TSEEEGCG_4", "TSEEEGCG_5"))
+
+boxPlots.PC2.a4_a5 <- ggplot(PC2_acq4_5, aes (x=genotype_tt, y=PC2, fill = genotype_tt_day)) + 
+  geom_boxplot(show.legend=TRUE) +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_fill_manual(name = "Gentreat&acq day",
+#                     values = c("#FEE0D2", "#DE2D26", "green", "darkgreen","pink","magenta","gray" , "black")) +
+                    values = c("#FEE0D2", "#DE2D26", "green", "darkgreen","pink","magenta","gray" , "green")) +
+  labs(title = "Session 4 vs 5 PC2\n") + xlab ("\nGroups") + ylab("PC2\n")
+boxPlots.PC2.a4_a5
+
+
+  geom_boxplot(show.legend=FALSE) +
+#   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
+  scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "green")) +
+  labs(title = "Session 1 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
+  theme (legend.title=element_blank()) + 
+  # Same axis limits in day 1 and day 5
+  #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
+  scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8,10,12), limits=c(-4.5, 13)) #+ 
+#   geom_segment(aes(x = 3.63, y = median(PC1.a1[PC1.a1$genotype == "TSEEEGCG","PC1"]), xend = 4.37, yend = median(PC1.a1[PC1.a1$genotype == "TSEEEGCG","PC1"])), colour="white")
+
+
+
+###################
 
 ## This work but is a line not a bracket
 # boxPlots.PC1.a1.line + geom_segment(aes(x = 1, y = 7.2, xend = 2, yend = 7.2), colour="black")
@@ -585,15 +690,16 @@ PC1_acq1_5$genotype <- factor(PC1_acq1_5$genotype, levels=c("WT", "TS", "WTEEEGC
 
 boxPlots.PC1.facet <- ggplot(PC1_acq1_5, aes (genotype, PC1, fill = genotype)) + 
   geom_boxplot(show.legend=FALSE) +
-  scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black", "gray")) +
+  scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "green", "gray")) +
+#   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black", "gray")) +
 #   scale_fill_manual(name = "Genotype", values=c("darkgreen", "black","magenta", "red", "magenta")) +
   labs(title = "PC1 distribution\n") + xlab ("\nGroups") + ylab("PC1\n") +
   theme (legend.title=element_blank()) + 
   # Same axis limits in day 1 and day 5
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8,10,12), limits=c(-4.5, 13)) +
-  geom_segment(data=median_line_5, aes(x = x, y = y, xend=xend, yend=yend), colour="white") +
-  geom_segment(data=median_line_1, aes(x = x, y = y, xend=xend, yend=yend), colour="white") +
+#   geom_segment(data=median_line_5, aes(x = x, y = y, xend=xend, yend=yend), colour="white") +
+#   geom_segment(data=median_line_1, aes(x = x, y = y, xend=xend, yend=yend), colour="white") +
   facet_grid(. ~ day)
 
 boxPlots.PC1.facet 
@@ -640,13 +746,15 @@ img_2plots <- ggdraw() + draw_plot(p_cloud_acq1_5_facet_coord, 0, .5, 1, .5) +
               draw_plot_label(c("E", "F"), c(0, 0), c(1, 0.5), size = size_titles)
 img_2plots
 
+# Save this way and directly open the combined panel in AI
 ggsave (img_2plots, file=paste(home, "/20151001_ts65_young_MWM/figures/", "panel_boxPlot", img_format, sep=""), 
         dpi=dpi_q, width=14, height=11)
 # size 1100, 700
 
 # Plotting a legend with scuares and colors
 l <- ggplot() + geom_point(data=PC1.a5, aes (x=PC1, y=PC2, colour = genotype), shape=15, size=5) +
-  scale_colour_manual (values=c("red", "darkgreen", "magenta", "black"))
+#   scale_colour_manual (values=c("red", "darkgreen", "magenta", "black"))
+  scale_colour_manual (values=c("red", "darkgreen", "magenta", "green"))
 l <- l + guides(color=guide_legend(title=NULL)) 
 l <- l + theme(legend.key = element_blank())
 l
@@ -655,14 +763,16 @@ l
 
 # Plotting a legend with scuares and colors
 l <- ggplot() + geom_lines(data=PC1.a5, aes (x=PC1, y=PC2, colour = genotype), shape=15, size=5) +
-  scale_colour_manual (values=c("red", "darkgreen", "magenta", "black"))
+#   scale_colour_manual (values=c("red", "darkgreen", "magenta", "black"))
+  scale_colour_manual (values=c("red", "darkgreen", "magenta", "green"))
 l <- l + guides(color=guide_legend(title=NULL)) 
 l <- l + theme(legend.key = element_blank())
 l
 
 ## Plotting a legend with lines and colors
 l <- ggplot() + geom_line(data=PC1.a5, aes (x=PC1, y=PC2, colour = genotype), shape=15, size=2) +
-  scale_colour_manual (values=c("red", "darkgreen", "magenta", "black"))
+  #   scale_colour_manual (values=c("red", "darkgreen", "magenta", "black"))
+  scale_colour_manual (values=c("red", "darkgreen", "magenta", "green"))
 l <- l + guides(color=guide_legend(title=NULL)) 
 l <- l + theme(legend.key = element_blank())
 l
