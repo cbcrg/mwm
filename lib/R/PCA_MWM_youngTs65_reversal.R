@@ -112,8 +112,8 @@ pca2plot$gentreat <- factor(pca2plot$gentreat , levels=c("WT", "TS", "WTEEEGCG",
 pca_medians_rev <- ggplot(pca2plot, aes(x=-Dim.1, y=Dim.2, colour=gentreat )) + 
   #                           geom_path (size = 1,show.legend = T) + 
                           geom_path (size = 1, show.legend = F) + 
-                          scale_color_manual (values=c("red", "darkgreen", "magenta", "black")) +
-                          
+#                           scale_color_manual (values=c("red", "darkgreen", "magenta", "black")) +
+                          scale_color_manual (values=c("red", "darkgreen", "magenta", "green")) +                          
                           #                           geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show.legend = T)+
                           geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show.legend = F)+
                           theme (legend.key=element_rect(fill=NA)) +
@@ -270,7 +270,8 @@ new_coord$genotype <- factor(new_coord$genotype , levels=c("WT", "TS", "WTEEEGCG
 
 pca_plot_individuals <- ggplot (data=new_coord, aes (V1, V2)) + 
   geom_text (aes(label=day, colour = genotype), size=5, show.legend = FALSE) +
-  scale_color_manual(values=c("red", "darkgreen", "magenta", "black")) +
+#   scale_color_manual(values=c("red", "darkgreen", "magenta", "black")) +
+  scale_color_manual(values=c("red", "darkgreen", "magenta", "green")) +
   xlim (c(-6, 6)) + ylim (c(-6, 6)) +
   geom_path (data=pca2plot, aes(x=-Dim.1, y=Dim.2, colour=gentreat),size = 1,show.legend = TRUE) +
   labs(title = "Individual as supplementary points, reversal\n", x = paste("\nPC1 (", var_PC1, "% of variance)", sep=""), 
@@ -294,14 +295,16 @@ p_cloud_indiv_by_day <- ggplot(new_coord, aes(V1, V2, color=genotype, label=day)
                  geom="polygon", color=NA, n=100, h=4, bins=6, show.legend = FALSE) + 
   geom_point(show.legend = FALSE) + 
   scale_color_manual(name='genotype', 
-                     values = c("red", "darkgreen", "magenta", "black"),                                            
+#                      values = c("red", "darkgreen", "magenta", "black"), 
+                     values = c("red", "darkgreen", "magenta", "green"), 
                      labels = c("WT", "TS", "WTEEEGCG", "TSEEEGCG")) +
   #                      values = c("red","gray", "green", "black"),
   #                      labels = c("WT","WTEEEGCG", "TS",  "TSEEEGCG")) + 
   scale_fill_manual( name='gentreat', 
                      #                      values = c("red","gray", "green", "black"), 
                      #                      labels = c("WT","WTEEEGCG", "TS",  "TSEEEGCG")) + 
-                     values = c("red", "darkgreen", "magenta", "black"),                                            
+#                      values = c("red", "darkgreen", "magenta", "black"),                                            
+                     values = c("red", "darkgreen", "magenta", "green"),                   
                      labels = c("WT", "TS", "WTEEEGCG", "TSEEEGCG")) +
   geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
   scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
@@ -336,12 +339,14 @@ p_cloud_rev1_3 <- ggplot(PC1_rev1_3, aes(PC1, PC2, color=genotype_tt)) +
                  geom="polygon", color=NA, n=100, h=5, bins=6, show.legend = F) +
   geom_point(show.legend = F) + 
   scale_y_continuous(limits = c(-5, 8), breaks=seq(-5,8,5)) +
-  scale_x_continuous(limits = c(-15, 7), breaks=seq(-15,8,5)) +
+  scale_x_continuous(limits = c(-15, 7.8), breaks=seq(-15,8,5)) +
   scale_color_manual(name='genotype_tt', 
-                     values = c("red", "darkgreen", "magenta", "black"),                                            
+#                      values = c("red", "darkgreen", "magenta", "black"),   
+                     values = c("red", "darkgreen", "magenta", "green"),   
                      labels = c("WT", "TS", "WTEEEGCG", "TSEEEGCG")) +
   scale_fill_manual( name='gentreat', 
-                     values = c("red", "darkgreen", "magenta", "black"),
+#                      values = c("red", "darkgreen", "magenta", "black"),
+                     values = c("red", "darkgreen", "magenta", "green"),
                      labels = c("WT", "TS", "WTEEEGCG", "TSEEEGCG")) + 
   #   geom_text(hjust=0.5, vjust=-1 ,size=3, color="black") + 
 #   scale_x_continuous(expand=c(0.3, 0)) + # Zooms out so that density polygons
@@ -380,14 +385,15 @@ PC1.rev3 <- subset(PC1_rev1_3,  day=="Session 3")
 
 boxPlots.PC1.rev1 <- ggplot(PC1.rev1, aes (genotype, PC1, fill = genotype)) + 
   geom_boxplot(show.legend=FALSE) +
-  scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
+#   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
+  scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "green")) +
   labs(title = "Session 1 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
   theme (legend.title=element_blank()) + 
   # Same axis limits in day 1 and day 5
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
 #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-5.5, 9.5)) +
-  scale_y_continuous(breaks=c(-6,-4,-2,0,2,4,6), limits=c(-6, 6)) +
-  geom_segment(aes(x = 3.63, y = median(PC1.rev1[PC1.rev1$genotype == "TSEEEGCG","PC1"]), xend = 4.37, yend = median(PC1.rev1[PC1.rev1$genotype == "TSEEEGCG","PC1"])), colour="white")
+  scale_y_continuous(breaks=c(-6,-4,-2,0,2,4,6), limits=c(-6, 6)) #+
+#   geom_segment(aes(x = 3.63, y = median(PC1.rev1[PC1.rev1$genotype == "TSEEEGCG","PC1"]), xend = 4.37, yend = median(PC1.rev1[PC1.rev1$genotype == "TSEEEGCG","PC1"])), colour="white")
 
 # p_cloud_indiv_by_day_facet <- boxPlots.PC1 + facet_wrap(~genotype, ncol = 2)
 boxPlots.PC1.rev1.line <- boxPlots.PC1.rev1 + geom_hline(yintercept = 0, colour="gray")
@@ -396,13 +402,14 @@ boxPlots.PC1.rev1.line
 ## Session 3
 boxPlots.PC1.rev3 <- ggplot(PC1.rev3, aes (genotype, PC1, fill = genotype)) + 
   geom_boxplot(show.legend=FALSE) +
-  scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
+#   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
+  scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "green")) +
   labs(title = "Session 3 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
   theme (legend.title=element_blank()) + 
   # Same axis limits in day 1 and day 5
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
-  scale_y_continuous(breaks=c(-6,-4,-2,0,2,4,6), limits=c(-6, 6)) +
-  geom_segment(aes(x = 3.63, y = median(PC1.rev3[PC1.rev3$genotype == "TSEEEGCG","PC1"]), xend = 4.37, yend = median(PC1.rev3[PC1.rev3$genotype == "TSEEEGCG","PC1"])), colour="white")
+  scale_y_continuous(breaks=c(-6,-4,-2,0,2,4,6), limits=c(-6, 6)) #+
+#   geom_segment(aes(x = 3.63, y = median(PC1.rev3[PC1.rev3$genotype == "TSEEEGCG","PC1"]), xend = 4.37, yend = median(PC1.rev3[PC1.rev3$genotype == "TSEEEGCG","PC1"])), colour="white")
 
 # p_cloud_indiv_by_day_facet <- boxPlots.PC1 + facet_wrap(~genotype, ncol = 2)
 boxPlots.PC1.rev3.line <- boxPlots.PC1.rev3 + geom_hline(yintercept = 0, colour="gray")
@@ -430,7 +437,8 @@ PC1_rev1_3$genotype <- factor(PC1_rev1_3$genotype_tt, levels=c("WT", "TS", "WTEE
 
 boxPlots.PC1.rev.facet <- ggplot(PC1_rev1_3, aes (genotype, PC1, fill = genotype)) + 
   geom_boxplot(show.legend=FALSE) +
-  scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
+#   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
+  scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "green")) +
 #   scale_fill_manual(name = "Genotype", values=c("darkgreen", "black","magenta", "red", "magenta")) +
   labs(title = "Session 1 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
   theme (legend.title=element_blank()) + 
@@ -438,8 +446,8 @@ boxPlots.PC1.rev.facet <- ggplot(PC1_rev1_3, aes (genotype, PC1, fill = genotype
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-5.5, 9.5)) +
   scale_y_continuous(breaks=c(-6,-4,-2,0,2,4,6,8,10,12), limits=c(-6, 12)) +
-  geom_segment(data=median_line_r3, aes(x = x, y = y, xend=xend, yend=yend), colour="white") +
-  geom_segment(data=median_line_r1, aes(x = x, y = y, xend=xend, yend=yend), colour="white") +
+#   geom_segment(data=median_line_r3, aes(x = x, y = y, xend=xend, yend=yend), colour="white") +
+#   geom_segment(data=median_line_r1, aes(x = x, y = y, xend=xend, yend=yend), colour="white") +
   facet_grid(. ~ day) +
   geom_hline(yintercept = 0, colour="gray")
 
@@ -534,7 +542,8 @@ ggsave (panel_boxPlots, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_r
 
 # Plotting a legend with scuares and colors
 l <- ggplot() + geom_point(data=PC1.rev3, aes (x=PC1, y=PC2, colour = genotype), shape=15, size=5) +
-  scale_colour_manual (values=c("red", "darkgreen", "magenta", "black"))
+#   scale_colour_manual (values=c("red", "darkgreen", "magenta", "black"))
+     scale_colour_manual (values=c("red", "darkgreen", "magenta", "green"))
 l <- l + guides(color=guide_legend(title=NULL)) 
 l <- l + theme(legend.key = element_blank())
 l
