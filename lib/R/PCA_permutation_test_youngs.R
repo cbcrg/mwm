@@ -24,6 +24,11 @@ f_t_stat_only <- function (df_coord, gen_1 = "TS", gen_2 = "TSEEEGCG", acq_day=1
 young_acq_7var <- read.table ("/Users/jespinosa/20151001_ts65_young_MWM/data/ts65_young.csv", sep="\t")
 # write.table(tbl4permutation, "/Users/jespinosa/20151001_ts65_young_MWM/data/ts65_young.csv", sep="\t")
 
+# id 130019287 is an outlier, we want to test whether significance change when this guy is out
+# young_acq_7var_no_130019287 <- subset (young_acq_7var, !id == "130019287") 
+# subset (young_acq_7var_no_130019287, id == "130019287")
+# write.table(tbl4permutation, "/Users/jespinosa/20151001_ts65_young_MWM/data/ts65_young_no_130019287.csv", sep="\t")
+
 # young_acq_7var$gentreat <- factor(young_acq_7var$gentreat , levels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"), 
 #                                   labels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"))
 young_acq_7var$gentreat <- factor(young_acq_7var$gentreat , levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"), 
@@ -60,7 +65,7 @@ significance_perm_tbl <- function (tbl_perm, gr1="TS", gr2="TSEEEGCG", n_perm=10
   if (sign_thr >= 0.95) { sign_thr <- 1 - sign_thr }
   
   print (sign_thr)
-  return (sign_thr)
+  return (list(sign_thr, real_t_stat))
 }
 
 # # Calculation of what I though it whas the empirical adjusted p value
@@ -101,13 +106,17 @@ sign_threshold <- function (tbl_perm, day=5){
     gr1 <- as.character(gentreat_pairs [row,1])
     gr2 <- as.character(gentreat_pairs [row,2])
     print (paste("===============",gr1, gr2, sep=" "))
-    sign_thr <- significance_perm_tbl (tbl_perm, gr1, gr2, a_day=day)
+    #return (list(sign_thr, real_t_stat))
+    list_sign_thr_real_t <- significance_perm_tbl (tbl_perm, gr1, gr2, a_day=day)
+    sign_thr <- list_sign_thr_real_t[[1]]
+    real_t <- list_sign_thr_real_t[[2]]
+    print(real_t)
     adj_sign_thr <- significance_perm_tbl_emp_adjusted (tbl_perm, gr1, gr2, a_day=day)
     
-    v <- c (gr1, gr2, paste (gr1, gr2, sep="_vs_"), sign_thr, adj_sign_thr)
+    v <- c (gr1, gr2, paste (gr1, gr2, sep="_vs_"), sign_thr, adj_sign_thr, real_t)
     
     df.t_stats <- rbind (df.t_stats, v)
-    colnames (df.t_stats) <- c ("gr1", "gr2", "comp", "sign_thresh", "adj_sign_thr")
+    colnames (df.t_stats) <- c ("gr1", "gr2", "comp", "sign_thresh", "adj_sign_thr", "real_t")
   } 
   
   df.t_stats <- as.data.frame (df.t_stats, row.names=F, stringsAsFactors = F)
@@ -126,11 +135,10 @@ tbl_1111_day5 <- read.table ("/Users/jespinosa/20151001_ts65_young_MWM/tbl/PCA_t
 df.sign_threshold.day5 <- sign_threshold (tbl_1111_day5, day=5)
 df.sign_threshold.day1 <- sign_threshold (tbl_1111_day1, day=1)
 
-# write.table(df.sign_threshold.day5, file = paste(home, "/20151001_ts65_young_MWM/tbl", "/tbl_sign_thresh_perm_5_revision.csv", sep=""), 
-#             sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
-
-# write.table(df.sign_threshold.day1, file = paste(home, "/20151001_ts65_young_MWM/tbl", "/tbl_sign_thresh_perm_1_revision.csv", sep=""), 
-#             sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
+write.table(df.sign_threshold.day5, file = paste(home, "/20151001_ts65_young_MWM/tbl", "/tbl_sign_thresh_perm_5_pseudoT.csv", sep=""), 
+            sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
+write.table(df.sign_threshold.day1, file = paste(home, "/20151001_ts65_young_MWM/tbl", "/tbl_sign_thresh_perm_1_pseudoT.csv", sep=""), 
+            sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
 
 
 # This part is not used, we do not correct not needed

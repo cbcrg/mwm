@@ -12,7 +12,11 @@
 
 //params.MWM_tbl = "20150515_PCA_old_frotiersPaper/data/Ts65Dn_OLD_ACQ1_ACQ5_SUBCONJ.sav"
 //params.MWM_tbl = "20150515_PCA_old_frotiersPaper/data/ts65_old_3sup_tsegcg_rev.csv"
-params.MWM_tbl = "20151001_ts65_young_MWM/data/ts65_young.csv"
+//params.MWM_tbl = "20151001_ts65_young_MWM/data/ts65_young.csv"
+
+// Data of old ts65dn have a TS double treated that seems to be overperfomer
+// checking whether it breaks down significance
+params.MWM_tbl = "20151001_ts65_young_MWM/data/ts65_young_no_130019287.csv"
 MWM_tbl_path = "$HOME/${params.MWM_tbl}"
 
 println "path: $MWM_tbl_path"
@@ -56,13 +60,15 @@ process perm {
     """ 
 }
 
+//def file_tag = ""
+def file_tag = "_no_130019287"
 
 tbl_t_stat
     .collectFile(name: 't_stat_5.csv', newLine: false)
     .subscribe {
         //println "Entries are saved to file: $it"
         //println "File content is: ${it.text}"
-        it.copyTo( dump_dir.resolve ( "PCA_t_statistic_${start_perm}_day5.csv" ) )
+        it.copyTo( dump_dir.resolve ( "PCA_t_statistic_${start_perm}_day5${file_tag}.csv" ) )
     }
     
 tbl_t_stat_day1
@@ -70,7 +76,7 @@ tbl_t_stat_day1
     .subscribe {
         //println "Entries are saved to file: $it"
         //println "File content is: ${it.text}"
-        it.copyTo( dump_dir.resolve ( "PCA_t_statistic_${start_perm}_day1.csv" ) )
+        it.copyTo( dump_dir.resolve ( "PCA_t_statistic_${start_perm}_day1${file_tag}.csv" ) )
     }
    
 /*
