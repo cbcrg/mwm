@@ -25,9 +25,13 @@ young_acq_7var <- read.table ("/Users/jespinosa/20151001_ts65_young_MWM/data/ts6
 # write.table(tbl4permutation, "/Users/jespinosa/20151001_ts65_young_MWM/data/ts65_young.csv", sep="\t")
 
 # id 130019287 is an outlier, we want to test whether significance change when this guy is out
-# young_acq_7var_no_130019287 <- subset (young_acq_7var, !id == "130019287") 
-# subset (young_acq_7var_no_130019287, id == "130019287")
+young_acq_7var_no_130019287 <- subset (young_acq_7var, !id == "130019287") 
+subset (young_acq_7var_no_130019287, id == "130019287")
+tbl4permutation <- young_acq_7var_no_130019287
 # write.table(tbl4permutation, "/Users/jespinosa/20151001_ts65_young_MWM/data/ts65_young_no_130019287.csv", sep="\t")
+
+## This line has to be uncomment when the data set is without mouse 130019287
+young_acq_7var <- young_acq_7var_no_130019287
 
 # young_acq_7var$gentreat <- factor(young_acq_7var$gentreat , levels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"), 
 #                                   labels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"))
@@ -131,6 +135,11 @@ sign_threshold <- function (tbl_perm, day=5){
 # Reading results from 10000 permutations 3X for all comparisons
 tbl_1111_day1 <- read.table ("/Users/jespinosa/20151001_ts65_young_MWM/tbl/PCA_t_statistic_1111_day1.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
 tbl_1111_day5 <- read.table ("/Users/jespinosa/20151001_ts65_young_MWM/tbl/PCA_t_statistic_1111_day5.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
+
+###################################
+# Reading results from 10000 permutations 3X for all comparisons without mice overperformint for double treated group 130019287
+tbl_1111_day1 <- read.table ("/Users/jespinosa/20151001_ts65_young_MWM/tbl/PCA_t_statistic_1111_day1_no_130019287.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
+tbl_1111_day5 <- read.table ("/Users/jespinosa/20151001_ts65_young_MWM/tbl/PCA_t_statistic_1111_day5_no_130019287.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
 
 df.sign_threshold.day5 <- sign_threshold (tbl_1111_day5, day=5)
 df.sign_threshold.day1 <- sign_threshold (tbl_1111_day1, day=1)
