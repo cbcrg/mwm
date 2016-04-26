@@ -84,6 +84,12 @@ young_acq_7var$gentreat <- factor(young_acq_7var$gentreat , levels=c("WT", "TS",
 # comparison$tM
 # head (tbl4permutation)
 # head (perm_tbl)
+
+# Removing outlier
+young_acq_7var_no_130019287 <- subset (young_acq_7var, !id == "130019287") 
+# subset (young_acq_7var_no_130019287, id == "130019287")
+young_acq_7var <- young_acq_7var_no_130019287
+
 tbl_median <- with (young_acq_7var, aggregate (cbind (distance, gallindex, latency, speed, percentne, percentperi, whishaw), 
                     list (gentreat=gentreat, day=day), FUN=median))
 
@@ -277,8 +283,8 @@ panel_pca
 # if i save it manually
 # size 1100, 700
 img_format=".tiff"
-ggsave (panel_pca, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", "panel_PCA_PlotSaved", img_format, sep=""), 
-        dpi=dpi_q, width=14, height=11)
+# ggsave (panel_pca, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", "panel_PCA_PlotSaved", img_format, sep=""), 
+#         dpi=dpi_q, width=14, height=11)
 
 plot_grid(pca_medians_acq_aspect_ratio_leg, p_circle_big_title, bar_plot_big_title, bars_plot_PC2_big_title,
           labels=c("A", "B", "C", "D"), size=14, ncol = 2)
@@ -443,13 +449,16 @@ PC1_acq1_5$genotype <- PC1_acq1_5$genotype_tt
 levels(PC1_acq1_5$day) <- c("1","5")
 PC1.a1 <- subset(PC1_acq1_5,  day==1)
 PC1.a5 <- subset(PC1_acq1_5,  day==5)
+box_plot_lab = "\n"
 
 boxPlots.PC1.a1 <- ggplot(PC1.a1, aes (genotype, PC1, fill = genotype)) + 
   geom_boxplot(show.legend=FALSE) +
 #   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "green")) +
-  labs(title = "Session 1 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
-  theme (legend.title=element_blank()) + 
+#   labs(title = "Session 1 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
+  labs(title = "Session 1 PC1\n") + xlab (box_plot_lab) + ylab("PC1\n") +
+#   theme (legend.title=element_blank()) + 
+  theme (legend.title=element_blank(), axis.text=element_blank()) +
   # Same axis limits in day 1 and day 5
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8,10,12), limits=c(-4.5, 13)) #+
@@ -468,8 +477,10 @@ boxPlots.PC1.a5 <- ggplot(PC1.a5, aes (genotype, PC1, fill = genotype)) +
   geom_boxplot(show.legend=FALSE) +
 #   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "green")) +
-  labs(title = "Session 5 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
-  theme (legend.title=element_blank()) + 
+#   labs(title = "Session 5 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
+  #   theme (legend.title=element_blank()) + 
+  labs(title = "Session 5 PC1\n") + xlab (box_plot_lab) + ylab("PC1\n") +
+  theme (legend.title=element_blank(), axis.text=element_blank()) +
   # Same axis limits in day 1 and day 5
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8,10,12), limits=c(-4.5, 13)) #+
@@ -669,7 +680,9 @@ stars_plot <- data.frame(x_pos = c(1.5, 3,
 #                                    7.6, 10, 8.8, 11.2), 
 #                                    8.8, 10,  11.2, 12.4),
                                    8.8, 10,  11.2),
-                         label=c("***", "**", 
+#                          label=c("***", "**", 
+                         label=c("***", "*",  #without outlier
+                            
 #                                  "***", "*", "*", "**"),
                                  "***", "*", "**"),
                          day=c(rep("Session 1", 2), 
@@ -693,8 +706,11 @@ boxPlots.PC1.facet <- ggplot(PC1_acq1_5, aes (genotype, PC1, fill = genotype)) +
   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "green", "gray")) +
 #   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black", "gray")) +
 #   scale_fill_manual(name = "Genotype", values=c("darkgreen", "black","magenta", "red", "magenta")) +
-  labs(title = "PC1 distribution\n") + xlab ("\nGroups") + ylab("PC1\n") +
-  theme (legend.title=element_blank()) + 
+#   labs(title = "PC1 distribution\n") + xlab ("\nGroups") + ylab("PC1\n") +
+#   theme (legend.title=element_blank()) + 
+  labs(title = "PC1 distribution\n") + xlab (box_plot_lab) + ylab("PC1\n") +
+  theme (legend.title=element_blank(), axis.text=element_blank()) +
+  
   # Same axis limits in day 1 and day 5
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8,10,12), limits=c(-4.5, 13)) +
@@ -747,39 +763,9 @@ img_2plots <- ggdraw() + draw_plot(p_cloud_acq1_5_facet_coord, 0, .5, 1, .5) +
 img_2plots
 
 # Save this way and directly open the combined panel in AI
-ggsave (img_2plots, file=paste(home, "/20151001_ts65_young_MWM/figures/", "panel_boxPlot", img_format, sep=""), 
-        dpi=dpi_q, width=14, height=11)
+# ggsave (img_2plots, file=paste(home, "/20151001_ts65_young_MWM/figures/", "panel_boxPlot", img_format, sep=""), 
+#         dpi=dpi_q, width=14, height=11)
 # size 1100, 700
-
-# Plotting a legend with scuares and colors
-l <- ggplot() + geom_point(data=PC1.a5, aes (x=PC1, y=PC2, colour = genotype), shape=15, size=5) +
-#   scale_colour_manual (values=c("red", "darkgreen", "magenta", "black"))
-  scale_colour_manual (values=c("red", "darkgreen", "magenta", "green"))
-l <- l + guides(color=guide_legend(title=NULL)) 
-l <- l + theme(legend.key = element_blank())
-l
-
-# ggsave (l, file=paste(home, "/20151001_ts65_young_MWM/figures/", "legend_squares.jpg", sep=""), dpi=900)
-
-# Plotting a legend with scuares and colors
-l <- ggplot() + geom_lines(data=PC1.a5, aes (x=PC1, y=PC2, colour = genotype), shape=15, size=5) +
-#   scale_colour_manual (values=c("red", "darkgreen", "magenta", "black"))
-  scale_colour_manual (values=c("red", "darkgreen", "magenta", "green"))
-l <- l + guides(color=guide_legend(title=NULL)) 
-l <- l + theme(legend.key = element_blank())
-l
-
-## Plotting a legend with lines and colors
-l <- ggplot() + geom_line(data=PC1.a5, aes (x=PC1, y=PC2, colour = genotype), shape=15, size=2) +
-  #   scale_colour_manual (values=c("red", "darkgreen", "magenta", "black"))
-  scale_colour_manual (values=c("red", "darkgreen", "magenta", "green"))
-l <- l + guides(color=guide_legend(title=NULL)) 
-l <- l + theme(legend.key = element_blank())
-l
-## PLOT_paper
-# ggsave (l, file=paste(home, "/20151001_ts65_young_MWM/figures/", "lines_legend.jpg", sep=""), 
-#          width=14, height=7, dpi=900)
-
 
 ###############################################
 # Panel with pca and boxplots in th same figure
@@ -810,4 +796,33 @@ panel_pca_all <-
   draw_plot_label(c("A", "B", "C"), c(0, 0.5, 0), c(1, 1, 0.5), size = size_titles)
 
 panel_pca_all 
+
+# Plotting a legend with scuares and colors
+l <- ggplot() + geom_point(data=PC1.a5, aes (x=PC1, y=PC2, colour = genotype), shape=15, size=5) +
+  #   scale_colour_manual (values=c("red", "darkgreen", "magenta", "black"))
+  scale_colour_manual (values=c("red", "darkgreen", "magenta", "green"))
+l <- l + guides(color=guide_legend(title=NULL)) 
+l <- l + theme(legend.key = element_blank())
+l
+
+# ggsave (l, file=paste(home, "/20151001_ts65_young_MWM/figures/", "legend_squares.jpg", sep=""), dpi=900)
+
+# Plotting a legend with scuares and colors
+l <- ggplot() + geom_lines(data=PC1.a5, aes (x=PC1, y=PC2, colour = genotype), shape=15, size=5) +
+  #   scale_colour_manual (values=c("red", "darkgreen", "magenta", "black"))
+  scale_colour_manual (values=c("red", "darkgreen", "magenta", "green"))
+l <- l + guides(color=guide_legend(title=NULL)) 
+l <- l + theme(legend.key = element_blank())
+l
+
+## Plotting a legend with lines and colors
+l <- ggplot() + geom_line(data=PC1.a5, aes (x=PC1, y=PC2, colour = genotype), shape=15, size=2) +
+  #   scale_colour_manual (values=c("red", "darkgreen", "magenta", "black"))
+  scale_colour_manual (values=c("red", "darkgreen", "magenta", "green"))
+l <- l + guides(color=guide_legend(title=NULL)) 
+l <- l + theme(legend.key = element_blank())
+l
+## PLOT_paper
+# ggsave (l, file=paste(home, "/20151001_ts65_young_MWM/figures/", "lines_legend.jpg", sep=""), 
+#          width=14, height=7, dpi=900)
 
