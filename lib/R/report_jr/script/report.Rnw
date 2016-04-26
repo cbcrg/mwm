@@ -1,0 +1,1061 @@
+\documentclass{article}
+\usepackage{longtable}
+\usepackage{hyperref}
+\usepackage[left=3.5cm, right=2.5cm, lines=60, top=2cm]{geometry}
+
+\title {Neurobehavioral analysis - Young mice}
+
+
+\author{Juan R Gonzalez}
+
+
+\begin{document}
+
+\SweaveOpts{concordance=TRUE}
+
+<<include=FALSE>>=
+library(knitr)
+opts_chunk$set(
+concordance=TRUE
+)
+@
+
+
+<<jpeg, eval=FALSE, echo=FALSE>>=
+setwd("figure")
+ff <- dir(pattern="pdf")
+for(file in ff) { cmd = paste("convert -density 900", file, gsub(".pdf", ".jpg", file)); message(cmd); system(cmd) }
+@
+
+
+\maketitle
+
+\tableofcontents
+
+\newpage
+
+
+
+<<load_libraries, echo=FALSE, results='hide'>>=
+library(nlme)
+library(ggplot2)
+library(devtools)
+# install_github(repo = "bryanhanson/HandyStuff@master")
+# install.packages("ChemoSpec")
+library(HandyStuff)
+library(xtable)
+library(plm)
+library(censReg)
+library(lattice)
+library(Hmisc)
+library(car)
+library(multcomp)
+library(foreign)
+library(PMCMR)
+library(grid)
+# print(getwd())
+# stop("==========")
+@
+
+<<load_function, echo=FALSE>>=
+# dirty hack to solve the problem
+setwd("/Users/jespinosa/git/mwm/lib/R/report_jr/script")
+
+getPvalDelta <- function(x, g1, g2) 
+ {
+  E <- x$coeff$fixed
+  i <- c(grep(g1, names(E)), grep(g2, names(E)))
+  EE <- E[i]
+
+  V <- x$varFix  
+  VV <- V[i,i]
+  se <- sqrt(sum(diag(VV)) - 2*(VV[1,2]))
+
+  dd <- diff(EE)
+  T <- abs(dd)/se
+  pval <- 2*(1-pnorm(T))
+  
+  ans <- data.frame(diff=dd, pval=pval)
+  rownames(ans) <- paste(g1, g2, sep=" - ")
+
+  ans
+ }
+
+source("../R/anova.censReg.R")
+source("../R/plotHandy.R")
+
+getData <- function(x, group, outcome)
+ {
+  pos <- which(names(x)==group)
+  gg <- with(x, unique(x[,pos]))
+  yy <- dd <- NULL
+  for (i in gg) {
+   temp <- x[x[,pos]==i,]
+   id <- unique(temp$id)
+   for (j in id){
+    temp2 <- temp[temp$id==j,]
+    y <- temp2[ , which(names(temp2)==outcome)]
+    aux <- data.frame(id=j, group=i)
+    dd <- rbind(dd, aux)
+    yy <- rbind(yy, y)
+   }
+ }
+ out <- list(design=dd, y=yy)
+ out
+}
+
+
+
+@
+
+
+<<load_data, echo=FALSE>>=
+
+# load("data/Oct2014.RData")
+# load("../data/Oct2014.RData")
+load("/Users/jespinosa/git/mwm/lib/R/report_jr/script/data/Oct2014.RData")
+assay1 <- latlong.y[grep("Day", latlong.y$day),]
+assay1$day <- as.numeric(assay1$day)
+assay1G <- groupedData( latency ~ day | id, data=assay1)
+@
+
+
+\section{Data description}
+
+<<plot_acq_latency, echo=FALSE>>=
+
+p <- rxnNorm(latency ~ day, data = assay1, groups = gentreatment,
+             cols = c("violet", "orange", "gray40", 
+                       "black"), freckles = FALSE, type = "fitLine", 
+              ylab=list(label="Latency  (secs)", cex=1.5), xlab = list(label="Day", cex=1.5), method="sem", scales=list(x=list(cex=1.5), y=list(cex=1.5)), legend=NULL)
+# print(p)
+# plotHandy(p)
+plotHandy(p, as.character(levels(assay1$gentreatment)), c("violet", "orange", "gray40", "black"), "group")
+@
+
+
+
+\newpage
+
+
+\section{Acquisition}
+
+\subsection{Latency}
+
+<<lme_model, echo=FALSE, eval=TRUE>>=
+
+
+modI <- lme(latency~day:gentreatment, 
+          random=list(id=~1),
+          data=assay1G,
+          method="ML")
+
+modF <- lme(latency~day*gentreatment, 
+          random=list(id=~1),
+          data=assay1G,
+          method="ML")
+modR <- lme(latency~day+gentreatment , 
+          random=list(id=~1),
+          data=assay1G,
+          method="ML")
+
+
+anova(modF,modR)
+@
+
+
+<<cens_model, echo=FALSE, cache=TRUE>>=
+assay1$time <- rep(c(1:20),  length(unique(assay1$id)))
+
+pData <- pdata.frame( assay1, c( "id", "time" ) )
+
+modC.un <- censReg( latency ~ day * gentreatment, 
+               data = pData, method = "BHHH", left= -Inf, right=60 )
+
+modC <- censReg( log(latency) ~ day * gentreatment, 
+               data = pData, method = "BHHH", left= -Inf, right=log(60) )
+
+modR <- censReg( log(latency) ~ day + gentreatment, 
+               data = pData, method = "BHHH", left= -Inf, right=log(60) )
+
+modR2 <- censReg( log(latency) ~ day + relevel(gentreatment,2), 
+               data = pData, method = "BHHH", left= -Inf, right=log(60) )
+
+anova(modC, modR)
+
+@
+
+<<cens_model_group_differences, echo=FALSE>>=
+summary(modR)
+summary(modR2)
+@
+
+
+
+\noindent Here WTNEH20 is the reference category. P-value of interaction has to be considered for
+group comparisons
+
+\bigskip
+
+<<comparisons_WTNEH20, echo=FALSE>>=
+
+pvals <- summary(modF)$tTable
+print(xtable(pvals, label="pvals_WT", 
+            caption=c("Effect size and pvalues against WTNEH20 category"),
+            digits=c(0,2,2,0,2,2),
+            display=c("s", "f", "f", "f", "f", "e")), 
+            floating=FALSE,
+            include.rownames = TRUE,
+            caption.placement="top", 
+            file="tables/comparisons_WTNEH20.tex")
+@
+
+
+\input{tables/comparisons_WTNEH20}
+
+\bigskip
+\bigskip
+
+\noindent Here TSNEH20 is the reference category. P-value of interaction has to be considered for
+group comparisons
+
+\bigskip
+
+<<comparisons_TSNEH20, echo=FALSE>>=
+
+assay1G$gentreatmentTS <- relevel(assay1G$gentreatment,2)
+modF.TS <- lme(latency~day*gentreatmentTS, 
+          random=list(id=~1),
+          data=assay1G,
+          method="ML")
+
+pvals <- summary(modF.TS)$tTable
+print(xtable(pvals, label="pvals_WT", 
+            caption=c("Effect size and pvalues against TSNEH20 category"),
+            digits=c(0,2,2,0,2,2),
+            display=c("s", "f", "f", "f", "f", "e")), 
+            floating=FALSE,
+            include.rownames = TRUE,
+            caption.placement="top", 
+            file="tables/comparisons_TSNEH20.tex")
+@
+
+
+\input{tables/comparisons_TSNEH20}
+
+\newpage
+
+
+\subsection{Specific group comparison (censored model)}
+
+
+
+\noindent Here WTNEH20 is the reference category. P-value of interaction has to be considered for
+group comparisons
+
+\bigskip
+
+<<comparisons_WTNEH20_cens, echo=FALSE, cache=TRUE>>=
+
+pvals <- summary(modC.un)$estimate
+print(xtable(pvals, label="pvals_WT", 
+            caption=c("Effect size and pvalues against WTNEH20 category"),
+            digits=c(0,2,2,2,2),
+            display=c("s", "f", "f", "f", "e")), 
+            floating=FALSE,
+            include.rownames = TRUE,
+            caption.placement="top", 
+            file="tables/comparisons_WTNEH20_cens.tex")
+@
+
+
+\input{tables/comparisons_WTNEH20_cens}
+
+\bigskip
+\bigskip
+
+\noindent Here TSNEH20 is the reference category. P-value of interaction has to be considered for
+group comparisons
+
+\bigskip
+
+<<comparisons_TSNEH20_cens, echo=FALSE, cache=TRUE>>=
+
+
+pData$gentreatmentTS <- relevel(pData$gentreatment,2)
+modC.un.TS <- censReg( latency ~ day * gentreatmentTS, 
+               data = pData, method = "BHHH", left= -Inf, right=60)
+
+pvals <- summary(modC.un.TS)$estimate
+print(xtable(pvals, label="pvals_WT", 
+            caption=c("Effect size and pvalues against TSNEH20 category"),
+            digits=c(0,2,2,2,2),
+            display=c("s", "f", "f", "f", "e")), 
+            floating=FALSE,
+            include.rownames = TRUE,
+            caption.placement="top", 
+            file="tables/comparisons_TSNEH20_cens.tex")
+@
+
+
+\input{tables/comparisons_TSNEH20_cens}
+
+\newpage
+
+
+
+\subsection{Specific group comparison (log-transformed censored model )}
+
+
+
+\noindent Here WTNEH20 is the reference category. P-value of interaction has to be considered for
+group comparisons
+
+\bigskip
+
+<<comparisons_WTNEH20_cens_log, echo=FALSE>>=
+
+pvals <- summary(modC)$estimate
+print(xtable(pvals, label="pvals_WT", 
+            caption=c("Effect size and pvalues against WTNEH20 category"),
+            digits=c(0,2,2,2,2),
+            display=c("s", "f", "f", "f", "e")), 
+            floating=FALSE,
+            include.rownames = TRUE,
+            caption.placement="top", 
+            file="tables/comparisons_WTNEH20_cens_log.tex")
+@
+
+
+\input{tables/comparisons_WTNEH20_cens_log}
+
+\bigskip
+\bigskip
+
+\noindent Here TSNEH20 is the reference category. P-value of interaction has to be considered for
+group comparisons
+
+\bigskip
+
+<<comparisons_TSNEH20_cens_log, echo=FALSE>>=
+
+
+pData$gentreatmentTS <- relevel(pData$gentreatment,2)
+modC.TS <- censReg( log(latency) ~ day * gentreatmentTS, 
+               data = pData, method = "BHHH", left= -Inf, right=log(60) )
+
+pvals <- summary(modC.TS)$estimate
+print(xtable(pvals, label="pvals_WT", 
+            caption=c("Effect size and pvalues against TSNEH20 category"),
+            digits=c(0,2,2,2,2),
+            display=c("s", "f", "f", "f", "e")), 
+            floating=FALSE,
+            include.rownames = TRUE,
+            caption.placement="top", 
+            file="tables/comparisons_TSNEH20_cens_log.tex")
+@
+
+
+\input{tables/comparisons_TSNEH20_cens_log}
+
+\newpage
+
+
+<<latency_manova>>=
+mod.out <- lme(latency~day+gentreatment, random=list(id=~1), data=assay1G, na.action=na.omit)
+summary(glht(mod.out, linfct=mcp(gentreatment = "Tukey")), 
+                             test = adjusted(type = "BH"))
+@
+
+
+\newpage
+
+
+\subsection{Gallagher}
+
+
+<<get_data_gallagher, echo=FALSE, cache=TRUE>>=
+# temp <- read.spss("data/Jtracks parameters Young TS_SUBCONJ_REV_R_FORMAT.sav", to.data.frame=TRUE)
+# temp <- read.spss("../data/Jtracks parameters Young TS_SUBCONJ_REV_R_FORMAT.sav", to.data.frame=TRUE)
+temp <- read.spss("/Users/jespinosa/git/mwm/lib/R/report_jr/script/data/Jtracks parameters Young TS_SUBCONJ_REV_R_FORMAT.sav", to.data.frame=TRUE)
+assay2 <- subset(temp, DAY%in%paste0("ACQ",1:5))
+assay2$DAY <- as.numeric(assay2$DAY)
+assay2G <- groupedData( GALL_INDEX ~ DAY | ID, data=assay2)
+@
+
+<<plot_acq_gallindex, echo=FALSE>>=
+
+p2 <- rxnNorm(GALL_INDEX ~ DAY, data = assay2, groups = gentreatment,
+             cols = c("violet", "orange", "gray40", 
+                       "black"), freckles = FALSE, type = "fitLine", 
+              ylab=list(label="Gallagher Index  (cm)", cex=1.5), xlab = list(label="Day", cex=1.5), method="sem", scales=list(x=list(cex=1.5), y=list(cex=1.5)), legend=NULL)
+# print(p)
+plotHandy(p2, as.character(levels(assay1$gentreatment)), c("violet", "orange", "gray40", "black"), "group")
+@
+
+
+
+
+<<lme_model_gall, echo=FALSE, eval=TRUE>>=
+
+modI.gall <- lme(GALL_INDEX~DAY:gentreatment, 
+          random=list(ID=~1),
+          data=assay2G,
+          method="ML", na.action=na.omit)
+
+modF.gall <- lme(GALL_INDEX~DAY*gentreatment, 
+          random=list(ID=~1),
+          data=assay2G,
+          method="ML", na.action=na.omit)
+modR.gall <- lme(GALL_INDEX~DAY+gentreatment , 
+          random=list(ID=~1),
+          data=assay2G,
+          method="ML", na.action=na.omit)
+
+
+anova(modF.gall,modR.gall)
+@
+
+\noindent Here WTNEH20 is the reference category. P-value of interaction has to be considered for
+group comparisons
+
+\bigskip
+
+<<comparisons_WTNEH20_gallagher, echo=FALSE>>=
+
+pvals <- summary(modF.gall)$tTable
+print(xtable(pvals, label="pvals_WT", 
+            caption=c("Effect size and pvalues against WTNEH20 category"),
+            digits=c(0,2,2,0,2,2),
+            display=c("s", "f", "f", "f", "f", "e")), 
+            floating=FALSE,
+            include.rownames = TRUE,
+            caption.placement="top", 
+            file="tables/comparisons_WTNEH20_gallagher.tex")
+@
+
+
+\input{tables/comparisons_WTNEH20_gallagher}
+
+\bigskip
+\bigskip
+
+\noindent Here TSNEH20 is the reference category. P-value of interaction has to be considered for
+group comparisons
+
+\bigskip
+
+<<comparisons_TSNEH20_gallagher, echo=FALSE>>=
+
+assay2G$gentreatmentTS <- relevel(assay2G$gentreatment,2)
+modF.TS.gall <- lme(GALL_INDEX~DAY*gentreatmentTS, 
+          random=list(ID=~1),
+          data=assay2G,
+          method="ML", na.action=na.omit)
+
+pvals <- summary(modF.TS.gall)$tTable
+print(xtable(pvals, label="pvals_WT", 
+            caption=c("Effect size and pvalues against TSNEH20 category"),
+            digits=c(0,2,2,0,2,2),
+            display=c("s", "f", "f", "f", "f", "e")), 
+            floating=FALSE,
+            include.rownames = TRUE,
+            caption.placement="top", 
+            file="tables/comparisons_TSNEH20_gallagher.tex")
+@
+
+
+\input{tables/comparisons_TSNEH20_gallagher}
+
+\newpage
+
+<<gallagher_manova>>=
+mod.out <- lme(GALL_INDEX~DAY+gentreatment, random=list(ID=~1), data=assay2G, na.action=na.omit)
+summary(glht(mod.out, linfct=mcp(gentreatment = "Tukey")), 
+                             test = adjusted(type = "BH"))
+@
+
+
+\newpage
+
+\subsection{Percentage periphery}
+
+
+
+<<plot_acq_perperi, echo=FALSE>>=
+
+p3 <- rxnNorm(PER_PERI ~ DAY, data = assay2, groups = gentreatment,
+             cols = c("violet", "orange", "gray40", 
+                       "black"), freckles = FALSE, type = "fitLine", 
+              ylab=list(label="Percentage in periphery", cex=1.5), xlab = list(label="Day", cex=1.5), method="sem", scales=list(x=list(cex=1.5), y=list(cex=1.5)), legend=NULL)
+# print(p)
+plotHandy(p3, as.character(levels(assay1$gentreatment)), c("violet", "orange", "gray40", "black"), "group")
+@
+
+
+
+
+<<lme_model_perperi, echo=FALSE, eval=TRUE>>=
+
+modI.per <- lme(PER_PERI~DAY:gentreatment, 
+          random=list(ID=~1),
+          data=assay2G,
+          method="ML", na.action=na.omit)
+
+modF.per <- lme(PER_PERI~DAY*gentreatment, 
+          random=list(ID=~1),
+          data=assay2G,
+          method="ML", na.action=na.omit)
+modR.per <- lme(PER_PERI~DAY+gentreatment , 
+          random=list(ID=~1),
+          data=assay2G,
+          method="ML", na.action=na.omit)
+
+
+anova(modF.per,modR.per)
+@
+
+\noindent Here WTNEH20 is the reference category. P-value of interaction has to be considered for
+group comparisons
+
+\bigskip
+
+<<comparisons_WTNEH20_perperi, echo=FALSE>>=
+
+pvals <- summary(modF.per)$tTable
+print(xtable(pvals, label="pvals_WT", 
+            caption=c("Effect size and pvalues against WTNEH20 category"),
+            digits=c(0,2,2,0,2,2),
+            display=c("s", "f", "f", "f", "f", "e")), 
+            floating=FALSE,
+            include.rownames = TRUE,
+            caption.placement="top", 
+            file="tables/comparisons_WTNEH20_peri.tex")
+@
+
+
+\input{tables/comparisons_WTNEH20_peri}
+
+\bigskip
+\bigskip
+
+\noindent Here TSNEH20 is the reference category. P-value of interaction has to be considered for
+group comparisons
+
+\bigskip
+
+<<comparisons_TSNEH20_perperi, echo=FALSE>>=
+
+modF.TS.peri <- lme(PER_PERI~DAY*gentreatmentTS, 
+          random=list(ID=~1),
+          data=assay2G,
+          method="ML", na.action=na.omit)
+
+pvals <- summary(modF.TS.peri)$tTable
+print(xtable(pvals, label="pvals_WT", 
+            caption=c("Effect size and pvalues against TSNEH20 category"),
+            digits=c(0,2,2,0,2,2),
+            display=c("s", "f", "f", "f", "f", "e")), 
+            floating=FALSE,
+            include.rownames = TRUE,
+            caption.placement="top", 
+            file="tables/comparisons_TSNEH20_peri.tex")
+@
+
+
+\input{tables/comparisons_TSNEH20_peri}
+
+\newpage
+
+<<perperi_manova>>=
+mod.out <- lme(PER_PERI~DAY+gentreatment, random=list(ID=~1), data=assay2G, na.action=na.omit)
+summary(glht(mod.out, linfct=mcp(gentreatment = "Tukey")), 
+                             test = adjusted(type = "BH"))
+@
+
+\newpage
+
+\subsection{Speed}
+
+
+
+<<plot_acq_speed, echo=FALSE>>=
+
+p4 <- rxnNorm(SPEED ~ DAY, data = assay2, groups = gentreatment,
+             cols = c("violet", "orange", "gray40", 
+                       "black"), freckles = FALSE, type = "fitLine", 
+              ylab=list(label="Speed (cm/sec) ", cex=1.5), xlab = list(label="Day", cex=1.5), method="sem", scales=list(x=list(cex=1.5), y=list(cex=1.5)), legend=NULL)
+# print(p)
+plotHandy(p4, as.character(levels(assay1$gentreatment)), c("violet", "orange", "gray40", "black"), "group")
+@
+
+
+
+
+<<lme_model_speed, echo=FALSE, eval=TRUE>>=
+
+modI.speed <- lme(SPEED~DAY:gentreatment, 
+          random=list(ID=~1),
+          data=assay2G,
+          method="ML", na.action=na.omit)
+
+modF.speed <- lme(SPEED~DAY*gentreatment, 
+          random=list(ID=~1),
+          data=assay2G,
+          method="ML", na.action=na.omit)
+modR.speed <- lme(SPEED~DAY+gentreatment , 
+          random=list(ID=~1),
+          data=assay2G,
+          method="ML", na.action=na.omit)
+
+
+anova(modF.speed,modR.speed)
+@
+
+\noindent Here WTNEH20 is the reference category. P-value of interaction has to be considered for
+group comparisons
+
+\bigskip
+
+<<comparisons_WTNEH20_speed, echo=FALSE>>=
+
+pvals <- summary(modF.speed)$tTable
+print(xtable(pvals, label="pvals_WT", 
+            caption=c("Effect size and pvalues against WTNEH20 category"),
+            digits=c(0,2,2,0,2,2),
+            display=c("s", "f", "f", "f", "f", "e")), 
+            floating=FALSE,
+            include.rownames = TRUE,
+            caption.placement="top", 
+            file="tables/comparisons_WTNEH20_speed.tex")
+@
+
+
+\input{tables/comparisons_WTNEH20_speed}
+
+\bigskip
+\bigskip
+
+\noindent Here TSNEH20 is the reference category. P-value of interaction has to be considered for
+group comparisons
+
+\bigskip
+
+<<comparisons_TSNEH20_speed, echo=FALSE>>=
+
+modF.TS.speed <- lme(SPEED~DAY*gentreatmentTS, 
+          random=list(ID=~1),
+          data=assay2G,
+          method="ML", na.action=na.omit)
+
+pvals <- summary(modF.TS.speed)$tTable
+print(xtable(pvals, label="pvals_WT", 
+            caption=c("Effect size and pvalues against TSNEH20 category"),
+            digits=c(0,2,2,0,2,2),
+            display=c("s", "f", "f", "f", "f", "e")), 
+            floating=FALSE,
+            include.rownames = TRUE,
+            caption.placement="top", 
+            file="tables/comparisons_TSNEH20_speed.tex")
+@
+
+
+\input{tables/comparisons_TSNEH20_speed}
+
+\newpage
+
+<<speed_manova>>=
+mod.out <- lme(SPEED~DAY+gentreatment, random=list(ID=~1), data=assay2G, na.action=na.omit)
+summary(glht(mod.out, linfct=mcp(gentreatment = "Tukey")), 
+                             test = adjusted(type = "BH"))
+@
+
+
+\newpage
+
+\section{Reversal Analysis}
+
+
+\subsection{Latency}
+
+<<load_rev, echo=FALSE>>=
+# load("data/Oct2014_REVdata.RData")
+# load("../data/Oct2014_REVdata.RData")
+load("/Users/jespinosa/git/mwm/lib/R/report_jr/script/data/Oct2014_REVdata.RData")
+revYoung$day <- as.numeric(revYoung$day)
+@
+
+
+<<plot_rev_lat, echo=FALSE>>=
+
+p5 <- rxnNorm(lat ~ day, data = revYoung, groups = gentreatment,
+             cols = c("violet", "orange", "gray40", 
+                       "black"), freckles = FALSE, type = "fitLine", 
+              ylab=list(label="Latency (secs)", cex=1.5), xlab = list(label="Day", cex=1.5), method="sem", scales=list(x=list(cex=1.5, at=c(1,2,3)), y=list(cex=1.5)), legend=NULL)
+# print(p)
+plotHandy(p5, as.character(levels(revYoung$gentreatment)), c("violet", "orange", "gray40", "black"), "group")
+@
+
+
+<<latency_manova_rev>>=
+mod.out <- lme(lat~day+gentreatment, random=list(id=~1), data=revYoung, na.action=na.omit)
+summary(glht(mod.out, linfct=mcp(gentreatment = "Tukey")), 
+                             test = adjusted(type = "BH"))
+@
+
+
+
+<<censored_analysis, echo=FALSE>>=
+# dd <- read.delim("data/latlongyoung_rev.csv", sep=";")
+# dd <- read.delim("../data/latlongyoung_rev.csv", sep=";")
+dd <- read.delim("/Users/jespinosa/git/mwm/lib/R/report_jr/script/data/latlongyoung_rev.csv", sep=";")
+dd$day2 <- as.numeric(dd$day)
+dd$latency <- as.numeric(dd$day)
+dd$time <- rep(c(1:12),  length(unique(dd$id)))
+
+pData2 <- pdata.frame( dd, c( "id", "time" ) )
+
+mod2 <- censReg( latency ~ day2 + as.factor(gentreatment), 
+               data = pData2, method = "BHHH", left= -Inf, right=60 )
+
+mod2.2 <- censReg( latency ~ day2 + relevel(as.factor(gentreatment),2), 
+               data = pData2, method = "BHHH", left= -Inf, right=60 )
+summary(mod2)
+summary(mod2.2)
+
+@
+
+
+
+\newpage
+
+\subsection{Gallagher index}
+
+
+<<plot_rev_gall, echo=FALSE>>=
+
+p6 <- rxnNorm(gall.index ~ day, data = revYoung, groups = gentreatment,
+             cols = c("violet", "orange", "gray40", 
+                       "black"), freckles = FALSE, type = "fitLine", 
+              ylab=list(label="Gallagher Index  (cm)", cex=1.5), xlab = list(label="Day", cex=1.5), method="sem", scales=list(x=list(cex=1.5, at=c(1,2,3)), y=list(cex=1.5)), legend=NULL)
+# print(p)
+plotHandy(p6, as.character(levels(revYoung$gentreatment)), c("violet", "orange", "gray40", "black"), "group")
+@
+
+<<lme_model_gall_rev, echo=FALSE, eval=TRUE>>=
+
+modI.gall <- lme(gall.index~day:gentreatment, 
+          random=list(id=~1),
+          data=revYoung,
+          method="ML", na.action=na.omit)
+
+modF.gall <- lme(gall.index~day*gentreatment, 
+          random=list(id=~1),
+          data=revYoung,
+          method="ML", na.action=na.omit)
+modR.gall <- lme(gall.index~day+gentreatment , 
+          random=list(id=~1),
+          data=revYoung,
+          method="ML", na.action=na.omit)
+
+
+anova(modF.gall,modR.gall)
+@
+
+\noindent Here WTNEH20 is the reference category. P-value of interaction has to be considered for
+group comparisons
+
+\bigskip
+
+<<comparisons_WTNEH20_gall, echo=FALSE>>=
+
+pvals <- summary(modF.gall)$tTable
+print(xtable(pvals, label="pvals_WT", 
+            caption=c("Effect size and pvalues against WTNEH20 category"),
+            digits=c(0,2,2,0,2,2),
+            display=c("s", "f", "f", "f", "f", "e")), 
+            floating=FALSE,
+            include.rownames = TRUE,
+            caption.placement="top", 
+            file="tables/comparisons_WTNEH20_gall.tex")
+@
+
+
+\input{tables/comparisons_WTNEH20_gall}
+
+\bigskip
+\bigskip
+
+\noindent Here TSNEH20 is the reference category. P-value of interaction has to be considered for
+group comparisons
+
+\bigskip
+
+<<comparisons_TSNEH20_gall, echo=FALSE>>=
+
+revYoung$gentreatmentTS <- relevel(revYoung$gentreatment,2)
+modF.TS.gall <- lme(gall.index~day*gentreatmentTS, 
+          random=list(id=~1),
+          data=revYoung,
+          method="ML", na.action=na.omit)
+
+pvals <- summary(modF.TS.gall)$tTable
+print(xtable(pvals, label="pvals_WT", 
+            caption=c("Effect size and pvalues against TSNEH20 category"),
+            digits=c(0,2,2,0,2,2),
+            display=c("s", "f", "f", "f", "f", "e")), 
+            floating=FALSE,
+            include.rownames = TRUE,
+            caption.placement="top", 
+            file="tables/comparisons_TSNEH20_gall.tex")
+@
+
+
+\input{tables/comparisons_TSNEH20_gall}
+
+
+
+<<gall_manova_rev>>=
+mod.out <- lme(gall.index~day+gentreatment, random=list(id=~1), data=revYoung, na.action=na.omit)
+summary(glht(mod.out, linfct=mcp(gentreatment = "Tukey")), 
+                             test = adjusted(type = "BH"))
+@
+
+\newpage
+
+\subsection{Percentage in periphery}
+
+
+<<plot_rev_peri, echo=FALSE>>=
+
+p7 <- rxnNorm(per.peri ~ day, data = revYoung, groups = gentreatment,
+             cols = c("violet", "orange", "gray40", 
+                       "black"), freckles = FALSE, type = "fitLine", 
+              ylab=list(label="Percentage in periphery", cex=1.5), xlab = list(label="Day", cex=1.5), method="sem", scales=list(x=list(cex=1.5, at=c(1,2,3)), y=list(cex=1.5)), legend=NULL)
+# print(p)
+plotHandy(p7, as.character(levels(revYoung$gentreatment)), c("violet", "orange", "gray40", "black"), "group")
+@
+
+<<lme_model_peri_rev, echo=FALSE, eval=TRUE>>=
+
+modI.peri <- lme(per.peri~day:gentreatment, 
+          random=list(id=~1),
+          data=revYoung,
+          method="ML", na.action=na.omit)
+
+modF.peri <- lme(per.peri~day*gentreatment, 
+          random=list(id=~1),
+          data=revYoung,
+          method="ML", na.action=na.omit)
+modR.peri <- lme(per.peri~day+gentreatment , 
+          random=list(id=~1),
+          data=revYoung,
+          method="ML", na.action=na.omit)
+
+
+anova(modF.peri,modR.peri)
+@
+
+\noindent Here WTNEH20 is the reference category. P-value of interaction has to be considered for
+group comparisons
+
+\bigskip
+
+<<comparisons_WTNEH20_peri, echo=FALSE>>=
+
+pvals <- summary(modF.peri)$tTable
+print(xtable(pvals, label="pvals_WT", 
+            caption=c("Effect size and pvalues against WTNEH20 category"),
+            digits=c(0,2,2,0,2,2),
+            display=c("s", "f", "f", "f", "f", "e")), 
+            floating=FALSE,
+            include.rownames = TRUE,
+            caption.placement="top", 
+            file="tables/comparisons_WTNEH20_peri.tex")
+@
+
+
+\input{tables/comparisons_WTNEH20_peri}
+
+\bigskip
+\bigskip
+
+\noindent Here TSNEH20 is the reference category. P-value of interaction has to be considered for
+group comparisons
+
+\bigskip
+
+<<comparisons_TSNEH20_peri, echo=FALSE>>=
+
+revYoung$gentreatmentTS <- relevel(revYoung$gentreatment,2)
+modF.TS.peri <- lme(per.peri~day*gentreatmentTS, 
+          random=list(id=~1),
+          data=revYoung,
+          method="ML", na.action=na.omit)
+
+pvals <- summary(modF.TS.peri)$tTable
+print(xtable(pvals, label="pvals_WT", 
+            caption=c("Effect size and pvalues against TSNEH20 category"),
+            digits=c(0,2,2,0,2,2),
+            display=c("s", "f", "f", "f", "f", "e")), 
+            floating=FALSE,
+            include.rownames = TRUE,
+            caption.placement="top", 
+            file="tables/comparisons_TSNEH20_peri.tex")
+@
+
+
+\input{tables/comparisons_TSNEH20_peri}
+
+
+
+<<peri_manova_rev>>=
+mod.out <- lme(per.peri~day+gentreatment, random=list(id=~1), data=revYoung, na.action=na.omit)
+summary(glht(mod.out, linfct=mcp(gentreatment = "Tukey")), 
+                             test = adjusted(type = "BH"))
+@
+
+\newpage
+
+\subsection{Speed}
+
+
+<<plot_rev_speed, echo=FALSE>>=
+
+p8 <- rxnNorm(speed ~ day, data = revYoung, groups = gentreatment,
+             cols = c("violet", "orange", "gray40", 
+                       "black"), freckles = FALSE, type = "fitLine", 
+              ylab=list(label="Speed (cm/sec)", cex=1.5), xlab = list(label="Day", cex=1.5), method="sem", scales=list(x=list(cex=1.5, at=c(1,2,3)), y=list(cex=1.5)), legend=NULL)
+# print(p)
+plotHandy(p8, as.character(levels(revYoung$gentreatment)), c("violet", "orange", "gray40", "black"), "group")
+@
+
+<<lme_model_speed_rev, echo=FALSE, eval=TRUE>>=
+
+modI.speed <- lme(speed~day:gentreatment, 
+          random=list(id=~1),
+          data=revYoung,
+          method="ML", na.action=na.omit)
+
+modF.speed <- lme(speed~day*gentreatment, 
+          random=list(id=~1),
+          data=revYoung,
+          method="ML", na.action=na.omit)
+modR.speed <- lme(speed~day+gentreatment , 
+          random=list(id=~1),
+          data=revYoung,
+          method="ML", na.action=na.omit)
+
+
+anova(modF.speed,modR.speed)
+@
+
+\noindent Here WTNEH20 is the reference category. P-value of interaction has to be considered for
+group comparisons
+
+\bigskip
+
+<<comparisons_WTNEH20_speed_rev, echo=FALSE>>=
+
+pvals <- summary(modF.speed)$tTable
+print(xtable(pvals, label="pvals_WT", 
+            caption=c("Effect size and pvalues against WTNEH20 category"),
+            digits=c(0,2,2,0,2,2),
+            display=c("s", "f", "f", "f", "f", "e")), 
+            floating=FALSE,
+            include.rownames = TRUE,
+            caption.placement="top", 
+            file="tables/comparisons_WTNEH20_speed.tex")
+@
+
+
+\input{tables/comparisons_WTNEH20_speed}
+
+\bigskip
+\bigskip
+
+\noindent Here TSNEH20 is the reference category. P-value of interaction has to be considered for
+group comparisons
+
+\bigskip
+
+<<comparisons_TSNEH20_speed_rev, echo=FALSE>>=
+
+revYoung$gentreatmentTS <- relevel(revYoung$gentreatment,2)
+modF.TS.speed <- lme(speed~day*gentreatmentTS, 
+          random=list(id=~1),
+          data=revYoung,
+          method="ML", na.action=na.omit)
+
+pvals <- summary(modF.TS.speed)$tTable
+print(xtable(pvals, label="pvals_WT", 
+            caption=c("Effect size and pvalues against TSNEH20 category"),
+            digits=c(0,2,2,0,2,2),
+            display=c("s", "f", "f", "f", "f", "e")), 
+            floating=FALSE,
+            include.rownames = TRUE,
+            caption.placement="top", 
+            file="tables/comparisons_TSNEH20_speed.tex")
+@
+
+
+\input{tables/comparisons_TSNEH20_speed}
+
+
+
+<<speed_manova_rev>>=
+mod.out <- lme(speed~day+gentreatment, random=list(id=~1), data=revYoung, na.action=na.omit)
+summary(glht(mod.out, linfct=mcp(gentreatment = "Tukey")), 
+                             test = adjusted(type = "BH"))
+@
+
+
+\newpage
+
+\section{Removal Analysis}
+
+\subsection{Gallagher index}
+
+<<load_rem, echo=FALSE>>=
+assay3 <- subset(temp, DAY%in%"REM")
+@
+
+<<plot_rem_gall>>=
+boxplot(GALL_INDEX~gentreatment, data=assay3, col=c("violet", "orange", "gray40", 
+                       "black"), ylab="Gallagher index (cm)")
+@
+
+<<gall_manova_rem>>=
+mod.out <- lm(GALL_INDEX~gentreatment, data=assay3, na.action=na.omit)
+summary(glht(mod.out, linfct=mcp(gentreatment = "Tukey")), 
+                             test = adjusted(type = "BH"))
+@
+
+<<gall_kruskall_rem>>=
+posthoc.kruskal.nemenyi.test(GALL_INDEX~gentreatment, data=assay3)
+@
+
+\newpage
+
+\subsection{Percentage target}
+
+
+<<plot_rem_perc_target>>=
+boxplot(PER_TARGET~gentreatment, data=assay3, col=c("violet", "orange", "gray40", 
+                       "black"), ylab="Percentage in the target quadrant")
+@
+
+<<perc_target_manova_rem>>=
+mod.out <- lm(PER_TARGET~gentreatment, data=assay3, na.action=na.omit)
+summary(glht(mod.out, linfct=mcp(gentreatment = "Tukey")), 
+                             test = adjusted(type = "BH"))
+@
+
+<<perc_target_kruskall_rem>>=
+posthoc.kruskal.nemenyi.test(PER_TARGET~gentreatment, data=assay3)
+@
+
+
+
+
+\end{document}
