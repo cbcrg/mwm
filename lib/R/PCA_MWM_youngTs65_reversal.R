@@ -11,6 +11,7 @@ home <- Sys.getenv("HOME")
 library("ggplot2")
 library("Hmisc")
 library("FactoMineR") #PCA
+library("cowplot")
 
 size_titles <- 18
 size_axis <- 14
@@ -382,13 +383,16 @@ PC1_rev1_3$genotype <- PC1_rev1_3$genotype_tt
 # PC1.rev3 <- subset(PC1_rev1_3,  day==3)
 PC1.rev1 <- subset(PC1_rev1_3,  day=="Session 1")
 PC1.rev3 <- subset(PC1_rev1_3,  day=="Session 3")
+box_plot_lab = "\n"
 
 boxPlots.PC1.rev1 <- ggplot(PC1.rev1, aes (genotype, PC1, fill = genotype)) + 
   geom_boxplot(show.legend=FALSE) +
 #   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "green")) +
-  labs(title = "Session 1 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
-  theme (legend.title=element_blank()) + 
+#   labs(title = "PC1 distribution\n") + xlab ("\nGroups") + ylab("PC1\n") +
+#   theme (legend.title=element_blank()) + 
+  labs(title = "\n") + xlab (box_plot_lab) + ylab("PC1\n") +
+  theme (legend.title=element_blank(), axis.text=element_blank()) +    
   # Same axis limits in day 1 and day 5
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
 #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-5.5, 9.5)) +
@@ -404,8 +408,10 @@ boxPlots.PC1.rev3 <- ggplot(PC1.rev3, aes (genotype, PC1, fill = genotype)) +
   geom_boxplot(show.legend=FALSE) +
 #   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "green")) +
-  labs(title = "Session 3 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
-  theme (legend.title=element_blank()) + 
+#   labs(title = "Session 3 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
+#   theme (legend.title=element_blank()) + 
+  labs(title = "\n") + xlab (box_plot_lab) + ylab("PC1\n") +
+  theme (legend.title=element_blank(), axis.text=element_blank()) +   
   # Same axis limits in day 1 and day 5
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
   scale_y_continuous(breaks=c(-6,-4,-2,0,2,4,6), limits=c(-6, 6)) #+
@@ -440,8 +446,10 @@ boxPlots.PC1.rev.facet <- ggplot(PC1_rev1_3, aes (genotype, PC1, fill = genotype
 #   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "black")) +
   scale_fill_manual(name = "Genotype", values=c("red", "darkgreen", "magenta", "green")) +
 #   scale_fill_manual(name = "Genotype", values=c("darkgreen", "black","magenta", "red", "magenta")) +
-  labs(title = "Session 1 PC1\n") + xlab ("\nGroups") + ylab("PC1\n") +
-  theme (legend.title=element_blank()) + 
+#   labs(title = "PC1 distribution\n") + xlab ("\nGroups") + ylab("PC1\n") +
+#   theme (legend.title=element_blank()) + 
+  labs(title = "PC1 distribution\n") + xlab (box_plot_lab) + ylab("PC1\n") +
+  theme (legend.title=element_blank(), axis.text=element_blank()) +     
   # Same axis limits in day 1 and day 5
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-6, 0.5)) +
   #   scale_y_continuous(breaks=c(-4,-2,0,2,4,6,8), limits=c(-5.5, 9.5)) +
