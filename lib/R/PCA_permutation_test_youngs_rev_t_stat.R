@@ -22,6 +22,9 @@ f_t_stat_only <- function (df_coord, gen_1 = "TS", gen_2 = "TSEEEGCG", acq_day=1
 # Data from Reversal young ts65dn group
 # Reversal data
 young_acq_7var <- read.table ("/Users/jespinosa/20151001_ts65_young_MWM/data/ts65_young_rev.csv", sep="\t")
+# Removing outlier
+young_rev_7var_no_130019287 <- subset (young_rev_7var, !id == "130019287") 
+young_rev_7var <- young_rev_7var_no_130019287
 
 young_acq_7var$gentreat <- factor(young_acq_7var$gentreat , levels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"), 
                                   labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"))
@@ -118,18 +121,70 @@ sign_threshold <- function (tbl_perm, day=5){
   return (df.t_stats)
 }
 
+sign_threshold_simple <- function (tbl_perm, day=5){
+  df.t_stats <- c()
+  
+  # In this way the order is given by the input table, easier
+  comparisons <- unique(tbl_perm$V4)
+  gentreat_pairs <- data.frame(do.call('rbind', strsplit(as.character(comparisons),'_',fixed=TRUE)))
+  
+  for (row in 1:length(gentreat_pairs [,1])) {
+    gr1 <- as.character(gentreat_pairs [row,1])
+    gr2 <- as.character(gentreat_pairs [row,2])
+    print (paste("===============",gr1, gr2, sep=" "))
+    list_sign_thr_real_t <- significance_perm_tbl (tbl_perm, gr1, gr2, a_day=day)     
+    sign_thr <- list_sign_thr_real_t[[1]]
+    real_t <- list_sign_thr_real_t[[2]]
+#     adj_sign_thr <- significance_perm_tbl_emp_adjusted (tbl_perm, gr1, gr2, a_day=day)
+    
+    v <- c (gr1, gr2, paste (gr1, gr2, sep="_vs_"), sign_thr, abs(real_t))
+    
+    df.t_stats <- rbind (df.t_stats, v)
+    colnames (df.t_stats) <- c ("gr1", "gr2", "comp", "sign_thresh",  "real_t")
+  } 
+  
+  df.t_stats <- as.data.frame (df.t_stats, row.names=F, stringsAsFactors = F)
+  df.t_stats$sign_thresh <- as.numeric (df.t_stats$sign_thresh)
+#   df.t_stats$adj_sign_thr <- as.numeric (df.t_stats$adj_sign_thr)
+  df.t_stats <- df.t_stats [order(df.t_stats$sign_thresh),]
+  row.names(df.t_stats) <- 1:nrow(df.t_stats)
+  return (df.t_stats)
+}
+
+
 ###################################
 # Reading results from 10000 permutations 3X for all comparisons
-tbl_1111_rev_day1 <- read.table ("/Users/jespinosa/20151001_ts65_young_MWM/tbl/PCA_t_statistic_reversal_1111_young_day1.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
-tbl_1111_rev_day3 <- read.table ("/Users/jespinosa/20151001_ts65_young_MWM/tbl/PCA_t_statistic_reversal_1111_young_day3.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
+# tbl_1111_rev_day1 <- read.table ("/Users/jespinosa/20151001_ts65_young_MWM/tbl/PCA_t_statistic_reversal_1111_young_day1.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
+# tbl_1111_rev_day3 <- read.table ("/Users/jespinosa/20151001_ts65_young_MWM/tbl/PCA_t_statistic_reversal_1111_young_day3.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
+
+# Reading results from 10000 permutations 3X for all comparisons
+# no outlier
+tbl_1111_rev_day1 <- read.table ("/Users/jespinosa/20151001_ts65_young_MWM/tbl/PCA_t_statistic_reversal_1111_young_day1_no_130019287.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
+tbl_1111_rev_day3 <- read.table ("/Users/jespinosa/20151001_ts65_young_MWM/tbl/PCA_t_statistic_reversal_1111_young_day3_no_130019287.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
 
 df.sign_threshold.rev.day3 <- sign_threshold (tbl_1111_rev_day3, day=3)
 df.sign_threshold.rev.day1 <- sign_threshold (tbl_1111_rev_day1, day=1)
 
+df.sign_threshold.rev.day3 <- sign_threshold_simple (tbl_1111_rev_day3, day=3)
+df.sign_threshold.rev.day1 <- sign_threshold_simple (tbl_1111_rev_day1, day=1)
+
+# The same changing sign
+f_t_stat_only (new_coord_real_lab, gen_1 = "TS", gen_2 = "WT", acq_day=1)
+f_t_stat_only (df_coord, gen_1 = "WT", gen_2 = "TS", acq_day=1)
+
+f_t_stat_only (new_coord_real_lab, gen_1 = "TS", gen_2 = "TSEEEGCG", acq_day=3)
+f_t_stat_only (new_coord_real_lab, gen_1 = "TSEEEGCG", gen_2 = "WT", acq_day=1)
+
 write.table(df.sign_threshold.rev.day3, file = paste(home, "/20151001_ts65_young_MWM/tbl", "/tbl_sign_thresh_perm_young_rev_3.csv", sep=""), 
+            sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
+## without outlier
+write.table(df.sign_threshold.rev.day3, file = paste(home, "/20151001_ts65_young_MWM/tbl", "/tbl_sign_thresh_perm_young_rev_3_no_130019287.csv", sep=""), 
             sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
 
 write.table(df.sign_threshold.rev.day1, file = paste(home, "/20151001_ts65_young_MWM/tbl", "/tbl_sign_thresh_perm_young_rev_1.csv", sep=""), 
+            sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
+## without outlier
+write.table(df.sign_threshold.rev.day1, file = paste(home, "/20151001_ts65_young_MWM/tbl", "/tbl_sign_thresh_perm_young_rev_1_no_130019287.csv", sep=""), 
             sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
 
 # This part is not used, we do not correct not needed

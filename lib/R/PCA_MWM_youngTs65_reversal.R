@@ -543,8 +543,8 @@ panel_boxPlots <- ggdraw() + draw_plot(p_cloud_rev1_3_facet_strips_coord, 0, .5,
   draw_plot_label(c("E", "F"), c(0, 0), c(1, 0.5), size = size_titles)
 panel_boxPlots
 
-ggsave (panel_boxPlots, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "panel_boxPlot_rev", img_format, sep=""), 
-        dpi=dpi_q, width=15, height=11)
+# ggsave (panel_boxPlots, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "panel_boxPlot_rev", img_format, sep=""), 
+#         dpi=dpi_q, width=15, height=11)
 # size 1100, 700
 
 
