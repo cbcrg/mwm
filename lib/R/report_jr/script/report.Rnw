@@ -381,6 +381,7 @@ summary(glht(mod.out, linfct=mcp(gentreatment = "Tukey")),
 # temp <- read.spss("data/Jtracks parameters Young TS_SUBCONJ_REV_R_FORMAT.sav", to.data.frame=TRUE)
 # temp <- read.spss("../data/Jtracks parameters Young TS_SUBCONJ_REV_R_FORMAT.sav", to.data.frame=TRUE)
 temp <- read.spss("/Users/jespinosa/git/mwm/lib/R/report_jr/script/data/Jtracks parameters Young TS_SUBCONJ_REV_R_FORMAT.sav", to.data.frame=TRUE)
+temp <- temp [c(1:400),]
 assay2 <- subset(temp, DAY%in%paste0("ACQ",1:5))
 assay2 <- subset (assay2, !ID == "130019287") 
 assay2$DAY <- as.numeric(assay2$DAY)
@@ -713,10 +714,9 @@ summary(glht(mod.out, linfct=mcp(gentreatment = "Tukey")),
 <<censored_analysis, echo=FALSE>>=
 # dd <- read.delim("data/latlongyoung_rev.csv", sep=";")
 # dd <- read.delim("../data/latlongyoung_rev.csv", sep=";")
-dd <- read.delim("/Users/jespinosa/git/mwm/lib/R/report_jr/script/data/latlongyoung_rev.csv", sep=";")
+dd <- read.delim("/Users/jespinosa/git/mwm/lib/R/report_jr/data/latlongyoung_rev.csv")
 dd <- subset (dd, !id == "130019287") 
 dd$day2 <- as.numeric(dd$day)
-dd$latency <- as.numeric(dd$day)
 dd$time <- rep(c(1:12),  length(unique(dd$id)))
 
 pData2 <- pdata.frame( dd, c( "id", "time" ) )
