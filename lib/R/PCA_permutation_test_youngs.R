@@ -131,24 +131,59 @@ sign_threshold <- function (tbl_perm, day=5){
   return (df.t_stats)
 }
 
+sign_threshold_simple <- function (tbl_perm, day=5){
+  df.t_stats <- c()
+  
+  # In this way the order is given by the input table, easier
+  comparisons <- unique(tbl_perm$V4)
+  gentreat_pairs <- data.frame(do.call('rbind', strsplit(as.character(comparisons),'_',fixed=TRUE)))
+  
+  for (row in 1:length(gentreat_pairs [,1])) {
+    gr1 <- as.character(gentreat_pairs [row,1])
+    gr2 <- as.character(gentreat_pairs [row,2])
+    print (paste("===============",gr1, gr2, sep=" "))
+    #return (list(sign_thr, real_t_stat))
+    list_sign_thr_real_t <- significance_perm_tbl (tbl_perm, gr1, gr2, a_day=day)
+    sign_thr <- list_sign_thr_real_t[[1]]
+    real_t <- list_sign_thr_real_t[[2]]
+    print(real_t)
+    adj_sign_thr <- significance_perm_tbl_emp_adjusted (tbl_perm, gr1, gr2, a_day=day)
+    
+    v <- c (gr1, gr2, paste (gr1, gr2, sep="_vs_"), sign_thr, abs(real_t))
+    
+    df.t_stats <- rbind (df.t_stats, v)
+    colnames (df.t_stats) <- c ("gr1", "gr2", "comp", "sign_thresh", "real_t")
+  } 
+  
+  df.t_stats <- as.data.frame (df.t_stats, row.names=F, stringsAsFactors = F)
+  df.t_stats$sign_thresh <- as.numeric (df.t_stats$sign_thresh)
+#   df.t_stats$adj_sign_thr <- as.numeric (df.t_stats$adj_sign_thr)
+  df.t_stats <- df.t_stats [order(df.t_stats$sign_thresh),]
+  row.names(df.t_stats) <- 1:nrow(df.t_stats)
+  return (df.t_stats)
+}
+
 ###################################
 # Reading results from 10000 permutations 3X for all comparisons
-tbl_1111_day1 <- read.table ("/Users/jespinosa/20151001_ts65_young_MWM/tbl/PCA_t_statistic_1111_day1.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
-tbl_1111_day5 <- read.table ("/Users/jespinosa/20151001_ts65_young_MWM/tbl/PCA_t_statistic_1111_day5.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
+# tbl_1111_day1 <- read.table ("/Users/jespinosa/20151001_ts65_young_MWM/tbl/PCA_t_statistic_1111_day1.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
+# tbl_1111_day5 <- read.table ("/Users/jespinosa/20151001_ts65_young_MWM/tbl/PCA_t_statistic_1111_day5.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
 
 ###################################
 # Reading results from 10000 permutations 3X for all comparisons without mice overperformint for double treated group 130019287
+# not outlier
 tbl_1111_day1 <- read.table ("/Users/jespinosa/20151001_ts65_young_MWM/tbl/PCA_t_statistic_1111_day1_no_130019287.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
 tbl_1111_day5 <- read.table ("/Users/jespinosa/20151001_ts65_young_MWM/tbl/PCA_t_statistic_1111_day5_no_130019287.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
 
 df.sign_threshold.day5 <- sign_threshold (tbl_1111_day5, day=5)
 df.sign_threshold.day1 <- sign_threshold (tbl_1111_day1, day=1)
 
+df.sign_threshold.day5 <- sign_threshold_simple (tbl_1111_day5, day=5)
+df.sign_threshold.day1 <- sign_threshold_simple (tbl_1111_day1, day=1)
+
 write.table(df.sign_threshold.day5, file = paste(home, "/20151001_ts65_young_MWM/tbl", "/tbl_sign_thresh_perm_5_pseudoT.csv", sep=""), 
             sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
 write.table(df.sign_threshold.day1, file = paste(home, "/20151001_ts65_young_MWM/tbl", "/tbl_sign_thresh_perm_1_pseudoT.csv", sep=""), 
             sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
-
 
 # This part is not used, we do not correct not needed
 # How to order make a data frame and order it by significance

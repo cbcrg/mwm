@@ -175,14 +175,16 @@ f_t_stat_only (df_coord, gen_1 = "WT", gen_2 = "TS", acq_day=1)
 f_t_stat_only (new_coord_real_lab, gen_1 = "TS", gen_2 = "TSEEEGCG", acq_day=3)
 f_t_stat_only (new_coord_real_lab, gen_1 = "TSEEEGCG", gen_2 = "WT", acq_day=1)
 
-write.table(df.sign_threshold.rev.day3, file = paste(home, "/20151001_ts65_young_MWM/tbl", "/tbl_sign_thresh_perm_young_rev_3.csv", sep=""), 
-            sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
+# write.table(df.sign_threshold.rev.day3, file = paste(home, "/20151001_ts65_young_MWM/tbl", "/tbl_sign_thresh_perm_young_rev_3.csv", sep=""), 
+#             sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
+
 ## without outlier
 write.table(df.sign_threshold.rev.day3, file = paste(home, "/20151001_ts65_young_MWM/tbl", "/tbl_sign_thresh_perm_young_rev_3_no_130019287.csv", sep=""), 
             sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
 
-write.table(df.sign_threshold.rev.day1, file = paste(home, "/20151001_ts65_young_MWM/tbl", "/tbl_sign_thresh_perm_young_rev_1.csv", sep=""), 
-            sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
+# write.table(df.sign_threshold.rev.day1, file = paste(home, "/20151001_ts65_young_MWM/tbl", "/tbl_sign_thresh_perm_young_rev_1.csv", sep=""), 
+#             sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
+
 ## without outlier
 write.table(df.sign_threshold.rev.day1, file = paste(home, "/20151001_ts65_young_MWM/tbl", "/tbl_sign_thresh_perm_young_rev_1_no_130019287.csv", sep=""), 
             sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
