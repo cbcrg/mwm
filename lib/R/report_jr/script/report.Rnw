@@ -60,6 +60,7 @@ library(grid)
 <<load_function, echo=FALSE>>=
 # dirty hack to solve the problem
 setwd("/Users/jespinosa/git/mwm/lib/R/report_jr/script")
+# I had to create the tables from rstudio otherwise it did not work
 
 getPvalDelta <- function(x, g1, g2) 
  {
@@ -115,6 +116,7 @@ getData <- function(x, group, outcome)
 # load("../data/Oct2014.RData")
 load("/Users/jespinosa/git/mwm/lib/R/report_jr/script/data/Oct2014.RData")
 assay1 <- latlong.y[grep("Day", latlong.y$day),]
+assay1 <- subset (assay1, !id == "130019287") 
 assay1$day <- as.numeric(assay1$day)
 assay1G <- groupedData( latency ~ day | id, data=assay1)
 @
@@ -144,7 +146,7 @@ plotHandy(p, as.character(levels(assay1$gentreatment)), c("violet", "orange", "g
 
 <<lme_model, echo=FALSE, eval=TRUE>>=
 
-
+# assay1G is generated from assay1, thus outlier mouse has been already filtered
 modI <- lme(latency~day:gentreatment, 
           random=list(id=~1),
           data=assay1G,
@@ -167,6 +169,7 @@ anova(modF,modR)
 <<cens_model, echo=FALSE, cache=TRUE>>=
 assay1$time <- rep(c(1:20),  length(unique(assay1$id)))
 
+# pData is generated from assay1, thus outlier mouse has been already filtered
 pData <- pdata.frame( assay1, c( "id", "time" ) )
 
 modC.un <- censReg( latency ~ day * gentreatment, 
@@ -379,6 +382,7 @@ summary(glht(mod.out, linfct=mcp(gentreatment = "Tukey")),
 # temp <- read.spss("../data/Jtracks parameters Young TS_SUBCONJ_REV_R_FORMAT.sav", to.data.frame=TRUE)
 temp <- read.spss("/Users/jespinosa/git/mwm/lib/R/report_jr/script/data/Jtracks parameters Young TS_SUBCONJ_REV_R_FORMAT.sav", to.data.frame=TRUE)
 assay2 <- subset(temp, DAY%in%paste0("ACQ",1:5))
+assay2 <- subset (assay2, !ID == "130019287") 
 assay2$DAY <- as.numeric(assay2$DAY)
 assay2G <- groupedData( GALL_INDEX ~ DAY | ID, data=assay2)
 @
@@ -683,6 +687,7 @@ summary(glht(mod.out, linfct=mcp(gentreatment = "Tukey")),
 # load("../data/Oct2014_REVdata.RData")
 load("/Users/jespinosa/git/mwm/lib/R/report_jr/script/data/Oct2014_REVdata.RData")
 revYoung$day <- as.numeric(revYoung$day)
+revYoung <- subset (revYoung, !id == "130019287") 
 @
 
 
@@ -709,6 +714,7 @@ summary(glht(mod.out, linfct=mcp(gentreatment = "Tukey")),
 # dd <- read.delim("data/latlongyoung_rev.csv", sep=";")
 # dd <- read.delim("../data/latlongyoung_rev.csv", sep=";")
 dd <- read.delim("/Users/jespinosa/git/mwm/lib/R/report_jr/script/data/latlongyoung_rev.csv", sep=";")
+dd <- subset (dd, !id == "130019287") 
 dd$day2 <- as.numeric(dd$day)
 dd$latency <- as.numeric(dd$day)
 dd$time <- rep(c(1:12),  length(unique(dd$id)))
@@ -1018,6 +1024,7 @@ summary(glht(mod.out, linfct=mcp(gentreatment = "Tukey")),
 
 <<load_rem, echo=FALSE>>=
 assay3 <- subset(temp, DAY%in%"REM")
+assay3 <- subset (assay3, !ID == "130019287") 
 @
 
 <<plot_rem_gall>>=
