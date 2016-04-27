@@ -68,11 +68,15 @@ head (young_rev_7var)
 young_rev_7var$gentreat <- gsub("H20", "", young_rev_7var$gentreat)
 young_rev_7var$gentreat <- gsub("NE", "", young_rev_7var$gentreat)
 young_rev_7var$day <- gsub("REV", "", young_rev_7var$day)
+
+# Removing outlier
+young_rev_7var_no_130019287 <- subset (young_rev_7var, !id == "130019287") 
+young_rev_7var <- young_rev_7var_no_130019287
 tbl4permutation <- young_rev_7var 
 tbl4permutation$day <- paste("Day", young_rev_7var$day)
 
 # Saving for permutation test
-# write.table(tbl4permutation, "/Users/jespinosa/20151001_ts65_young_MWM/data/ts65_young_rev.csv", sep="\t")
+# write.table(tbl4permutation, "/Users/jespinosa/20151001_ts65_young_MWM/data/ts65_young_rev_no_130019287.csv", sep="\t")
 
 # young_rev_7var$gentreat <- factor(young_acq_7var$gentreat , levels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"), 
 #                                   labels=c("WT", "TS", "WTEE", "TSEE", "WTEGCG", "TSEGCG", "WTEEEGCG", "TSEEEGCG"))
