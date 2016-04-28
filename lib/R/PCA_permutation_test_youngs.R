@@ -168,6 +168,17 @@ sign_threshold_simple <- function (tbl_perm, day=5){
 # tbl_1111_day1 <- read.table ("/Users/jespinosa/20151001_ts65_young_MWM/tbl/PCA_t_statistic_1111_day1.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
 # tbl_1111_day5 <- read.table ("/Users/jespinosa/20151001_ts65_young_MWM/tbl/PCA_t_statistic_1111_day5.csv", sep="\t", dec=".", header=F, stringsAsFactors=F)
 
+# df.sign_threshold.day5 <- sign_threshold (tbl_1111_day5, day=5)
+# df.sign_threshold.day1 <- sign_threshold (tbl_1111_day1, day=1)
+# 
+# df.sign_threshold.day5 <- sign_threshold_simple (tbl_1111_day5, day=5)
+# df.sign_threshold.day1 <- sign_threshold_simple (tbl_1111_day1, day=1)
+
+# write.table(df.sign_threshold.day5, file = paste(home, "/20151001_ts65_young_MWM/tbl", "/tbl_sign_thresh_perm_5_pseudoT.csv", sep=""), 
+#             sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
+# write.table(df.sign_threshold.day1, file = paste(home, "/20151001_ts65_young_MWM/tbl", "/tbl_sign_thresh_perm_1_pseudoT.csv", sep=""), 
+#             sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
+
 ###################################
 # Reading results from 10000 permutations 3X for all comparisons without mice overperformint for double treated group 130019287
 # not outlier
@@ -180,9 +191,9 @@ df.sign_threshold.day1 <- sign_threshold (tbl_1111_day1, day=1)
 df.sign_threshold.day5 <- sign_threshold_simple (tbl_1111_day5, day=5)
 df.sign_threshold.day1 <- sign_threshold_simple (tbl_1111_day1, day=1)
 
-write.table(df.sign_threshold.day5, file = paste(home, "/20151001_ts65_young_MWM/tbl", "/tbl_sign_thresh_perm_5_pseudoT.csv", sep=""), 
+write.table(df.sign_threshold.day5, file = paste(home, "/20151001_ts65_young_MWM/tbl", "/tbl_sign_thresh_perm_5_pseudoT_no_130019287.csv", sep=""), 
             sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
-write.table(df.sign_threshold.day1, file = paste(home, "/20151001_ts65_young_MWM/tbl", "/tbl_sign_thresh_perm_1_pseudoT.csv", sep=""), 
+write.table(df.sign_threshold.day1, file = paste(home, "/20151001_ts65_young_MWM/tbl", "/tbl_sign_thresh_perm_1_pseudoT_no_130019287.csv", sep=""), 
             sep="\t", row.names=FALSE, dec = ",", col.names=TRUE)
 
 # This part is not used, we do not correct not needed
