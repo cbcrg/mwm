@@ -286,6 +286,7 @@ img_format=".tiff"
 # ggsave (panel_pca, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", "panel_PCA_PlotSaved", img_format, sep=""), 
 #         dpi=dpi_q, width=14, height=11)
 
+
 plot_grid(pca_medians_acq_aspect_ratio_leg, p_circle_big_title, bar_plot_big_title, bars_plot_PC2_big_title,
           labels=c("A", "B", "C", "D"), size=14, ncol = 2)
 
@@ -763,8 +764,8 @@ img_2plots <- ggdraw() + draw_plot(p_cloud_acq1_5_facet_coord, 0, .5, 1, .5) +
 img_2plots
 
 # Save this way and directly open the combined panel in AI
-# ggsave (img_2plots, file=paste(home, "/20151001_ts65_young_MWM/figures/", "panel_boxPlot", img_format, sep=""), 
-#         dpi=dpi_q, width=14, height=11)
+ggsave (img_2plots, file=paste(home, "/20151001_ts65_young_MWM/figures/", "panel_boxPlot", img_format, sep=""), 
+        dpi=dpi_q, width=14, height=11)
 # size 1100, 700
 
 ###############################################
