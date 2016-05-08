@@ -90,7 +90,7 @@ wd <- getwd()
 # write.table(result_jk, file = paste(wd, "/jackknife_angles.csv", sep=""), sep="\t", row.names=FALSE, col.names=T)
 
 #################
-# PC2 jackknifing 
+# PC2 jackknifing -> each time one id is left out
 # PC2 original data
 ori_pc2<- get_pc (ma2, PC="Dim.2")
 
