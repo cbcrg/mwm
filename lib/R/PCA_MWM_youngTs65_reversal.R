@@ -168,11 +168,25 @@ pos_positions <- circle_plot [c(4,5,7), c(1,2)]
 angle <- seq(-pi, pi, length = 50)
 df.circle <- data.frame(x = sin(angle), y = cos(angle))
 
+## Plots circle for slides thesis
+neg_labels <- c("Distance", "Gallagher", "Latency", "% periphery")
+neg_positions[2,2] <- neg_positions[2,2] - 0.08 # Gallagher
+neg_positions[3,2] <- neg_positions[3,2] + 0.09 # Latency
+# neg_positions[4,2] <- neg_positions[4,2] - 0.2 # % periphery
+
+pos_labels <- c("Speed", "% SW", "Whishaw")
+# pos_positions [1,2] <- pos_positions[1,2] + 0.03 #speed
+pos_positions [2,2] <- pos_positions[2,2] + 0.07 #% SW
+# pos_positions [3,2] <- pos_positions[3,2] - 0.08 #% whishaw
+## Plots circle for slides thesis
+
 ## To have the same direction than the old mice reversal I change the direction on only the X axis  
 p_circle_plot <- ggplot(circle_plot) + 
   geom_segment (data=circle_plot, aes(x=0, y=0, xend=-Dim.1, yend=Dim.2), arrow=arrow(length=unit(0.2,"cm")), alpha=1, size=1, color="red") +
-  scale_x_continuous(limits=c(-1.8, 1.8), breaks=(c(-1,0,1))) +
-  scale_y_continuous(limits=c(-1.8, 1.8), breaks=(c(-1,0,1))) +
+#   scale_x_continuous(limits=c(-1.8, 1.8), breaks=(c(-1,0,1))) +
+#   scale_y_continuous(limits=c(-1.8, 1.8), breaks=(c(-1,0,1))) +
+  scale_x_continuous(limits=c(-2, 2), breaks=(c(-1,0,1))) +
+  scale_y_continuous(limits=c(-2, 2), breaks=(c(-1,0,1))) +
   geom_text (data=neg_positions, aes (x=-Dim.1, y=Dim.2, label=neg_labels, hjust=1.2), show.legend = FALSE, size=5) + 
   geom_text (data=pos_positions, aes (x=-Dim.1, y=Dim.2, label=pos_labels, hjust=-0.3), show.legend = FALSE, size=5) +
   geom_vline (xintercept = 0, linetype="dotted") +
@@ -190,6 +204,20 @@ p_circle_plot
 # ggsave (p_circle_plot, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
 # ggsave (p_circle_plot, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
 
+## Plots circle for slides thesis
+# size_titles <- 34
+# size_axis <- 28
+p_circle_big_title <- p_circle_plot + coord_fixed() +
+  theme(plot.title = element_text(size=size_titles)) + 
+  theme(axis.title.x = element_text(size=size_axis)) +
+  theme(axis.title.y = element_text(size=size_axis))
+p_circle_big_title
+# ggsave (p_circle_big_title, file=paste("/Users/jespinosa/Dropbox (CRG)/thesis_presentation/figures/PCA_eneuro/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
+
+## Plots circle for slides thesis
+################ Plots circle for slides thesis
+
+
 ############
 ## BARPLOT
 df.bars <- cbind (as.numeric(sort(res$var$coord[,1]^2/sum(res$var$coord[,1]^2)*100,decreasing=TRUE)), names(res$var$coord[,1])[order(res$var$coord[,1]^2,decreasing=TRUE)])
@@ -203,6 +231,9 @@ bars_plot <- ggplot (data=df.bars_to_plot, aes(x=index, y=value)) +
                      ylim (c(0, 71)) +
                      geom_bar (stat="identity", fill="gray", width=0.8) + 
                      labs (title = "Variable contribution to PC1\n", x = "", y="Contribution in %\n") +
+                     ## Plots circle for slides thesis
+                       scale_x_discrete (labels=c("Latency","Distance","Gallagher","Whishaw","% SW","Speed","% periphery")) +
+                     ## Plots circle for slides thesis
                      theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1) )
 bars_plot <- bars_plot + panel_border() + theme(panel.border = element_rect(colour = "black")) +
              ylim (c(0, 80)) +
@@ -212,6 +243,10 @@ bars_plot <- bars_plot + panel_border() + theme(panel.border = element_rect(colo
 
 #PLOT_paper
 # ggsave (bars_plot, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "bar_contribution.jpg", sep=""), dpi=900)
+
+## Plots circle for slides thesis
+# ggsave (bars_plot, file=paste("/Users/jespinosa/Dropbox (CRG)/thesis_presentation/figures/PCA_frontiers/", "bar_rev_contribution.jpg", sep=""), dpi=900)
+
 
 df.bars_PC2 <- cbind (as.numeric(sort(res$var$coord[,2]^2/sum(res$var$coord[,2]^2)*100,decreasing=TRUE)), names(res$var$coord[,2])[order(res$var$coord[,2]^2,decreasing=TRUE)])
 df.bars_to_plot_PC2 <- as.data.frame(df.bars_PC2)
@@ -227,6 +262,9 @@ df.bars_to_plot_PC2$index <- factor(df.bars_to_plot_PC2$index, levels = df.bars_
 bars_plot_PC2 <- ggplot (data=df.bars_to_plot_PC2, aes(x=index, y=value)) + 
   geom_bar (stat="identity", fill="gray", width=0.8) + 
   labs (title = "Variable contribution to PC2\n", x = "", y="Contribution in %\n") +
+  ## Plots circle for slides thesis
+  scale_x_discrete (labels=c("% periphery","Speed","% SW","Whishaw", "Gallagher","Distance", "Latency")) +
+  ## Plots circle for slides thesis
   theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1) )
 bars_plot_PC2 <- bars_plot_PC2 + panel_border() + theme(panel.border = element_rect(colour = "black"))
 
@@ -254,8 +292,23 @@ panel_pca <- ggdraw() + draw_plot (pca_medians_rev_aspect_ratio_leg, 0, .5, 0.5,
 panel_pca
 
 img_format=".tiff"
-ggsave (panel_pca, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "panel_PCA_reversal", img_format, sep=""), 
+# ggsave (panel_pca, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_reversal/", "panel_PCA_reversal", img_format, sep=""), 
+#         dpi=dpi_q, width=15, height=11)
+
+## Plots circle for slides thesis
+panel_pca <- ggdraw() + draw_plot (pca_medians_rev_aspect_ratio_leg, 0, .5, 0.5, .5) +
+  draw_plot (p_circle_big_title, 0.5, 0.5, 0.5, 0.5) +
+  draw_plot (bars_plot, 0, 0, 0.5, .5) +
+  draw_plot (bars_plot_PC2, 0.5, 0, 0.5, .5) +
+  #   draw_plot_label(c("A", "B", "C"), c(0, 0.5, 0), c(1, 1, 0.5), size = size_titles)
+  draw_plot_label(c("", "", "", ""), c(0, 0.5, 0, 0.5), c(1, 1, 0.5, 0.5), size = size_titles)
+panel_pca
+
+img_format=".tiff"
+ggsave (panel_pca, file=paste("/Users/jespinosa/Dropbox (CRG)/thesis_presentation/figures/PCA_eneuro/", "panel_PCA_reversal", img_format, sep=""), 
         dpi=dpi_q, width=15, height=11)
+19.73
+## Plots circle for slides thesis
 
 ###################################
 # Plot of supplementary individuals
