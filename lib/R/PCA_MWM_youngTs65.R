@@ -13,6 +13,9 @@ library("FactoMineR") #PCA
 # install.packages("cowplot")
 library("cowplot")
 
+dir_data <- paste (home, "/Dropbox (CRG)/backups_old_mac", sep="")
+
+# jtracks_data = spss.get(paste (dir_data, "/20151001_ts65_young_MWM/data/Jtracks parameters Young TS_SUBCONJ_REV_R_FORMAT.sav", sep=""))
 jtracks_data = spss.get(paste (home, "/20151001_ts65_young_MWM/data/Jtracks parameters Young TS_SUBCONJ_REV_R_FORMAT.sav", sep=""))
 #smart_data = spss.get(paste (home, "/20151001_ts65_young_MWM/data/Jtracks parameters Young TS_SUBCONJ.sav", sep=""))
 
@@ -57,6 +60,18 @@ young_acq_7var <- subset(young_acq, select=-c(GALL.DIST, PER.CENTER))
 # I set same labels than in the other script (frontiers)
 colnames(young_acq_7var) <- c("id", "gentreat","day", "distance", "gallindex", "latency", "speed", "percentne", "percentperi", "whishaw")
 head (young_acq_7var)
+
+## Table slides thesis presentation
+subset (jtracks_data_filt, gentreatment=="WTNEH20" & grepl("ACQ", DAY) & ID == 130014764)$LAT
+subset (jtracks_data_filt, gentreatment=="WTNEH20" & grepl("ACQ", DAY))$WISHAW
+tbl_for_slides <- subset (jtracks_data_filt, ID == 130014765 & grepl("ACQ", DAY))
+tbl_for_slides <- subset (jtracks_data_filt, ID == 130016803 & grepl("ACQ", DAY))
+tbl_for_slides <- subset (jtracks_data_filt, ID == 130016282 & grepl("ACQ", DAY))
+tbl_med_to_slide <- tbl_med_ind[1:20,]
+medians_WT <- subset (tbl_med_to_slide, gentreat == "WT")
+medians_TS <- subset (tbl_med_to_slide, gentreat == "TS")
+medians_WT
+medians_TS
 
 # Checking that actually speed decreases from day 4 to day 5
 # wt_5<- subset(young_acq_7var, day==5 & gentreat=="WT")
@@ -132,7 +147,7 @@ pca_medians_acq <- ggplot(pca2plot, aes(x=-Dim.1, y=-Dim.2, colour=gentreat )) +
   scale_color_manual(values=colors_new) +
   
   #                           geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show.legend = T)+
-  geom_text (aes (label=days), vjust=-0.5, hjust=1, size=4, show.legend = F)+
+  geom_text (aes (label=days), vjust=-0.5, hjust=1, size=6, show.legend = F)+
   theme(legend.key=element_rect(fill=NA)) +
   labs(title = "PCA of group medians\n", x = paste("\nPC1 (", var_PC1, "% of variance)", sep=""), 
        y=paste("PC2 (", var_PC2, "% of variance)\n", sep = "")) +
@@ -170,49 +185,98 @@ pca_medians_acq_aspect_ratio_leg <- pca_medians_acq_aspect_ratio_leg +
 #         "PCA_medians_NO_legend.jpg", sep=""), width = 9, height = 6, dpi=900)
 # ggsave (pca_medians_acq_aspect_ratio_big_title, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", 
 #                                                            "PCA_medians_NO_legend.jpg", sep=""), width = 15, height = 10, dpi=900)
-        
+# ggsave (pca_medians_acq_aspect_ratio_big_title, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", 
+#                                                            "PCA_medians_NO_legend.jpg", sep=""), width = 15, height = 10, dpi=900)                                                           
+
+#####################################
+## Plots trajectory for slides thesis
+size_titles <- 22
+size_axis <- 20
+
+pca_medians_acq_aspect_ratio_leg_thesis <- pca_medians_acq_aspect_ratio  + geom_path (size = 1, show.legend = T) +
+  #                                     guides(color=guide_legend(guide_legend(title = "Group"))) +
+  theme(legend.title=element_blank()) +                                     
+  theme(legend.text = element_text(size = 17)) +
+  theme(legend.position = c(0.87, 0.87))  
+pca_medians_acq_aspect_ratio_leg_thesis + coord_fixed() 
+pca_medians_acq_aspect_ratio_leg_thesis <- pca_medians_acq_aspect_ratio_leg_thesis + 
+  theme(axis.title.x = element_text(size=size_axis)) +
+  theme(axis.title.y = element_text(size=size_axis)) + 
+  panel_border() + theme(panel.border = element_rect(colour = "black")) + 
+  coord_fixed() 
+# ggsave (pca_medians_acq_aspect_ratio_leg_thesis, file=paste("/Users/jespinosa/Dropbox (CRG)/thesis_presentation/figures/PCA_eneuro/", 
+#                                                                 "PCA_medians_legend.png", sep=""), width = 15, height = 10, dpi=300)                                                           
+
 ### Circle Plot
-circle_plot <- as.data.frame (res$var$coord)
-labels_v <- row.names(res$var$coord)
+#####################################
+## Plots trajectory for slides thesis
+size_titles <- 18
+size_axis <- 14
 
-neg_labels <- labels_v [c(1,2,3,6)]
-neg_positions <- circle_plot [c(1,2,3,6), c(1,2)]
-
-# change positions for labels
-# neg_positions [2,2] <- neg_positions [2,2] - 0.03 
-# neg_positions [3,2] <- neg_positions [3,2] + 0
-# neg_positions [4,2] <- neg_positions [4,2] - 0.02
-
-pos_labels <- labels_v [c(4,5,7)]
-pos_positions <- circle_plot [c(4,5,7), c(1,2)]
-
-angle <- seq(-pi, pi, length = 50)
-df.circle <- data.frame(x = sin(angle), y = cos(angle))
-
-# PC1 and PC2 are reversed because to follow the same direction that in the other paper
-p_circle_plot <- ggplot(circle_plot) + 
-  geom_segment (data=circle_plot, aes(x=0, y=0, xend=-Dim.1, yend=-Dim.2), arrow=arrow(length=unit(0.2,"cm")), alpha=1, size=1, color="red") +
-#   xlim (c(-1.2, 1.2)) + ylim (c(-1.2, 1.2)) +
-  scale_x_continuous(limits=c(-1.8, 1.8), breaks=(c(-1,0,1))) +
-  scale_y_continuous(limits=c(-1.8, 1.8), breaks=(c(-1,0,1))) +
-  geom_text (data=neg_positions, aes (x=-Dim.1, y=-Dim.2, label=neg_labels, hjust=1.2), show.legend = FALSE, size=4) + 
-  geom_text (data=pos_positions, aes (x=-Dim.1, y=-Dim.2, label=pos_labels, hjust=-0.3), show.legend = FALSE, size=4) +
-  geom_vline (xintercept = 0, linetype="dotted") +
-  geom_hline (yintercept=0, linetype="dotted") +
-  labs (title = "PCA of the variables\n", x = paste("\nPC1 (", var_PC1, "% of variance)", sep=""), 
-        y=paste("PC2 (", var_PC2, "% of variance)\n", sep = "")) +
-  geom_polygon (data = df.circle, aes(x, y), alpha=1, colour="black", fill=NA, size=1)
-
-p_circle_big_title <- p_circle_plot + coord_fixed() +
-                      theme(plot.title = element_text(size=size_titles)) + 
-                      theme(axis.title.x = element_text(size=size_axis)) +
-                      theme(axis.title.y = element_text(size=size_axis))
-# No axis
-#                       theme(panel.border = element_blank(), axis.line = element_blank())
-p_circle_big_title <- p_circle_big_title + panel_border() + theme(panel.border = element_rect(colour = "black"))
-
+  circle_plot <- as.data.frame (res$var$coord)
+  labels_v <- row.names(res$var$coord)
+  
+  neg_labels <- labels_v [c(1,2,3,6)]
+  neg_positions <- circle_plot [c(1,2,3,6), c(1,2)]
+  
+  # change positions for labels
+  # neg_positions [2,2] <- neg_positions [2,2] - 0.03 
+  # neg_positions [3,2] <- neg_positions [3,2] + 0
+  # neg_positions [4,2] <- neg_positions [4,2] - 0.02
+  
+  pos_labels <- labels_v [c(4,5,7)]
+  pos_positions <- circle_plot [c(4,5,7), c(1,2)]
+  
+  angle <- seq(-pi, pi, length = 50)
+  df.circle <- data.frame(x = sin(angle), y = cos(angle))
+  
+  ## Plots circle for slides thesis
+  neg_labels <- c("Distance", "Gallagher", "Latency", "% periphery")
+  neg_positions[2,2] <- neg_positions[2,2] - 0.08 # Gallagher
+  neg_positions[3,2] <- neg_positions[3,2] + 0.06 # Latency
+  neg_positions[4,2] <- neg_positions[4,2] - 0.2 # % periphery
+  
+  pos_labels <- c("Speed", "% NE", "Whishaw")
+  pos_positions [1,2] <- pos_positions[1,2] + 0.03 #speed
+  pos_positions [2,2] <- pos_positions[2,2] - 0.01 #% ne
+  pos_positions [3,2] <- pos_positions[3,2] - 0.08 #% whishaw
+  ## Plots circle for slides thesis
+  
+  # size_txt_plot <- 6
+  size_txt_plot <- 4.8
+  ## Plots circle for slides thesis
+  
+  # PC1 and PC2 are reversed because to follow the same direction that in the other paper
+  p_circle_plot <- ggplot(circle_plot) + 
+    geom_segment (data=circle_plot, aes(x=0, y=0, xend=-Dim.1, yend=-Dim.2), arrow=arrow(length=unit(0.2,"cm")), alpha=1, size=1, color="red") +
+  #   xlim (c(-1.2, 1.2)) + ylim (c(-1.2, 1.2)) +
+  #   scale_x_continuous(limits=c(-1.8, 1.8), breaks=(c(-1,0,1))) +
+  #   scale_y_continuous(limits=c(-1.8, 1.8), breaks=(c(-1,0,1))) +
+    ## Plots circle for slides thesis
+    scale_x_continuous(limits=c(-2.3, 2.3), breaks=(c(-1,0,1))) +
+    scale_y_continuous(limits=c(-2.3, 2.3), breaks=(c(-1,0,1))) +
+    geom_text (data=neg_positions, aes (x=-Dim.1, y=-Dim.2, label=neg_labels, hjust=1.2), show.legend = FALSE, size=size_txt_plot) + 
+    geom_text (data=pos_positions, aes (x=-Dim.1, y=-Dim.2, label=pos_labels, hjust=-0.3), show.legend = FALSE, size=size_txt_plot) +
+    geom_vline (xintercept = 0, linetype="dotted") +
+    geom_hline (yintercept=0, linetype="dotted") +
+    labs (title = "PCA of the variables\n", x = paste("\nPC1 (", var_PC1, "% of variance)", sep=""), 
+          y=paste("PC2 (", var_PC2, "% of variance)\n", sep = "")) +
+    geom_polygon (data = df.circle, aes(x, y), alpha=1, colour="black", fill=NA, size=1)
+  
+  p_circle_big_title <- p_circle_plot + coord_fixed() +
+                        theme(plot.title = element_text(size=size_titles)) + 
+                        theme(axis.title.x = element_text(size=size_axis)) +                      
+                        theme(axis.title.y = element_text(size=size_axis))
+  # No axis
+  #                       theme(panel.border = element_blank(), axis.line = element_blank())
+  p_circle_big_title <- p_circle_big_title + panel_border() + theme(panel.border = element_rect(colour = "black"))
+  p_circle_big_title
 # ggsave (p_circle_plot, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", "circle_plot.jpg", sep=""), width = 6, height = 6, dpi=900)
 # ggsave (p_circle_big_title, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", "circle_plot.jpg", sep=""), width = 10, height = 10, dpi=900)
+
+#################################
+## Plots circle for slides thesis
+# ggsave (p_circle_big_title, file="/Users/jespinosa/Dropbox (CRG)/thesis_presentation/figures/PCA_eneuro/circle_plot.jpg", width = 6, height = 6, dpi=900)
 
 ############
 ## BARPLOT
@@ -227,6 +291,9 @@ bars_plot <- ggplot (data=df.bars_to_plot, aes(x=index, y=value)) +
   ylim (c(0, 80)) +
   geom_bar (stat="identity", fill="gray", width=0.8) + 
   labs (title = "Variable contribution to PC1\n", x = "", y="Contribution in %\n") +
+#   ## Plots circle for slides thesis
+    scale_x_discrete (labels=c("Latency", "Gallagher", "% periphery", "Whishaw","Distance", "% NE", "Speed")) +
+#   ## Plots circle for slides thesis
   theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1) )
 bars_plot
 
@@ -238,6 +305,9 @@ bar_plot_big_title <- bar_plot_big_title + panel_border() + theme(panel.border =
 #PLOT_paper
 # ggsave (bars_plot, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq", "bar_contribution.jpg", sep=""), dpi=900)
 # ggsave (bar_plot_big_title, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", "bar_contribution.jpg", sep=""), dpi=900)
+
+## Plots circle for slides thesis
+# ggsave (bar_plot_big_title, file="/Users/jespinosa/Dropbox (CRG)/thesis_presentation/figures/PCA_eneuro/bar_contribution.png", dpi=300)
 
 df.bars_PC2 <- cbind (as.numeric(sort(res$var$coord[,2]^2/sum(res$var$coord[,2]^2)*100,decreasing=TRUE)), names(res$var$coord[,2])[order(res$var$coord[,2]^2,decreasing=TRUE)])
 df.bars_to_plot_PC2 <- as.data.frame(df.bars_PC2)
@@ -254,6 +324,9 @@ bars_plot_PC2 <- ggplot (data=df.bars_to_plot_PC2, aes(x=index, y=value)) +
   ylim (c(0, 80)) +
   geom_bar (stat="identity", fill="gray", width=0.8) + 
   labs (title = "Variable contribution to PC2\n", x = "", y="Contribution in %\n") +
+  ## Plots circle for slides thesis
+  scale_x_discrete (labels=c("Speed", "Distance", "Whishaw", "% NE", "% periphery", "Gallagher", "Latency")) +
+  ## Plots circle for slides thesis
   theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1) )
 bars_plot_PC2 <- bars_plot_PC2 + panel_border() + theme(panel.border = element_rect(colour = "black"))
 
@@ -262,6 +335,9 @@ bars_plot_PC2_big_title <- bars_plot_PC2 + theme(plot.title = element_text(size=
   theme(axis.title.y = element_text(size=size_axis))
 
 bars_plot_PC2_big_title <- bars_plot_PC2_big_title + panel_border() + theme(panel.border = element_rect(colour = "black"))
+
+## Plots circle for slides thesis
+# ggsave (bars_plot_PC2_big_title, file="/Users/jespinosa/Dropbox (CRG)/thesis_presentation/figures/PCA_eneuro/bar_contribution_PC2.png", dpi=300)
 
 #PLOT_paper
 # Final version
@@ -276,7 +352,9 @@ panel_pca <- ggdraw() + draw_plot (pca_medians_acq_aspect_ratio_leg, 0, .5, 0.5,
              draw_plot (bar_plot_big_title, 0, 0, 0.5, .5) +
              draw_plot (bars_plot_PC2_big_title, 0.5, 0, 0.5, .5) +
 #              draw_plot_label(c("A", "B", "C"), c(0, 0.5, 0), c(1, 1, 0.5), size = size_titles)
-             draw_plot_label(c("A", "B", "C", "D"), c(0, 0.5, 0, 0.5), c(1, 1, 0.5, 0.5), size = size_titles)
+#              draw_plot_label(c("A", "B", "C", "D"), c(0, 0.5, 0, 0.5), c(1, 1, 0.5, 0.5), size = size_titles)
+             ## Plots circle for slides thesis
+             draw_plot_label(c(" ", " ", " ", " "), c(0, 0.5, 0, 0.5), c(1, 1, 0.5, 0.5), size = size_titles)
 panel_pca
 
 # This way the figure is ok
@@ -286,6 +364,9 @@ img_format=".tiff"
 # ggsave (panel_pca, file=paste(home, "/20151001_ts65_young_MWM/figures/fig_PCA_acq/", "panel_PCA_PlotSaved", img_format, sep=""), 
 #         dpi=dpi_q, width=14, height=11)
 
+## Plots circle for slides thesis
+# ggsave (panel_pca, file=paste("/Users/jespinosa/Dropbox (CRG)/thesis_presentation/figures/PCA_eneuro/", "panel_PCA_PlotSaved", ".png", sep=""), 
+#         dpi=300, width=14, height=11)
 
 plot_grid(pca_medians_acq_aspect_ratio_leg, p_circle_big_title, bar_plot_big_title, bars_plot_PC2_big_title,
           labels=c("A", "B", "C", "D"), size=14, ncol = 2)
@@ -306,23 +387,31 @@ new_coord$genotype <- factor(new_coord$genotype , levels=c("WT", "TS", "WTEEEGCG
                              labels=c("WT", "TS", "WTEEEGCG", "TSEEEGCG"))
   
 pca_plot_individuals <- ggplot (data=new_coord, aes (V1, V2)) + 
-  geom_text (aes(label=day, colour = genotype), size=5, show.legend = FALSE) +
+  geom_text (aes(label=day, colour = genotype), size=6, show.legend = FALSE) +
 #   scale_color_manual(values=c("red", "darkgreen", "magenta", "black")) +
   scale_color_manual(values=c("red", "darkgreen", "magenta", "green")) +
 #   xlim (c(-5, 10)) + ylim (c(-5, 5)) +
   scale_x_continuous (limits=c(-5, 10), breaks=seq(-5, 10, by=5)) +
   scale_y_continuous (limits=c(-5, 5), breaks=seq(-5, 5, by=5)) +
-  geom_path (data=pca2plot, aes(x=-Dim.1, y=-Dim.2, colour=gentreat),size = 1, show.legend = TRUE) +
+#   geom_path (data=pca2plot, aes(x=-Dim.1, y=-Dim.2, colour=gentreat),size = 1, show.legend = TRUE) +
+#   geom_point (data=pca2plot, aes(x=-Dim.1, y=-Dim.2, colour=gentreat),size = 4, show.legend = TRUE) +
 #   guides(color=guide_legend(guide_legend(title = "Group"))) +
   labs(title = "Individual as supplementary points, acquisition\n", x = paste("\nPC1 (", var_PC1, "% of variance)", sep=""), 
        y=paste("PC2 (", var_PC2, "% of variance)\n", sep = ""))  +
   theme (legend.title=element_blank()) + 
   coord_fixed()
 
-pca_plot_individuals
 
 #PLOT_paper
 # ggsave (pca_plot_individuals, file=paste(home, "/20151001_ts65_young_MWM/figures/", "PCA_individuals_acq", img_format, sep=""),
+#         height = 10, width = 10, dpi=dpi_q)
+## Plots individuals for slides thesis
+pca_plot_individuals_thesis <- pca_plot_individuals + panel_border() + theme(panel.border = element_rect(colour = "black")) +
+  theme(plot.title = element_text(size=size_titles)) + 
+  theme(axis.title.x = element_text(size=size_axis)) +
+  theme(axis.title.y = element_text(size=size_axis))
+
+# ggsave (pca_plot_individuals_thesis, file=paste("/Users/jespinosa/Dropbox (CRG)/thesis_presentation/figures/PCA_eneuro/", "PCA_individuals_acq_only_points", ".png", sep=""),
 #         height = 10, width = 10, dpi=dpi_q)
 
 head(new_coord)
@@ -763,9 +852,18 @@ img_2plots <- ggdraw() + draw_plot(p_cloud_acq1_5_facet_coord, 0, .5, 1, .5) +
               draw_plot_label(c("E", "F"), c(0, 0), c(1, 0.5), size = size_titles)
 img_2plots
 
+boxPlot_panel_thesis <- ggdraw() + draw_plot(p_cloud_acq1_5_facet_coord, 0, .5, 1, .5) +
+  draw_plot(boxPlots.PC1.line.stars, 0, 0, 1, .5) +
+            draw_plot_label(c("", ""), c(0, 0), c(1, 0.5), size = size_titles)
+  
+boxPlot_panel_thesis
+ggsave (boxPlot_panel_thesis, file=paste("/Users/jespinosa/Dropbox (CRG)/thesis_presentation/figures/PCA_eneuro/", 
+        "boxPlot_panel_thesis.png", sep=""), width = 15, height = 10, dpi=300)                                                           
+                                                            
+                                                            
 # Save this way and directly open the combined panel in AI
-ggsave (img_2plots, file=paste(home, "/20151001_ts65_young_MWM/figures/", "panel_boxPlot", img_format, sep=""), 
-        dpi=dpi_q, width=14, height=11)
+# ggsave (img_2plots, file=paste(home, "/20151001_ts65_young_MWM/figures/", "panel_boxPlot", img_format, sep=""), 
+#         dpi=dpi_q, width=14, height=11)
 # size 1100, 700
 
 ###############################################
